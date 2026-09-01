@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "src-hunter",
+  "owner": {
+    "name": "MyuriKanao",
+    "email": "sanaraj509@gmail.com",
+    "url": "https://github.com/MyuriKanao"
+  },
+  "metadata": {
+    "description": "SRC / crowd-testing / bug bounty vulnerability-hunting Claude Code skill repository",
+    "version": "1.1.0"
+  },
+  "plugins": [
+    {
+      "name": "src-hunter",
+      "source": ".",
+      "description": "Practical SRC / crowd-testing / bug bounty vulnerability-hunting workflow. 19 attack-class playbooks, 305 structured payloads, 263 WAF/EDR bypass variants, 2887 real HackerOne cases, 88,636 WooYun historical case statistics, and a fingerprint library for Chinese-stack components. Integrates the jshookmcp tool layer.",
+      "version": "1.1.0",
+      "homepage": "https://github.com/MyuriKanao/src-hunter-skill",
+      "category": "security",
+      "tags": [
+        "security",
+        "bug-bounty",
+        "src",
+        "hackerone",
+        "pentesting",
+        "vulnerability-hunting",
+        "waf-bypass",
+        "owasp"
+      ],
+      "license": "MIT"
+    }
+  ]
+}

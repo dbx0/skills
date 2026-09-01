@@ -1,0 +1,282 @@
+# Security/Reverse-Engineering/Penetration Technical Documentation Templates
+
+This file provides documentation templates for security projects such as reverse engineering, penetration testing, and vulnerability analysis. Once a task is complete, the AI should create a new document in the user's project directory and produce output following the corresponding template.
+
+---
+
+## 1. Reverse Engineering Report Template
+
+```markdown
+# [Target Name] Reverse Engineering Analysis Report
+
+> Analysis date: YYYY-MM-DD
+> Analyst: [AI / manual]
+> Toolchain: [jadx / IDA / radare2 / Frida / ...]
+
+## 1. Target Overview
+
+| Attribute | Value |
+|------|---|
+| Filename | |
+| File type | APK / ELF / PE / Mach-O / ... |
+| Size | |
+| MD5 | |
+| SHA256 | |
+| Package name/entry | |
+
+## 2. Analysis Objective
+
+<!-- The core questions this reversing effort aims to answer -->
+
+## 3. Static Analysis
+
+### 3.1 Basic Information
+<!-- Architecture, compiler, protection mechanisms, string characteristics -->
+
+### 3.2 Key Functions/Classes
+<!-- List the key logic located, with code snippets -->
+
+### 3.3 Encryption/Signature Algorithm
+<!-- If encryption is involved, describe the algorithm, key source, parameter construction -->
+
+## 4. Dynamic Analysis
+
+### 4.1 Hook Records
+<!-- Targets and results of Frida / Xposed / other hooks -->
+
+### 4.2 Runtime Behavior
+<!-- Network requests, file operations, process behavior -->
+
+## 5. Core Findings
+
+<!-- List key conclusions with numbering -->
+
+1. ...
+2. ...
+3. ...
+
+## 6. Reproduction Steps
+
+<!-- Let others reproduce your analysis results -->
+
+```bash
+# Key commands
+```
+
+## 7. Outstanding Issues
+
+<!-- Points not fully resolved -->
+
+## 8. Attachments
+
+<!-- Hook scripts, decryption code, screenshots, etc. -->
+```
+
+---
+
+## 2. Penetration Test Report Template
+
+```markdown
+# [Target] Penetration Test Report
+
+> Test date: YYYY-MM-DD
+> Test scope: [URL / IP / application name]
+> Authorization status: [authorized / CTF / learning environment]
+
+## 1. Executive Summary
+
+<!-- One paragraph summary: what was tested, what was found, risk level -->
+
+## 2. Test Scope
+
+| Item | Details |
+|------|------|
+| Target | |
+| Test type | black box / gray box / white box |
+| Test time | |
+| Tools | |
+
+## 3. Findings Summary
+
+| # | Vulnerability name | Risk level | Status |
+|---|---------|---------|------|
+| 1 | | High/Medium/Low/Info | Verified/To be confirmed |
+
+## 4. Vulnerability Details
+
+### 4.1 [Vulnerability Name]
+
+**Risk level**: High / Medium / Low
+
+**Description**:
+
+**Impact**:
+
+**Reproduction steps**:
+
+1. ...
+2. ...
+3. ...
+
+**Evidence**:
+
+```
+<!-- Request/response/screenshot/payload -->
+```
+
+**Remediation advice**:
+
+## 5. Attack Path
+
+<!-- If there is a complete attack chain, diagram the path -->
+
+```
+Entry → Reconnaissance → Exploitation → Privilege escalation → Objective achieved
+```
+
+## 6. Tools and Environment
+
+| Tool | Version | Purpose |
+|------|------|------|
+| | | |
+
+## 7. Remediation Advice Summary
+
+| Priority | Advice |
+|--------|------|
+| P0 | |
+| P1 | |
+| P2 | |
+
+## 8. Appendix
+
+<!-- Full payloads, scripts, configuration files, etc. -->
+```
+
+---
+
+## 3. CTF Writeup Template
+
+```markdown
+# [Competition Name] - [Challenge Name] Writeup
+
+> Category: Web / Reverse / Pwn / Crypto / Misc / Forensics
+> Difficulty: Easy / Medium / Hard
+> Points: N pts
+> Solve time:
+
+## Challenge Description
+
+<!-- Original challenge description -->
+
+## Solution Approach
+
+### Step 1: Reconnaissance
+<!-- What was observed -->
+
+### Step 2: Vulnerability/Entry point
+<!-- What key point was found -->
+
+### Step 3: Exploitation
+<!-- How it was exploited -->
+
+## Key Code/Payload
+
+```python
+# exploit code
+```
+
+## Flag
+
+```
+flag{...}
+```
+
+## Pitfall Notes
+
+<!-- The wrong turns taken along the way -->
+
+## Knowledge Points
+
+<!-- The concepts involved in this challenge, for later review -->
+```
+
+---
+
+## 4. JS/Web Signature Reversing Report Template
+
+```markdown
+# [Site/Application] Signature Parameter Reversing Report
+
+> Analysis date: YYYY-MM-DD
+> Target endpoint: [URL]
+> Signature field: [field name]
+
+## 1. Target Request
+
+```http
+POST /api/xxx HTTP/1.1
+Host: example.com
+
+param1=xxx&sign=<target field>
+```
+
+## 2. Locating Process
+
+### 2.1 Breakpoint/Hook Method
+<!-- How the signature generation location was found -->
+
+### 2.2 Call Stack
+<!-- Key call chain -->
+
+## 3. Algorithm Reconstruction
+
+### 3.1 Algorithm Type
+<!-- HMAC-SHA256 / AES / custom / ... -->
+
+### 3.2 Parameter Construction
+<!-- Which fields participate in the signature, sorting rules, separators -->
+
+### 3.3 Key Source
+<!-- Hardcoded / returned by endpoint / derived from timestamp / ... -->
+
+## 4. Local Reproduction Code
+
+```javascript
+// Node.js reproduction
+```
+
+## 5. Verification Results
+
+<!-- Compare the signature generated by the reproduction code against the actual request -->
+
+## 6. Anti-Scraping/Risk-Control Notes
+
+<!-- Rate limiting, device fingerprinting, environment detection, etc. -->
+```
+
+---
+
+## 5. Documentation Output Specification
+
+### Output location
+
+- Documents are output by default to the **user's current project directory** (not the skill package directory)
+- Filename format: `YYYY-MM-DD_[type]-[target short name]-report.md`
+- If the user's project has a `docs/` directory, prefer placing it under `docs/`
+
+### Output timing
+
+The AI automatically calls this skill to generate documentation at the following times:
+
+1. A reverse-engineering task is complete and core conclusions have been produced
+2. A penetration test is complete and a vulnerability has been discovered and verified
+3. A CTF challenge is solved and the flag has been obtained
+4. The user explicitly asks to "write a report/document"
+
+### Quality requirements
+
+- Every code block must be directly runnable or have clear context
+- No placeholders/TODOs (if a section is genuinely incomplete, mark it "to be added" and explain why)
+- Key findings must be backed by evidence (command output, screenshot descriptions, code snippets)
+- Reproduction steps must let a third party reproduce them independently

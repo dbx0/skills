@@ -1,0 +1,316 @@
+{
+  "schema_version": "sskills/lightweight-specialist/v1",
+  "id": "request_smuggling_desync_assessment",
+  "version": "2.0.0",
+  "title": "HTTP Request Smuggling / Desync Specialist",
+  "description": "A lightweight specialist entrypoint that routes noisy request-smuggling signals to compact technique cards, safety gates, and structured output.",
+  "vulnerability_class": "http_request_smuggling_desync",
+  "signal_classes": [
+    "request_smuggling_desync_surface",
+    "request_smuggling_surface",
+    "http_request_smuggling_desync_candidate",
+    "desync_parser_differential",
+    "cl_te_ambiguity",
+    "te_cl_ambiguity",
+    "te_te_obfuscation",
+    "duplicate_content_length_discrepancy",
+    "invalid_content_length_discrepancy",
+    "h1_transfer_encoding_legacy_surface",
+    "cl_0_desync",
+    "0_cl_desync",
+    "h2_downgrade_desync",
+    "h2_cl_desync",
+    "h2_te_desync",
+    "h2_0_desync",
+    "http2_request_splitting",
+    "http3_downgrade_surface",
+    "pseudo_header_normalization_gap",
+    "hop_by_hop_header_confusion",
+    "trailer_te_confusion",
+    "expect_100_continue_desync",
+    "protocol_transition_smuggling",
+    "upgrade_connect_desync",
+    "request_tunnelling",
+    "connection_locked_smuggling",
+    "connection_state_attack",
+    "connection_reuse_queue_poisoning",
+    "response_queue_poisoning",
+    "host_authority_routing_desync",
+    "client_side_desync_surface",
+    "browser_powered_desync_surface",
+    "cache_poisoning_desync_chain",
+    "waf_bypass_desync_chain",
+    "api_gateway_desync_surface",
+    "cdn_origin_desync_surface",
+    "service_mesh_desync_surface",
+    "request_smuggling_chain",
+    "te_0_dechunking_smuggling",
+    "chunked_parser_differential",
+    "chunk_extension_smuggling",
+    "chunk_terminator_confusion",
+    "trailer_newline_request_joining",
+    "trace_assisted_desync",
+    "vh_hv_parser_discrepancy",
+    "h2c_cleartext_upgrade_smuggling",
+    "http3_connection_contamination",
+    "opportunistic_tls_upgrade_desync",
+    "response_header_removal_bypass",
+    "expect_complexity_bomb",
+    "double_desync_gadget"
+  ],
+  "aliases": [
+    "http request smuggling",
+    "request smuggling",
+    "http desync",
+    "desync attack",
+    "cl.te",
+    "te.cl",
+    "te.te",
+    "cl.0",
+    "0.cl",
+    "h2.cl",
+    "h2.te",
+    "h2.0",
+    "http/2 downgrade",
+    "h2 downgrade smuggling",
+    "te.0",
+    "dechunking smuggling",
+    "chunked parser differential",
+    "funky chunks",
+    "h2c smuggling",
+    "http/3 connection contamination",
+    "trace-assisted desync",
+    "opportunistic tls desync",
+    "rfc 2817 upgrade desync"
+  ],
+  "safety_posture": {
+    "authorized_testing_only": true,
+    "no_automatic_malformed_framing": true,
+    "no_victim_traffic": true,
+    "no_shared_cache_or_queue_poisoning_without_isolation": true,
+    "evidence_storage": "metadata_hash_shape_only"
+  },
+  "automation_policy": {
+    "can_generate_automatic_requests": false,
+    "allowed_methods": [
+      "GET",
+      "HEAD"
+    ],
+    "blocked_methods": [
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE"
+    ],
+    "payload_policy": "manual_approval_required",
+    "body_storage": "metadata_hash_shape_only",
+    "requires_human_approval_for": [
+      "malformed HTTP framing",
+      "ambiguous Content-Length or Transfer-Encoding tests",
+      "HTTP/2 downgrade probes",
+      "connection reuse probes",
+      "timing probes",
+      "queue poisoning checks",
+      "cache poisoning checks",
+      "h2c upgrade probes",
+      "HTTP/3 connection contamination checks",
+      "TRACE-assisted desync checks",
+      "opportunistic TLS upgrade checks",
+      "victim simulation",
+      "cross-user impact validation",
+      "callbacks",
+      "state changes",
+      "sensitive data access"
+    ]
+  },
+  "entrypoints": {
+    "router": "router.md",
+    "safety": "safety.md",
+    "output_schema": "output-schema.json",
+    "technique_index": "techniques/index.md"
+  },
+  "technique_cards": [
+    {
+      "slug": "overview",
+      "title": "Request Smuggling Overview",
+      "path": "techniques/overview.md"
+    },
+    {
+      "slug": "cl-te",
+      "title": "CL.TE",
+      "path": "techniques/cl-te.md"
+    },
+    {
+      "slug": "te-cl",
+      "title": "TE.CL",
+      "path": "techniques/te-cl.md"
+    },
+    {
+      "slug": "te-te",
+      "title": "TE.TE",
+      "path": "techniques/te-te.md"
+    },
+    {
+      "slug": "duplicate-content-length",
+      "title": "Duplicate Content-Length",
+      "path": "techniques/duplicate-content-length.md"
+    },
+    {
+      "slug": "invalid-content-length",
+      "title": "Invalid Content-Length",
+      "path": "techniques/invalid-content-length.md"
+    },
+    {
+      "slug": "cl-0",
+      "title": "CL.0",
+      "path": "techniques/cl-0.md"
+    },
+    {
+      "slug": "0-cl",
+      "title": "0.CL",
+      "path": "techniques/0-cl.md"
+    },
+    {
+      "slug": "h2-cl",
+      "title": "H2.CL",
+      "path": "techniques/h2-cl.md"
+    },
+    {
+      "slug": "h2-te",
+      "title": "H2.TE",
+      "path": "techniques/h2-te.md"
+    },
+    {
+      "slug": "h2-0",
+      "title": "H2.0",
+      "path": "techniques/h2-0.md"
+    },
+    {
+      "slug": "http2-request-splitting",
+      "title": "HTTP/2 Request Splitting",
+      "path": "techniques/http2-request-splitting.md"
+    },
+    {
+      "slug": "request-tunnelling",
+      "title": "HTTP Request Tunnelling",
+      "path": "techniques/request-tunnelling.md"
+    },
+    {
+      "slug": "response-queue-poisoning",
+      "title": "Response Queue Poisoning",
+      "path": "techniques/response-queue-poisoning.md"
+    },
+    {
+      "slug": "connection-locked",
+      "title": "Connection-Locked Request Smuggling",
+      "path": "techniques/connection-locked.md"
+    },
+    {
+      "slug": "connection-state",
+      "title": "Connection State Attack",
+      "path": "techniques/connection-state.md"
+    },
+    {
+      "slug": "client-side-desync",
+      "title": "Client-Side Desync",
+      "path": "techniques/client-side-desync.md"
+    },
+    {
+      "slug": "browser-powered-desync",
+      "title": "Browser-Powered Server-Side Desync",
+      "path": "techniques/browser-powered-desync.md"
+    },
+    {
+      "slug": "pause-based-desync",
+      "title": "Pause-Based Desync",
+      "path": "techniques/pause-based-desync.md"
+    },
+    {
+      "slug": "hop-by-hop",
+      "title": "Hop-By-Hop Header Confusion",
+      "path": "techniques/hop-by-hop.md"
+    },
+    {
+      "slug": "expect-100-continue",
+      "title": "Expect: 100-Continue / Interim Response",
+      "path": "techniques/expect-100-continue.md"
+    },
+    {
+      "slug": "protocol-transition",
+      "title": "Upgrade / CONNECT Optimistic Transition",
+      "path": "techniques/protocol-transition.md"
+    },
+    {
+      "slug": "http1-te",
+      "title": "HTTP/1.0 + Transfer-Encoding",
+      "path": "techniques/http1-te.md"
+    },
+    {
+      "slug": "http3-to-http1",
+      "title": "HTTP/3 to HTTP/1 Boundary",
+      "path": "techniques/http3-to-http1.md"
+    },
+    {
+      "slug": "cache-chain",
+      "title": "Cache Poisoning Desync Chain",
+      "path": "techniques/cache-chain.md"
+    },
+    {
+      "slug": "waf-parser-gap",
+      "title": "WAF / ACL Bypass via Parser Discrepancy",
+      "path": "techniques/waf-parser-gap.md"
+    },
+    {
+      "slug": "host-routing",
+      "title": "Host Routing / Virtual Host Desync",
+      "path": "techniques/host-routing.md"
+    },
+    {
+      "slug": "trailers",
+      "title": "Trailer and TE: Trailers Boundary",
+      "path": "techniques/trailers.md"
+    },
+    {
+      "slug": "te-0-dechunking",
+      "title": "TE.0 / Dechunking Smuggling",
+      "path": "techniques/te-0-dechunking.md"
+    },
+    {
+      "slug": "chunked-parser-differentials",
+      "title": "Chunked Parser Differentials",
+      "path": "techniques/chunked-parser-differentials.md"
+    },
+    {
+      "slug": "h2c-smuggling",
+      "title": "h2c Cleartext Upgrade Smuggling",
+      "path": "techniques/h2c-smuggling.md"
+    },
+    {
+      "slug": "http3-connection-contamination",
+      "title": "HTTP/3 Connection Contamination",
+      "path": "techniques/http3-connection-contamination.md"
+    },
+    {
+      "slug": "trace-assisted-desync",
+      "title": "TRACE-Assisted Desync Gadget",
+      "path": "techniques/trace-assisted-desync.md"
+    },
+    {
+      "slug": "rfc2817-opportunistic-tls",
+      "title": "Opportunistic TLS / RFC 2817 Desync",
+      "path": "techniques/rfc2817-opportunistic-tls.md"
+    }
+  ],
+  "retrieval_guidance": {
+    "default_entrypoints": [
+      "router.md",
+      "safety.md",
+      "output-schema.json"
+    ],
+    "load_technique_cards_after_router": true,
+    "max_technique_cards_per_assessment": 3,
+    "avoid_loading_all_technique_cards": true,
+    "use_sources_for_attribution_not_routing": true
+  },
+  "sources_file": "sources.json"
+}

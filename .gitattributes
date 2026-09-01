@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.pdf binary
+*.jar binary
+*.apk binary
+*.so binary
+*.zip binary
+
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Keep vendored subtrees out of language stats
+skills/_infra/** linguist-vendored

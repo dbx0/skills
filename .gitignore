@@ -1,0 +1,63 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/local/
+CLAUDE.local.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Build output
+build/
+dist/
+target/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+
+# Engagement artifacts - NEVER commit client data
+loot/
+evidence/
+engagements/
+scope/
+reports/
+findings/
+*.pcap
+*.pcapng
+*.apk
+*.ipa
+*.dex
+*.har
+*.kdbx
+*.pem
+*.key
+*.p12
+*.jks
+*.ovpn
+id_rsa*
+nuclei-output/
+scan-results/

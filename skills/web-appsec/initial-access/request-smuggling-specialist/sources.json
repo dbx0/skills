@@ -1,0 +1,1246 @@
+[
+  {
+    "id": "portswigger-academy-request-smuggling",
+    "title": "PortSwigger Web Security Academy - HTTP request smuggling",
+    "url": "https://portswigger.net/web-security/request-smuggling",
+    "publisher": "PortSwigger",
+    "type": "training",
+    "topics": [
+      "core",
+      "variants",
+      "impact"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-research-index",
+    "title": "PortSwigger HTTP Request Smuggling Research",
+    "url": "https://portswigger.net/research/request-smuggling",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "research_index",
+      "history"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-desync-reborn",
+    "title": "HTTP Desync Attacks: Request Smuggling Reborn",
+    "url": "https://portswigger.net/research/http-desync-attacks-request-smuggling-reborn",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "cl_te",
+      "te_cl",
+      "methodology"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-http2",
+    "title": "HTTP/2: The Sequel Is Always Worse",
+    "url": "https://portswigger.net/research/http2",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "http2",
+      "h2_downgrade"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-browser-powered",
+    "title": "Browser-Powered Desync Attacks",
+    "url": "https://portswigger.net/research/browser-powered-desync-attacks",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "browser_powered",
+      "client_side_desync"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-http1-must-die",
+    "title": "HTTP/1.1 must die: the desync endgame",
+    "url": "https://portswigger.net/research/http1-must-die",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "http1",
+      "parser_discrepancy",
+      "cl_0",
+      "te_0",
+      "trace_desync",
+      "v_h_h_v",
+      "chunk_extensions",
+      "chunk_terminator_parsing",
+      "h2c",
+      "http3_connection_contamination"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "portswigger-http2-downgrading",
+    "title": "HTTP/2 downgrading",
+    "url": "https://portswigger.net/web-security/request-smuggling/advanced/http2-downgrading",
+    "publisher": "PortSwigger",
+    "type": "training",
+    "topics": [
+      "h2_cl",
+      "h2_te",
+      "downgrade"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-request-tunnelling",
+    "title": "HTTP request tunnelling",
+    "url": "https://portswigger.net/web-security/request-smuggling/advanced/request-tunnelling",
+    "publisher": "PortSwigger",
+    "type": "training",
+    "topics": [
+      "request_tunnelling"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-browser-section",
+    "title": "Browser-powered request smuggling",
+    "url": "https://portswigger.net/web-security/request-smuggling/browser",
+    "publisher": "PortSwigger",
+    "type": "training",
+    "topics": [
+      "browser_powered",
+      "cl_0",
+      "pause_based"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-client-side-desync",
+    "title": "Client-side desync attacks",
+    "url": "https://portswigger.net/web-security/request-smuggling/browser/client-side-desync",
+    "publisher": "PortSwigger",
+    "type": "training",
+    "topics": [
+      "client_side_desync"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-pause-based",
+    "title": "Pause-based desync attacks",
+    "url": "https://portswigger.net/web-security/request-smuggling/browser/pause-based-desync",
+    "publisher": "PortSwigger",
+    "type": "training",
+    "topics": [
+      "pause_based",
+      "cl_0"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-false-false-positive",
+    "title": "Beware the false false-positive",
+    "url": "https://portswigger.net/research/how-to-distinguish-http-pipelining-from-request-smuggling",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "false_positive",
+      "pipelining",
+      "connection_reuse"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-http-request-smuggler",
+    "title": "HTTP Request Smuggler",
+    "url": "https://github.com/PortSwigger/http-request-smuggler",
+    "publisher": "PortSwigger",
+    "type": "tooling",
+    "topics": [
+      "tooling",
+      "scanner",
+      "parser_discrepancy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-turbo-intruder",
+    "title": "Turbo Intruder",
+    "url": "https://github.com/PortSwigger/turbo-intruder",
+    "publisher": "PortSwigger",
+    "type": "tooling",
+    "topics": [
+      "tooling",
+      "pause_based"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "cwe-444",
+    "title": "CWE-444: Inconsistent Interpretation of HTTP Requests",
+    "url": "https://cwe.mitre.org/data/definitions/444.html",
+    "publisher": "MITRE",
+    "type": "standard",
+    "topics": [
+      "classification"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9110",
+    "title": "RFC 9110 - HTTP Semantics",
+    "url": "https://www.rfc-editor.org/rfc/rfc9110",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "semantics",
+      "authority",
+      "connection"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9111",
+    "title": "RFC 9111 - HTTP Caching",
+    "url": "https://www.rfc-editor.org/rfc/rfc9111",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "cache"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9112",
+    "title": "RFC 9112 - HTTP/1.1",
+    "url": "https://www.rfc-editor.org/rfc/rfc9112",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "http1",
+      "framing",
+      "transfer_encoding",
+      "content_length"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9113",
+    "title": "RFC 9113 - HTTP/2",
+    "url": "https://www.rfc-editor.org/rfc/rfc9113",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "http2",
+      "pseudo_headers",
+      "te_trailers"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9114",
+    "title": "RFC 9114 - HTTP/3",
+    "url": "https://www.rfc-editor.org/rfc/rfc9114",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "http3",
+      "quic"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9204",
+    "title": "RFC 9204 - QPACK",
+    "url": "https://www.rfc-editor.org/rfc/rfc9204",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "http3",
+      "qpack"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-7541",
+    "title": "RFC 7541 - HPACK",
+    "url": "https://www.rfc-editor.org/rfc/rfc7541",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "http2",
+      "hpack"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-8441",
+    "title": "RFC 8441 - Bootstrapping WebSockets with HTTP/2",
+    "url": "https://www.rfc-editor.org/rfc/rfc8441",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "websocket",
+      "http2"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9298",
+    "title": "RFC 9298 - Proxying UDP in HTTP",
+    "url": "https://www.rfc-editor.org/rfc/rfc9298",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "connect_udp",
+      "protocol_transition"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "rfc-9931",
+    "title": "RFC 9931 - Security Considerations for Optimistic Protocol Transitions in HTTP/1.1",
+    "url": "https://www.rfc-editor.org/rfc/rfc9931",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "upgrade",
+      "connect",
+      "optimistic_transition"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "aws-alb-docs",
+    "title": "AWS Application Load Balancer attributes",
+    "url": "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html",
+    "publisher": "AWS",
+    "type": "official_docs",
+    "topics": [
+      "alb",
+      "desync_mitigation_mode",
+      "http2"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "aws-alb-desync-blog",
+    "title": "AWS ALB desync mitigation mode",
+    "url": "https://aws.amazon.com/about-aws/whats-new/2020/08/application-and-classic-load-balancers-adding-defense-in-depth-with-introduction-of-desync-mitigation-mode/",
+    "publisher": "AWS",
+    "type": "official_docs",
+    "topics": [
+      "alb",
+      "desync_mitigation_mode"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "aws-alb-header-modification",
+    "title": "AWS ALB header modification",
+    "url": "https://aws.amazon.com/about-aws/whats-new/2024/11/aws-application-load-balancer-header-modification-enhanced-traffic-control-security/",
+    "publisher": "AWS",
+    "type": "official_docs",
+    "topics": [
+      "alb",
+      "headers"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "cloudflare-pingora-2025",
+    "title": "Resolving a request smuggling vulnerability in Pingora",
+    "url": "https://blog.cloudflare.com/resolving-a-request-smuggling-vulnerability-in-pingora/",
+    "publisher": "Cloudflare",
+    "type": "vendor_advisory",
+    "topics": [
+      "pingora",
+      "cache_poisoning"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "cloudflare-pingora-2026",
+    "title": "Fixing request smuggling vulnerabilities in Pingora OSS deployments",
+    "url": "https://blog.cloudflare.com/pingora-oss-smuggling-vulnerabilities/",
+    "publisher": "Cloudflare",
+    "type": "vendor_advisory",
+    "topics": [
+      "pingora",
+      "http1",
+      "upgrade",
+      "transfer_encoding"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "cloudflare-http2-rapid-reset",
+    "title": "Cloudflare HTTP/2 Rapid Reset technical breakdown",
+    "url": "https://blog.cloudflare.com/technical-breakdown-http2-rapid-reset-ddos-attack/",
+    "publisher": "Cloudflare",
+    "type": "vendor_research",
+    "topics": [
+      "http2",
+      "framing",
+      "streams"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "cloudflare-cache-keys",
+    "title": "Cloudflare Cache Keys",
+    "url": "https://developers.cloudflare.com/cache/how-to/cache-keys/",
+    "publisher": "Cloudflare",
+    "type": "official_docs",
+    "topics": [
+      "cache",
+      "cache_key"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "akamai-http2-smuggling",
+    "title": "Akamai HTTP/2 Request Smuggling",
+    "url": "https://www.akamai.com/blog/security/http-2-request-smuggling",
+    "publisher": "Akamai",
+    "type": "vendor_research",
+    "topics": [
+      "http2",
+      "downgrade"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "akamai-browser-powered",
+    "title": "Akamai Has Addressed Browser-Powered Desync Attacks",
+    "url": "https://www.akamai.com/blog/security/akamai-has-addressed-browser-powered-desync-attacks",
+    "publisher": "Akamai",
+    "type": "vendor_advisory",
+    "topics": [
+      "browser_powered"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "akamai-cve-2025-32094",
+    "title": "CVE-2025-32094: HTTP Request Smuggling Via OPTIONS + Obsolete Line Folding",
+    "url": "https://www.akamai.com/blog/security/cve-2025-32094-http-request-smuggling",
+    "publisher": "Akamai",
+    "type": "vendor_advisory",
+    "topics": [
+      "obs_fold",
+      "expect_100",
+      "options"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "akamai-cve-2026-26365",
+    "title": "CVE-2026-26365: Connection: Transfer-Encoding",
+    "url": "https://www.akamai.com/blog/security-research/cve-2026-26365-incorrect-processing-connection-transfer-encoding",
+    "publisher": "Akamai",
+    "type": "vendor_advisory",
+    "topics": [
+      "hop_by_hop",
+      "connection_transfer_encoding"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "fastly-request-smuggling",
+    "title": "Fastly - What is HTTP Request Smuggling",
+    "url": "https://www.fastly.com/learning/security/what-is-http-request-smuggling",
+    "publisher": "Fastly",
+    "type": "vendor_reference",
+    "topics": [
+      "http2",
+      "h2_cl",
+      "h2_te"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "fastly-shielding",
+    "title": "Fastly Shielding",
+    "url": "https://www.fastly.com/documentation/guides/concepts/shielding/",
+    "publisher": "Fastly",
+    "type": "official_docs",
+    "topics": [
+      "cdn",
+      "shielding",
+      "origin"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "fastly-request-collapsing",
+    "title": "Fastly request collapsing",
+    "url": "https://www.fastly.com/documentation/guides/concepts/cache/request-collapsing/",
+    "publisher": "Fastly",
+    "type": "official_docs",
+    "topics": [
+      "cache",
+      "request_collapsing"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "envoy-protocol-options",
+    "title": "Envoy protocol options",
+    "url": "https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/core/v3/protocol.proto.html",
+    "publisher": "Envoy",
+    "type": "official_docs",
+    "topics": [
+      "allow_chunked_length",
+      "trailers"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "envoy-header-validator",
+    "title": "Envoy default Header Validator",
+    "url": "https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/http/header_validators/envoy_default/v3/header_validator.proto",
+    "publisher": "Envoy",
+    "type": "official_docs",
+    "topics": [
+      "header_validation",
+      "http1",
+      "http2",
+      "http3"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "envoy-http-connection-manager",
+    "title": "Envoy HTTP connection manager",
+    "url": "https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/http_conn_man",
+    "publisher": "Envoy",
+    "type": "official_docs",
+    "topics": [
+      "hcm",
+      "proxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "envoy-headers",
+    "title": "Envoy HTTP header manipulation",
+    "url": "https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_conn_man/headers.html",
+    "publisher": "Envoy",
+    "type": "official_docs",
+    "topics": [
+      "headers",
+      "scheme",
+      "authority"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "haproxy-manual",
+    "title": "HAProxy Configuration Manual",
+    "url": "https://www.haproxy.com/documentation/haproxy-configuration-manual/new/latest/",
+    "publisher": "HAProxy",
+    "type": "official_docs",
+    "topics": [
+      "te_cl",
+      "connection_reuse",
+      "http_reuse"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "haproxy-cve-2021-40346",
+    "title": "HAProxy CVE-2021-40346 duplicate Content-Length",
+    "url": "https://www.haproxy.com/blog/september-2021-duplicate-content-length-header-fixed",
+    "publisher": "HAProxy",
+    "type": "vendor_advisory",
+    "topics": [
+      "duplicate_content_length"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "haproxy-cve-2023-25725",
+    "title": "HAProxy CVE-2023-25725 header parser fixed",
+    "url": "https://www.haproxy.com/blog/february-2023-header-parser-fixed",
+    "publisher": "HAProxy",
+    "type": "vendor_advisory",
+    "topics": [
+      "transfer_encoding",
+      "parser"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "haproxy-cve-2023-40225",
+    "title": "HAProxy CVE-2023-40225 empty Content-Length",
+    "url": "https://www.haproxy.com/blog/august-2023-cve-2023-40225-empty-content-length-header-vulnerability-fixed",
+    "publisher": "HAProxy",
+    "type": "vendor_advisory",
+    "topics": [
+      "empty_content_length"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "haproxy-cve-2019-18277",
+    "title": "HAProxy HTTP request smuggling CVE-2019-18277",
+    "url": "https://nathandavison.com/blog/haproxy-http-request-smuggling",
+    "publisher": "Independent",
+    "type": "research",
+    "topics": [
+      "transfer_encoding",
+      "haproxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "apache-mod-proxy-http",
+    "title": "Apache mod_proxy_http",
+    "url": "https://httpd.apache.org/docs/current/mod/mod_proxy_http.html",
+    "publisher": "Apache",
+    "type": "official_docs",
+    "topics": [
+      "mod_proxy",
+      "proxy_sendcl",
+      "proxy_sendchunked"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "apache-vulnerabilities",
+    "title": "Apache HTTP Server 2.4 vulnerabilities",
+    "url": "https://httpd.apache.org/security/vulnerabilities_24.html",
+    "publisher": "Apache",
+    "type": "vendor_advisory",
+    "topics": [
+      "cve",
+      "mod_proxy",
+      "http2"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "apache-mod-proxy",
+    "title": "Apache mod_proxy",
+    "url": "https://httpd.apache.org/docs/current/mod/mod_proxy.html",
+    "publisher": "Apache",
+    "type": "official_docs",
+    "topics": [
+      "proxy",
+      "keepalive",
+      "http10"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "nginx-reverse-proxy",
+    "title": "NGINX reverse proxy guide",
+    "url": "https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/",
+    "publisher": "NGINX",
+    "type": "official_docs",
+    "topics": [
+      "reverse_proxy",
+      "upstream"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "nginx-request-processing",
+    "title": "NGINX request processing",
+    "url": "https://nginx.org/en/docs/http/request_processing.html",
+    "publisher": "NGINX",
+    "type": "official_docs",
+    "topics": [
+      "host",
+      "virtual_server"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "nginx-proxy-module",
+    "title": "NGINX proxy module",
+    "url": "https://nginx.org/en/docs/http/ngx_http_proxy_module.html",
+    "publisher": "NGINX",
+    "type": "official_docs",
+    "topics": [
+      "proxy_http_version",
+      "headers"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "varnish-reference",
+    "title": "Varnish Cache Reference",
+    "url": "https://varnish-cache.org/docs/",
+    "publisher": "Varnish",
+    "type": "official_docs",
+    "topics": [
+      "cache",
+      "proxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "varnish-vcl",
+    "title": "Varnish VCL",
+    "url": "https://varnish-cache.org/docs/trunk/users-guide/vcl.html",
+    "publisher": "Varnish",
+    "type": "official_docs",
+    "topics": [
+      "cache_key",
+      "vcl"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "node-http",
+    "title": "Node.js HTTP API",
+    "url": "https://nodejs.org/api/http.html",
+    "publisher": "Node.js",
+    "type": "official_docs",
+    "topics": [
+      "http_parser",
+      "headers"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "node-security-releases",
+    "title": "Node.js Security Releases",
+    "url": "https://nodejs.org/en/blog/vulnerability/",
+    "publisher": "Node.js",
+    "type": "vendor_advisory",
+    "topics": [
+      "http_parser",
+      "cve"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "go-net-http",
+    "title": "Go net/http",
+    "url": "https://pkg.go.dev/net/http",
+    "publisher": "Go",
+    "type": "official_docs",
+    "topics": [
+      "http_parser",
+      "server"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "go-security-policy",
+    "title": "Go Security Policy",
+    "url": "https://go.dev/security/policy",
+    "publisher": "Go",
+    "type": "official_docs",
+    "topics": [
+      "security",
+      "advisory"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "caddy-reverse-proxy",
+    "title": "Caddy reverse_proxy directive",
+    "url": "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy",
+    "publisher": "Caddy",
+    "type": "official_docs",
+    "topics": [
+      "reverse_proxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "iis-request-filtering",
+    "title": "IIS Request Filtering",
+    "url": "https://learn.microsoft.com/en-us/iis/configuration/system.webServer/security/requestFiltering/",
+    "publisher": "Microsoft",
+    "type": "official_docs",
+    "topics": [
+      "iis",
+      "filtering"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "kestrel-limits",
+    "title": "Kestrel server limits",
+    "url": "https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options",
+    "publisher": "Microsoft",
+    "type": "official_docs",
+    "topics": [
+      "kestrel",
+      "limits"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "kubernetes-ingress",
+    "title": "Kubernetes Ingress",
+    "url": "https://kubernetes.io/docs/concepts/services-networking/ingress/",
+    "publisher": "Kubernetes",
+    "type": "official_docs",
+    "topics": [
+      "ingress",
+      "proxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "kubernetes-gateway-api",
+    "title": "Kubernetes Gateway API",
+    "url": "https://gateway-api.sigs.k8s.io/",
+    "publisher": "Kubernetes",
+    "type": "official_docs",
+    "topics": [
+      "gateway",
+      "proxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "istio-gateway",
+    "title": "Istio Gateway",
+    "url": "https://istio.io/latest/docs/reference/config/networking/gateway/",
+    "publisher": "Istio",
+    "type": "official_docs",
+    "topics": [
+      "service_mesh",
+      "gateway"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "kong-gateway",
+    "title": "Kong Gateway documentation",
+    "url": "https://docs.konghq.com/gateway/",
+    "publisher": "Kong",
+    "type": "official_docs",
+    "topics": [
+      "api_gateway"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "traefik-entrypoints",
+    "title": "Traefik entryPoints",
+    "url": "https://doc.traefik.io/traefik/routing/entrypoints/",
+    "publisher": "Traefik",
+    "type": "official_docs",
+    "topics": [
+      "reverse_proxy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "owasp-wstg-config",
+    "title": "OWASP WSTG Configuration and Deployment Testing",
+    "url": "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing/",
+    "publisher": "OWASP",
+    "type": "standard",
+    "topics": [
+      "testing",
+      "configuration"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "owasp-api-top10",
+    "title": "OWASP API Security Top 10",
+    "url": "https://owasp.org/API-Security/",
+    "publisher": "OWASP",
+    "type": "standard",
+    "topics": [
+      "api",
+      "impact"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "owasp-top10-a05",
+    "title": "OWASP Top 10 A05 Security Misconfiguration",
+    "url": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+    "publisher": "OWASP",
+    "type": "standard",
+    "topics": [
+      "misconfiguration"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "bugcrowd-vrt",
+    "title": "Bugcrowd Vulnerability Rating Taxonomy",
+    "url": "https://github.com/bugcrowd/vulnerability-rating-taxonomy",
+    "publisher": "Bugcrowd",
+    "type": "reference",
+    "topics": [
+      "severity"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "first-cvss4",
+    "title": "FIRST CVSS v4.0 Specification",
+    "url": "https://www.first.org/cvss/specification-document",
+    "publisher": "FIRST",
+    "type": "standard",
+    "topics": [
+      "severity"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "waffled",
+    "title": "WAFFLED: Exploiting Parsing Discrepancies to Bypass Web Application Firewalls",
+    "url": "https://arxiv.org/abs/2503.10846",
+    "publisher": "arXiv",
+    "type": "research",
+    "topics": [
+      "waf",
+      "parsing_discrepancy"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "http-request-sync",
+    "title": "HTTP Request Synchronization Defeats Discrepancy Attacks",
+    "url": "https://arxiv.org/abs/2510.09952",
+    "publisher": "arXiv",
+    "type": "research",
+    "topics": [
+      "defense",
+      "synchronization"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "http3-security-study",
+    "title": "A hands-on gaze on HTTP/3 security",
+    "url": "https://arxiv.org/abs/2208.06722",
+    "publisher": "arXiv",
+    "type": "research",
+    "topics": [
+      "http3",
+      "security"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "whatwg-fetch",
+    "title": "WHATWG Fetch Standard",
+    "url": "https://fetch.spec.whatwg.org/",
+    "publisher": "WHATWG",
+    "type": "standard",
+    "topics": [
+      "browser",
+      "fetch",
+      "cors"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "mdn-connection",
+    "title": "MDN Connection header",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection",
+    "publisher": "MDN",
+    "type": "reference",
+    "topics": [
+      "hop_by_hop"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "mdn-transfer-encoding",
+    "title": "MDN Transfer-Encoding header",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding",
+    "publisher": "MDN",
+    "type": "reference",
+    "topics": [
+      "transfer_encoding"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "mdn-content-length",
+    "title": "MDN Content-Length header",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Length",
+    "publisher": "MDN",
+    "type": "reference",
+    "topics": [
+      "content_length"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "mdn-expect",
+    "title": "MDN Expect header",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect",
+    "publisher": "MDN",
+    "type": "reference",
+    "topics": [
+      "expect_100"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "mdn-http-cache",
+    "title": "MDN HTTP caching",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+    "publisher": "MDN",
+    "type": "reference",
+    "topics": [
+      "cache"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "cgisecurity-2005",
+    "title": "HTTP Request Smuggling original paper",
+    "url": "https://www.cgisecurity.com/lib/HTTP-Request-Smuggling.pdf",
+    "publisher": "Watchfire",
+    "type": "research",
+    "topics": [
+      "history",
+      "classic"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "a10-advisory",
+    "title": "A10 HTTP Request Smuggling advisory",
+    "url": "https://support.a10networks.com/wp-content/uploads/2022/05/HTTP-Request-Smuggling-2.pdf",
+    "publisher": "A10",
+    "type": "vendor_advisory",
+    "topics": [
+      "load_balancer",
+      "mitigation"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-26"
+  },
+  {
+    "id": "portswigger-trace-desync",
+    "title": "TRACE desync attack",
+    "url": "https://portswigger.net/research/trace-desync-attack",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "trace_desync",
+      "response_concatenation",
+      "request_tunnelling",
+      "response_header_removal"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "portswigger-http3-connection-contamination",
+    "title": "HTTP/3 connection contamination",
+    "url": "https://portswigger.net/research/http-3-connection-contamination",
+    "publisher": "PortSwigger",
+    "type": "research",
+    "topics": [
+      "http3",
+      "connection_contamination",
+      "connection_coalescing",
+      "first_request_routing"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "bugcrowd-te0-request-smuggling",
+    "title": "Unveiling TE.0 HTTP request smuggling",
+    "url": "https://www.bugcrowd.com/blog/unveiling-te-0-http-request-smuggling-discovering-a-critical-vulnerability-in-thousands-of-google-cloud-websites/",
+    "publisher": "Bugcrowd",
+    "type": "research",
+    "topics": [
+      "te_0",
+      "dechunking",
+      "cloud_edge",
+      "request_smuggling"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "w4ke-funky-chunks",
+    "title": "Funky chunks: abusing ambiguous chunked parsing",
+    "url": "https://w4ke.info/2025/06/18/funky-chunks.html",
+    "publisher": "w4ke",
+    "type": "research",
+    "topics": [
+      "chunked_parser_differential",
+      "chunk_extensions",
+      "chunk_terminator",
+      "te_te"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "w4ke-funky-chunks-addendum",
+    "title": "Funky chunks addendum: trailer and terminator variants",
+    "url": "https://w4ke.info/2025/10/29/funky-chunks-2.html",
+    "publisher": "w4ke",
+    "type": "research",
+    "topics": [
+      "trailer_newline",
+      "trail_term",
+      "term_trail",
+      "request_joining",
+      "chunk_spill"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "bishopfox-h2c-smuggling",
+    "title": "h2c Smuggling",
+    "url": "https://bishopfox.com/tools/h2c-smuggling",
+    "publisher": "Bishop Fox",
+    "type": "tooling",
+    "topics": [
+      "h2c",
+      "cleartext_upgrade",
+      "proxy_bypass",
+      "http2_connect"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "owasp-wstg-request-smuggling",
+    "title": "Testing for HTTP request smuggling",
+    "url": "https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/16-Testing_for_HTTP_Request_Smuggling",
+    "publisher": "OWASP",
+    "type": "standard",
+    "topics": [
+      "testing",
+      "request_smuggling",
+      "h2c",
+      "manual_validation"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "rfc-2817-http-upgrade-tls",
+    "title": "RFC 2817 - Upgrading to TLS Within HTTP/1.1",
+    "url": "https://www.rfc-editor.org/rfc/rfc2817",
+    "publisher": "IETF",
+    "type": "standard",
+    "topics": [
+      "upgrade",
+      "opportunistic_tls",
+      "http11",
+      "rfc2817"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  },
+  {
+    "id": "usenix-opossum-attack",
+    "title": "Opossum attack on opportunistic TLS upgrade handling",
+    "url": "https://www.usenix.org/conference/usenixsecurity26/presentation/merget",
+    "publisher": "USENIX",
+    "type": "research",
+    "topics": [
+      "opportunistic_tls",
+      "upgrade_desync",
+      "rfc2817",
+      "opossum"
+    ],
+    "primary": true,
+    "last_reviewed": "2026-05-27"
+  }
+]

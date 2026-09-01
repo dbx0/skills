@@ -1,0 +1,26 @@
+{
+  "schema_version": "sskills/request-smuggling-output/v1",
+  "required_fields": [
+    "status",
+    "variant_hypotheses",
+    "architecture_hypothesis",
+    "parser_boundary",
+    "required_evidence",
+    "false_positive_controls",
+    "safe_next_step",
+    "manual_gate_required"
+  ],
+  "status_values": [
+    "needs_more_evidence",
+    "hypothesis_ready",
+    "manual_proof_contract_required",
+    "discarded_false_positive",
+    "needs_specialized_review"
+  ],
+  "field_notes": {
+    "variant_hypotheses": "List at most three candidate technique card slugs.",
+    "parser_boundary": "Name the suspected boundary: CL, TE, TE.0/dechunking, chunked parser, implicit zero, H2 length, H3 connection state, pseudo-header, hop-by-hop, timeout, upgrade, CONNECT, or unknown.",
+    "safe_next_step": "One bounded next step, preferably passive or GET/HEAD inventory unless manual approval exists.",
+    "manual_gate_required": "true for any active request smuggling validation."
+  }
+}
