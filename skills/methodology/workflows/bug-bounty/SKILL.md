@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [bug-bounty, evidence, triage, reporting, h1, bugcrowd, intigriti]
-    related_skills: [bug-bounty-evidence, bug-bounty-triage, bug-bounty-reporting, bug-bounty-methodology]
+    related_skills: [bug-bounty-evidence, bug-bounty-triage, bug-bounty-reporting, bug-bounty-methodology, bugbounty-report-format]
 ---
 
 # Bug Bounty Methodology
@@ -20,6 +20,7 @@ This is the **umbrella skill** for bug bounty hunting. It covers the full lifecy
 - `bug-bounty-triage` — Finding validation before writing any report (7-Question framework)
 - `bug-bounty-reporting` — Bug bounty report writing for H1/Bugcrowd/Intigriti/Immunefi
 - `bug-bounty-methodology` — Use at the START of any bug bounty hunting session
+- `bugbounty-report-format` — The submission structure and prose rules: section order, attack path, `V1..Vn` validation blocks, proven-only discipline
 
 ## Quick Decision Guide
 
@@ -28,7 +29,9 @@ This is the **umbrella skill** for bug bounty hunting. It covers the full lifecy
 | Starting a new bug bounty session | `bug-bounty-methodology` |
 | Capturing evidence / PoC | `bug-bounty-evidence` |
 | Validating before reporting | `bug-bounty-triage` |
-| Writing the report | `bug-bounty-reporting` |
+| Writing the report | `bugbounty-report-format` |
+| Restructuring a draft that is too long or unreadable | `bugbounty-report-format` |
+| Choosing the VRT / severity to submit under | `vrt-classifier` |
 
 ## Skill Routing — Call the Right Skill for Every Situation
 
@@ -74,7 +77,11 @@ This is the **umbrella skill** for bug bounty hunting. It covers the full lifecy
 | Mid-engagement, suspect defensive detection/response kicking in | `mid-engagement-ir-detection` |
 | Capturing evidence / building a PoC | `bug-bounty-evidence` |
 | About to validate a finding before reporting it | `bug-bounty-triage` |
-| Writing the actual report | `bug-bounty-reporting` |
+| Writing the actual report | `bugbounty-report-format` |
+| Draft report is too long, or evidence is tangled up with the narrative | `bugbounty-report-format` |
+| Need an attack path or an "as an attacker I could" statement for a finding | `bugbounty-report-format`, `attack-chain` |
+| Picking the VRT entry, CWE or CVSS baseline | `vrt-classifier` |
+| A finding risks being misclassified by delivery mechanism rather than context | `vrt-classifier`, `bugbounty-report-format` |
 | Full pentest engagement (not pure bug bounty) | `pentest-playbook`, `pentest-tools` |
 
 ### Red Flags — You're About to Skip a Relevant Skill

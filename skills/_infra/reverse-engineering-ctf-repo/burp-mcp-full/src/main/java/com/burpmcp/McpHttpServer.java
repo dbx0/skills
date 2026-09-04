@@ -803,7 +803,7 @@ public class McpHttpServer extends NanoHTTPD {
     }
 
     private JsonObject proxyListeners(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("info", "Manage via Burp UI or export_config/import_config. Default: 127.0.0.1:8080"); return r; }
-    private JsonObject proxyMatchReplace(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("info", "Use export_config 鈫?modify proxy.match_replace_rules 鈫?import_config"); return r; }
+    private JsonObject proxyMatchReplace(JsonObject params) { JsonObject r = new JsonObject(); r.addProperty("info", "Use export_config -> modify proxy.match_replace_rules -> import_config"); return r; }
 
     private JsonObject targetInfo(JsonObject params) {
         JsonObject result = new JsonObject();
@@ -885,7 +885,7 @@ public class McpHttpServer extends NanoHTTPD {
 
     private JsonObject proxyClear(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "Proxy history cannot be cleared via API. Use Burp UI: Proxy 鈫?HTTP history 鈫?right-click 鈫?Clear history");
+        result.addProperty("info", "Proxy history cannot be cleared via API. Use Burp UI: Proxy -> HTTP history -> right-click -> Clear history");
         return result;
     }
 
@@ -1066,7 +1066,7 @@ public class McpHttpServer extends NanoHTTPD {
         JsonObject result = new JsonObject();
         try { String url = params.get("url").getAsString();
             api.scope().includeInScope(url);
-            result.addProperty("success", true); result.addProperty("message", "Added to scope. Start crawl from Burp Dashboard 鈫?New scan 鈫?Crawl only.");
+            result.addProperty("success", true); result.addProperty("message", "Added to scope. Start crawl from Burp Dashboard -> New scan -> Crawl only.");
         } catch (Exception e) { result.addProperty("error", e.getMessage()); }
         return result;
     }
@@ -1091,14 +1091,14 @@ public class McpHttpServer extends NanoHTTPD {
 
     private JsonObject exportCert(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "Export Burp CA cert: Proxy 鈫?Options 鈫?Import/Export CA certificate 鈫?Export Certificate in DER format");
+        result.addProperty("info", "Export Burp CA cert: Proxy -> Options -> Import/Export CA certificate -> Export Certificate in DER format");
         result.addProperty("path_hint", "Or visit http://burp/cert in browser with Burp proxy enabled");
         return result;
     }
 
     private JsonObject websocketSend(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "WebSocket message sending requires an active WS connection. Use browser with Burp proxy to establish WS, then intercept/modify via Proxy 鈫?WebSocket history.");
+        result.addProperty("info", "WebSocket message sending requires an active WS connection. Use browser with Burp proxy to establish WS, then intercept/modify via Proxy -> WebSocket history.");
         return result;
     }
 
@@ -1130,7 +1130,7 @@ public class McpHttpServer extends NanoHTTPD {
 
     private JsonObject saveProject(JsonObject params) {
         JsonObject result = new JsonObject();
-        result.addProperty("info", "Project auto-saves. Use Burp menu: Burp 鈫?Save project to save explicitly.");
+        result.addProperty("info", "Project auto-saves. Use Burp menu: Burp -> Save project to save explicitly.");
         return result;
     }
 

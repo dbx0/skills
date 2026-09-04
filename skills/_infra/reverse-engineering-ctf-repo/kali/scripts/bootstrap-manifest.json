@@ -2,26 +2,26 @@
   "platform": "kali-linux",
   "targetVersion": "2026.1",
   "kernel": "6.18",
-  "note": "Kali 2026.1 专供版 manifest。基于 2025.4 + 2026.1 新增工具优化。大量工具已预装，bootstrap 主要处理非预装工具和 MCP 注册。",
+  "note": "Manifest specific to Kali 2026.1, tuned for the tools added in 2025.4 and 2026.1. Most tools ship preinstalled, so bootstrap mainly handles the non-preinstalled ones and MCP registration.",
   "kaliNewTools2026_1": [
-    "adaptixc2 — 后渗透与对抗模拟框架 (apt install adaptixc2)",
-    "atomic-operator — Atomic Red Team 测试执行器 (apt install atomic-operator)",
-    "fluxion — WiFi 社工审计工具 (apt install fluxion)",
-    "gef — GDB 增强调试框架 (apt install gef)",
+    "adaptixc2 — post-exploitation and adversary simulation framework (apt install adaptixc2)",
+    "atomic-operator — Atomic Red Team test runner (apt install atomic-operator)",
+    "fluxion — WiFi social-engineering audit tool (apt install fluxion)",
+    "gef — enhanced GDB debugging framework (apt install gef)",
     "metasploitmcp — Metasploit MCP Server (apt install metasploitmcp)",
-    "sstimap — SSTI 自动检测工具 (apt install sstimap)",
-    "wpprobe — WordPress 插件枚举 (apt install wpprobe)",
-    "xsstrike — 高级 XSS 扫描器 (apt install xsstrike)"
+    "sstimap — automated SSTI detection tool (apt install sstimap)",
+    "wpprobe — WordPress plugin enumeration (apt install wpprobe)",
+    "xsstrike — advanced XSS scanner (apt install xsstrike)"
   ],
   "kaliNewTools2025_4": [
-    "bpf-linker — BPF 静态链接器 (apt install bpf-linker)",
-    "evil-winrm-py — Python 版 WinRM 远程执行 (apt install evil-winrm-py)",
-    "hexstrike-ai — AI MCP 安全自动化平台 (apt install hexstrike-ai)"
+    "bpf-linker — BPF static linker (apt install bpf-linker)",
+    "evil-winrm-py — WinRM remote execution in Python (apt install evil-winrm-py)",
+    "hexstrike-ai — AI MCP security automation platform (apt install hexstrike-ai)"
   ],
   "kaliNativeMCP": [
-    "mcp-kali-server — Kali 官方 MCP Server，连接 AI 到 Kali 终端 (apt install mcp-kali-server, port 5000)",
+    "mcp-kali-server — official Kali MCP server, connecting AI to the Kali terminal (apt install mcp-kali-server, port 5000)",
     "metasploitmcp — Metasploit MCP Server (apt install metasploitmcp, port 8085)",
-    "hexstrike-ai — 150+ 安全工具 MCP 自动化 (apt install hexstrike-ai)"
+    "hexstrike-ai — MCP automation for 150+ security tools (apt install hexstrike-ai)"
   ],
   "capabilities": [
     {
@@ -33,7 +33,7 @@
       "docsUrl": "https://github.com/skylot/jadx",
       "canAutoInstall": true,
       "verifyCommand": "jadx",
-      "kaliNote": "Kali 无预装，从 GitHub Release 下载"
+      "kaliNote": "Not preinstalled on Kali; download from the GitHub release"
     },
     {
       "name": "apktool",
@@ -46,7 +46,7 @@
       "docsUrl": "https://apktool.org/",
       "canAutoInstall": true,
       "verifyCommand": "apktool",
-      "kaliNote": "apt install apktool 即可，版本较旧时可从 GitHub 下载最新"
+      "kaliNote": "apt install apktool is enough; if that version is old, download the latest from GitHub"
     },
     {
       "name": "frida",
@@ -55,7 +55,7 @@
       "docsUrl": "https://frida.re/",
       "canAutoInstall": true,
       "verifyCommand": "frida",
-      "kaliNote": "pip3 install frida-tools 或 apt install python3-frida-tools"
+      "kaliNote": "pip3 install frida-tools, or apt install python3-frida-tools"
     },
     {
       "name": "frida-ps",
@@ -74,11 +74,11 @@
       "canAutoInstall": true,
       "verifyCommand": "ida-pro-mcp",
       "postInstallSteps": [
-        "ida-pro-mcp --install (选择 Streamable HTTP + Global)",
-        "重启 IDA Pro 使插件生效",
-        "IDA 打开文件后 MCP 自动监听 127.0.0.1:13337"
+        "ida-pro-mcp --install (choose Streamable HTTP + Global)",
+        "Restart IDA Pro so the plugin takes effect",
+        "Once IDA opens a file, MCP listens automatically on 127.0.0.1:13337"
       ],
-      "kaliNote": "需要 IDA Pro Linux 版本"
+      "kaliNote": "Requires the Linux build of IDA Pro"
     },
     {
       "name": "jshookmcp",
@@ -119,12 +119,12 @@
       "mcpUrl": "http://127.0.0.1:13337/mcp",
       "servicePort": 13337,
       "servicePortRange": [13337, 13350],
-      "portNote": "IDA 多实例时端口递增 (13337→13338→...)，检查 IDA Output 窗口的 [MCP] port=xxxxx 日志",
+      "portNote": "With multiple IDA instances the port increments (13337→13338→...); check the [MCP] port=xxxxx line in the IDA Output window",
       "startScript": "$SKILL_ROOT/../kali/scripts/ida-start.sh",
       "docsUrl": "https://hex-rays.com/ida-pro/",
       "canAutoInstall": true,
       "verificationMode": "service-and-registration",
-      "kaliNote": "需要 IDA Pro Linux 版，安装到 /opt/idapro/"
+      "kaliNote": "Requires the Linux build of IDA Pro, installed to /opt/idapro/"
     },
     {
       "name": "r2",
@@ -136,7 +136,7 @@
       "docsUrl": "https://github.com/radareorg/radare2",
       "canAutoInstall": true,
       "verifyCommand": "r2",
-      "kaliNote": "Kali 预装。如需最新版可从 GitHub 下载 .deb"
+      "kaliNote": "Preinstalled on Kali. For the newest version, download the .deb from GitHub"
     },
     {
       "name": "rabin2",
@@ -145,7 +145,7 @@
       "docsUrl": "https://github.com/radareorg/radare2",
       "canAutoInstall": true,
       "verifyCommand": "rabin2",
-      "kaliNote": "随 radare2 一起安装"
+      "kaliNote": "Installed together with radare2"
     },
     {
       "name": "adb",
@@ -177,15 +177,15 @@
       "canAutoInstall": true,
       "verifyCommand": "ghidra",
       "postInstallSteps": [
-        "下载 GhidraMCP 插件: https://github.com/LaurieWired/GhidraMCP/releases",
-        "将插件 zip 安装到 Ghidra: File → Install Extensions → 选择下载的 zip",
-        "MCP server 在 Ghidra 项目打开后自动监听 localhost:8765"
+        "Download the GhidraMCP plugin: https://github.com/LaurieWired/GhidraMCP/releases",
+        "Install the plugin zip into Ghidra: File → Install Extensions → select the downloaded zip",
+        "The MCP server listens on localhost:8765 once a Ghidra project is open"
       ],
       "mcpNames": ["ghidra"],
       "mcpUrl": "http://localhost:8765/mcp",
       "servicePort": 8765,
       "verificationMode": "service-or-registration",
-      "kaliNote": "apt install ghidra 或从 GitHub 下载"
+      "kaliNote": "apt install ghidra, or download from GitHub"
     },
     {
       "name": "seclists",
@@ -195,7 +195,7 @@
       "docsUrl": "https://github.com/danielmiessler/SecLists",
       "canAutoInstall": true,
       "verifyCommand": "",
-      "kaliNote": "apt install seclists，安装到 /usr/share/seclists/"
+      "kaliNote": "apt install seclists, which installs to /usr/share/seclists/"
     },
     {
       "name": "proxycat",
@@ -214,8 +214,8 @@
       "docsUrl": "https://portswigger.net/burp",
       "canAutoInstall": false,
       "verificationMode": "service-or-registration",
-      "manualInstallHint": "Kali 预装 BurpSuite，在扩展市场搜索 MCP 插件安装，启动后监听 localhost:9876",
-      "kaliNote": "Kali 预装 BurpSuite Community，MCP 插件需手动安装"
+      "manualInstallHint": "BurpSuite is preinstalled on Kali; search the extension marketplace for the MCP plugin, and once started it listens on localhost:9876",
+      "kaliNote": "BurpSuite Community is preinstalled on Kali; the MCP plugin must be installed manually"
     },
     {
       "name": "nmap",
@@ -224,7 +224,7 @@
       "docsUrl": "https://nmap.org/",
       "canAutoInstall": true,
       "verifyCommand": "nmap",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "sqlmap",
@@ -233,7 +233,7 @@
       "docsUrl": "https://sqlmap.org/",
       "canAutoInstall": true,
       "verifyCommand": "sqlmap",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "hashcat",
@@ -242,7 +242,7 @@
       "docsUrl": "https://hashcat.net/hashcat/",
       "canAutoInstall": true,
       "verifyCommand": "hashcat",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "hydra",
@@ -251,7 +251,7 @@
       "docsUrl": "https://github.com/vanhauser-thc/thc-hydra",
       "canAutoInstall": true,
       "verifyCommand": "hydra",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "gobuster",
@@ -260,7 +260,7 @@
       "docsUrl": "https://github.com/OJ/gobuster",
       "canAutoInstall": true,
       "verifyCommand": "gobuster",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "ffuf",
@@ -269,7 +269,7 @@
       "docsUrl": "https://github.com/ffuf/ffuf",
       "canAutoInstall": true,
       "verifyCommand": "ffuf",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "msfconsole",
@@ -278,7 +278,7 @@
       "docsUrl": "https://www.metasploit.com/",
       "canAutoInstall": true,
       "verifyCommand": "msfconsole",
-      "kaliNote": "Kali 预装"
+      "kaliNote": "Preinstalled on Kali"
     },
     {
       "name": "nuclei",
@@ -290,7 +290,7 @@
       "docsUrl": "https://github.com/projectdiscovery/nuclei",
       "canAutoInstall": true,
       "verifyCommand": "nuclei",
-      "kaliNote": "go install 或从 GitHub Release 下载"
+      "kaliNote": "go install, or download from the GitHub release"
     },
     {
       "name": "mcp-kali-server",
@@ -303,7 +303,7 @@
       "canAutoInstall": true,
       "verifyCommand": "kali-server-mcp",
       "verificationMode": "service-or-registration",
-      "kaliNote": "Kali 2026.1 官方收录。apt install 后用 kali-server-mcp 启动 API server，mcp-server 连接 AI 客户端。可直接调用 nmap/nxc/curl/gobuster 等任意终端工具。"
+      "kaliNote": "Officially included in Kali 2026.1. After apt install, start the API server with kali-server-mcp and connect AI clients with mcp-server. It can invoke any terminal tool directly, such as nmap/nxc/curl/gobuster."
     },
     {
       "name": "metasploitmcp",
@@ -318,7 +318,7 @@
       "canAutoInstall": true,
       "verifyCommand": "metasploitmcp",
       "verificationMode": "service-or-registration",
-      "kaliNote": "Kali 2026.1 新增。Metasploit Framework 的 MCP 接口，支持 HTTP 和 stdio 两种传输模式。"
+      "kaliNote": "New in Kali 2026.1. An MCP interface to the Metasploit Framework, supporting both HTTP and stdio transports."
     },
     {
       "name": "hexstrike-ai",
@@ -328,7 +328,7 @@
       "docsUrl": "https://github.com/0x4m4/hexstrike-ai",
       "canAutoInstall": true,
       "verifyCommand": "hexstrike-ai",
-      "kaliNote": "Kali 2025.4 新增。AI MCP 安全自动化平台，150+ 安全工具通过 MCP 协议暴露给 AI agent。"
+      "kaliNote": "New in Kali 2025.4. An AI MCP security automation platform exposing 150+ security tools to AI agents over the MCP protocol."
     },
     {
       "name": "adaptixc2",
@@ -337,7 +337,7 @@
       "docsUrl": "https://www.kali.org/tools/adaptixc2/",
       "canAutoInstall": true,
       "verifyCommand": "AdaptixServer",
-      "kaliNote": "Kali 2026.1 新增。可扩展后渗透与对抗模拟框架。"
+      "kaliNote": "New in Kali 2026.1. An extensible post-exploitation and adversary simulation framework."
     },
     {
       "name": "atomic-operator",
@@ -346,7 +346,7 @@
       "docsUrl": "https://www.kali.org/tools/atomic-operator/",
       "canAutoInstall": true,
       "verifyCommand": "atomic-operator",
-      "kaliNote": "Kali 2026.1 新增。跨平台执行 Atomic Red Team 测试用例。"
+      "kaliNote": "New in Kali 2026.1. Runs Atomic Red Team test cases across platforms."
     },
     {
       "name": "sstimap",
@@ -355,7 +355,7 @@
       "docsUrl": "https://github.com/vladko312/SSTImap",
       "canAutoInstall": true,
       "verifyCommand": "sstimap",
-      "kaliNote": "Kali 2026.1 新增。自动 SSTI（服务端模板注入）检测与利用。"
+      "kaliNote": "New in Kali 2026.1. Automated detection and exploitation of SSTI (server-side template injection)."
     },
     {
       "name": "xsstrike",
@@ -364,7 +364,7 @@
       "docsUrl": "https://github.com/s0md3v/XSStrike",
       "canAutoInstall": true,
       "verifyCommand": "xsstrike",
-      "kaliNote": "Kali 2026.1 新增。高级 XSS 扫描器，支持 DOM/反射/存储型检测。"
+      "kaliNote": "New in Kali 2026.1. An advanced XSS scanner covering DOM, reflected and stored detection."
     },
     {
       "name": "wpprobe",
@@ -373,7 +373,7 @@
       "docsUrl": "https://www.kali.org/tools/wpprobe/",
       "canAutoInstall": true,
       "verifyCommand": "wpprobe",
-      "kaliNote": "Kali 2026.1 新增。快速 WordPress 插件枚举工具。"
+      "kaliNote": "New in Kali 2026.1. A fast WordPress plugin enumeration tool."
     },
     {
       "name": "fluxion",
@@ -382,7 +382,7 @@
       "docsUrl": "https://www.kali.org/tools/fluxion/",
       "canAutoInstall": true,
       "verifyCommand": "fluxion",
-      "kaliNote": "Kali 2026.1 新增。WiFi 安全审计与社会工程研究工具。"
+      "kaliNote": "New in Kali 2026.1. A WiFi security auditing and social-engineering research tool."
     },
     {
       "name": "gef",
@@ -391,7 +391,7 @@
       "docsUrl": "https://www.kali.org/tools/gef/",
       "canAutoInstall": true,
       "verifyCommand": "gdb",
-      "kaliNote": "Kali 2026.1 新增。GDB Enhanced Features，现代化 GDB 调试体验。安装后 gdb 自动加载 GEF。"
+      "kaliNote": "New in Kali 2026.1. GDB Enhanced Features, a modernized GDB debugging experience. Once installed, gdb loads GEF automatically."
     },
     {
       "name": "evil-winrm-py",
@@ -400,7 +400,7 @@
       "docsUrl": "https://www.kali.org/tools/evil-winrm-py/",
       "canAutoInstall": true,
       "verifyCommand": "evil-winrm-py",
-      "kaliNote": "Kali 2025.4 新增。Python 版 WinRM 远程命令执行，用于 Windows 后渗透。"
+      "kaliNote": "New in Kali 2025.4. WinRM remote command execution in Python, for Windows post-exploitation."
     },
     {
       "name": "pentestswarm",
@@ -415,7 +415,7 @@
       "canAutoInstall": true,
       "verifyCommand": "pentestswarm",
       "dependencies": ["go", "postgres", "redis"],
-      "kaliNote": "群体智能渗透框架。go install 或 Docker 运行。支持 MCP server 模式（pentestswarm mcp serve）。需要 Claude/Ollama API key。"
+      "kaliNote": "A swarm-intelligence pentest framework. Run via go install or Docker. Supports MCP server mode (pentestswarm mcp serve). Requires a Claude or Ollama API key."
     },
     {
       "name": "coercer",
@@ -424,7 +424,7 @@
       "docsUrl": "https://www.kali.org/tools/coercer/",
       "canAutoInstall": true,
       "verifyCommand": "coercer",
-      "kaliNote": "Windows 认证强制工具，用于 AD 攻击中的 NTLM relay。"
+      "kaliNote": "A Windows authentication coercion tool, used for NTLM relay in AD attacks."
     }
   ]
 }

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# frida-run.sh — Frida 动态注入脚本
-# 等价于 Windows 版的 frida-run.ps1
+# frida-run.sh — Frida dynamic injection script
+# equivalent to the Windows version, frida-run.ps1
 #
-# 用法:
+# Usage:
 #   bash frida-run.sh --package <pkg> --script <js> [--usb] [--spawn]
 #   bash frida-run.sh --list-devices
 #   bash frida-run.sh --list-processes [--usb]
@@ -12,7 +12,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KALI_BOOTSTRAP="$(cd "$SCRIPT_DIR/../../../kali/scripts" 2>/dev/null && pwd)/bootstrap-reverse.sh"
 
-# ─── 参数 ──────────────────────────────────────────────────────────────────────────
+# ─── Arguments ──────────────────────────────────────────────────────────────────────────
 
 PACKAGE=""
 PROCESS=""
@@ -35,30 +35,30 @@ while [[ $# -gt 0 ]]; do
         --pause) PAUSE=true; shift ;;
         --list-devices) LIST_DEVICES=true; shift ;;
         --list-processes) LIST_PROCESSES=true; shift ;;
-        -*) echo "未知选项: $1"; exit 1 ;;
-        *) echo "未知参数: $1"; exit 1 ;;
+        -*) echo "Unknown option: $1"; exit 1 ;;
+        *) echo "Unknown argument: $1"; exit 1 ;;
     esac
 done
 
-# ─── 工具检测 ──────────────────────────────────────────────────────────────────────
+# ─── Tool detection ──────────────────────────────────────────────────────────────────────
 
 ensure_frida() {
     if command -v frida &>/dev/null; then
         return 0
     fi
-    echo "INFO: frida 未找到，尝试安装..."
+    echo "INFO: frida not found, attempting install..."
     if [[ -x "$KALI_BOOTSTRAP" ]]; then
         bash "$KALI_BOOTSTRAP" frida --skip-refresh 2>/dev/null || true
     fi
     if ! command -v frida &>/dev/null; then
-        echo "ERR: frida 不可用。安装: pip3 install frida-tools"
+        echo "ERR: frida unavailable. Install with: pip3 install frida-tools"
         exit 1
     fi
 }
 
 ensure_frida
 
-# ─── 列出设备 ──────────────────────────────────────────────────────────────────────
+# ─── List devices ──────────────────────────────────────────────────────────────────────
 
 if [[ "$LIST_DEVICES" == "true" ]]; then
     frida-ls-devices 2>/dev/null || python3 -c "
@@ -69,7 +69,7 @@ for d in frida.enumerate_devices():
     exit 0
 fi
 
-# ─── 列出进程 ──────────────────────────────────────────────────────────────────────
+# ─── List processes ──────────────────────────────────────────────────────────────────────
 
 if [[ "$LIST_PROCESSES" == "true" ]]; then
     if [[ "$USB" == "true" ]]; then
@@ -80,18 +80,18 @@ if [[ "$LIST_PROCESSES" == "true" ]]; then
     exit 0
 fi
 
-# ─── 注入执行 ──────────────────────────────────────────────────────────────────────
+# ─── Run injection ──────────────────────────────────────────────────────────────────────
 
 TARGET="${PACKAGE:-$PROCESS}"
 if [[ -z "$TARGET" ]]; then
-    echo "用法: $0 --package <pkg> --script <js> [--usb] [--spawn]"
-    echo "  或: $0 --list-devices"
-    echo "  或: $0 --list-processes [--usb]"
+    echo "Usage: $0 --package <pkg> --script <js> [--usb] [--spawn]"
+    echo "  or:  $0 --list-devices"
+    echo "  or:  $0 --list-processes [--usb]"
     exit 1
 fi
 
 if [[ -z "$SCRIPT_PATH" || ! -f "$SCRIPT_PATH" ]]; then
-    echo "ERR: Frida 脚本不存在: ${SCRIPT_PATH:-未指定}"
+    echo "ERR: Frida script does not exist: ${SCRIPT_PATH:-not specified}"
     exit 1
 fi
 
@@ -116,11 +116,11 @@ if [[ "$PAUSE" != "true" ]]; then
     FRIDA_ARGS+=("--no-pause")
 fi
 
-echo "=== Frida 注入 ==="
-echo "  目标: $TARGET"
-echo "  脚本: $SCRIPT_PATH"
-echo "  模式: $([ "$SPAWN" == "true" ] && echo "spawn" || echo "attach")"
-echo "  连接: $([ "$USB" == "true" ] && echo "USB" || echo "$REMOTE_HOST")"
+echo "=== Frida injection ==="
+echo "  Target: $TARGET"
+echo "  Script: $SCRIPT_PATH"
+echo "  Mode:   $([ "$SPAWN" == "true" ] && echo "spawn" || echo "attach")"
+echo "  Link:   $([ "$USB" == "true" ] && echo "USB" || echo "$REMOTE_HOST")"
 echo ""
 
 frida "${FRIDA_ARGS[@]}"

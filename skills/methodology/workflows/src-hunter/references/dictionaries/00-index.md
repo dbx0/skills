@@ -1,44 +1,44 @@
-# 字典 / 凭据 / 指纹合集
+# Wordlists, credentials and fingerprints
 
-> 区别于国际化的 H1 字典——本目录是**国产 SRC 战场**专用：CN 厂商默认凭据、CN 中间件 / OA / CMS 指纹与路径、CN 高频参数。
-> 与 `playbooks/`、`industry/` 的关系：playbook 教方法，industry 教定向，dictionaries/ 给"开包即用"的弹药。
+> Unlike the international HackerOne-style wordlists, this directory targets the **Chinese SRC arena** specifically: default credentials for CN vendors, fingerprints and paths for CN middleware / OA / CMS, and high-frequency CN parameters.
+> How this relates to `playbooks/` and `industry/`: playbooks teach method, industry teaches targeting, and dictionaries/ supplies ready-to-use ammunition.
 
 ---
 
-## 文件目录
+## Files
 
-| 文件 | 用途 | 适用场景 |
+| File | Purpose | Applies to |
 |------|------|---------|
-| `default-credentials-cn.md` | 国产服务 / OA / CMS / 网络设备的默认凭据 + 路径 | 弱口令 / 默认配置探测 |
-| `chinese-srcfingerprints.md` | 国产组件指纹 + 默认路径 + 高频参数字典 | 资产识别 / fuzzing / IDOR 参数枚举 |
+| `default-credentials-cn.md` | Default credentials and paths for CN services, OA, CMS and network devices | Weak-password and default-configuration probing |
+| `chinese-srcfingerprints.md` | CN component fingerprints, default paths and a high-frequency parameter wordlist | Asset identification, fuzzing, IDOR parameter enumeration |
 
 ---
 
-## 与方法论 / playbook 的对应
+## Mapping to the methodology and playbooks
 
 ```
-playbooks/unauth-access.md   §2  →  本目录补充"国产中间件 / OA / 网管"维度
-playbooks/info-disclosure.md      →  本目录补充"国产备份路径 / 日志路径"
-playbooks/sqli.md                 →  本目录补充"国产高频注入参数"
-playbooks/file-upload.md          →  本目录补充"国产编辑器 / OA 上传路径"
-industry/banking-finance.md       →  本目录的金融组件指纹（致远 / 用友 / 金蝶）
-industry/telecom-isp.md           →  本目录的电信组件指纹（U2000 / OTNM2000 / SP 平台）
+playbooks/unauth-access.md   §2  →  this directory adds the CN middleware / OA / network-management dimension
+playbooks/info-disclosure.md      →  this directory adds CN backup and log paths
+playbooks/sqli.md                 →  this directory adds high-frequency CN injection parameters
+playbooks/file-upload.md          →  this directory adds CN editor and OA upload paths
+industry/banking-finance.md       →  the finance component fingerprints here (Seeyon / Yonyou / Kingdee)
+industry/telecom-isp.md           →  the telecom component fingerprints here (U2000 / OTNM2000 / SP platforms)
 ```
 
 ---
 
-## 使用边界
+## Usage limits
 
-1. **限速**：default-credentials 用于爆破时，单目标 ≤ 4 并发，≤ 50 次/小时。SRC 平台多数对"高频爆破"零容忍。
-2. **证据**：命中默认凭据后，**仅截图登录界面 + 看到核心功能名称**即停，不进入业务操作。
-3. **数据**：发现指纹 ≠ 发现漏洞——指纹只是入口，仍需走 playbook 完整证明利用 + 业务影响。
-4. **更新**：本目录的指纹基于 2010–2016 真实案例。某些组件（如 ActiveX、IE 控件、Flash 编辑器）已退役，不再可作主战场——仅在政企 / 老国企 / 老 OA 仍有残余。
+1. **Rate limits**: when using default-credentials for brute forcing, stay at ≤ 4 concurrent requests and ≤ 50 attempts per hour per target. Most SRC platforms have zero tolerance for high-frequency brute forcing.
+2. **Evidence**: once default credentials work, stop at **a screenshot of the logged-in view showing the core feature names**. Do not proceed into business operations.
+3. **Data**: finding a fingerprint is not finding a vulnerability. A fingerprint is only an entry point; you still need the playbook to fully demonstrate exploitation and business impact.
+4. **Currency**: these fingerprints come from real cases between 2010 and 2016. Some components (ActiveX, IE controls, Flash editors) are retired and no longer a primary battleground, surviving only in government/enterprise, older state-owned firms and legacy OA systems.
 
 ---
 
-## 字典扩展原则
+## Principles for extending these wordlists
 
-- **不抄国际字典**：H1 / SecLists 已经覆盖。本目录只补 CN 战场缺口。
-- **统计驱动**：每个条目尽量带"案例数"或"出现频率"。
-- **可执行**：每个条目要么是路径、要么是凭据、要么是参数——拿来直接用。
-- **不冗长**：不写解释、不写故事，只列表。
+- **Do not copy international wordlists**: HackerOne and SecLists already cover those. This directory only fills CN-specific gaps.
+- **Statistics-driven**: where possible, every entry should carry a case count or an occurrence frequency.
+- **Actionable**: every entry is either a path, a credential or a parameter, usable as-is.
+- **Not verbose**: no explanations, no stories, just lists.

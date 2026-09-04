@@ -76,6 +76,7 @@ Each domain section below is annotated so you can tell which scheme applies with
 - `client-runtime-intelligence` — front-end bundle → route/auth map
 - `cloud-exposure-triage` — exposed cloud/identity/storage triage
 - `protocol-surface-triage` — service/port/banner → attack meaning
+- `vrt-classifier` — finding → Bugcrowd VRT entry, P1-P5 priority, CWE, CVSS baseline
 
 ### mindset/
 - `offensive-security` — unified offensive methodology umbrella

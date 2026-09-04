@@ -3,7 +3,6 @@
 > An AI Agent workflow router and tool orchestration system for reverse engineering, security analysis, and CTF tasks.
 
 **Human readers:** start with [OVERVIEW.md](OVERVIEW.md).
-**中文概览：** [OVERVIEW_zh.md](OVERVIEW_zh.md)
 **AI Agents:** do not open the overview by default. Continue to section 0 and execute the bootstrap flow.
 
 This README is intentionally structured as an AI Agent bootstrap entry: execution rules come first so an Agent can configure itself and start routing tasks.

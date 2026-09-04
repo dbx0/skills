@@ -1,57 +1,57 @@
-# [种子] Unity IL2CPP 游戏逆向 → 还原元数据 + 修改逻辑
+# [Seed] Unity IL2CPP Game Reversing -> Restore Metadata + Modify Logic
 
-## 场景分类
-游戏安全 / 移动逆向
+## Scenario Category
+Game security / Mobile reversing
 
-## 目标概述
-一个 Unity 打包的 Android 游戏（IL2CPP 模式），游戏内购或核心算法在 C# 编写但已编译成 native。需要还原方法名、定位关键逻辑、改动 / hook 实现修改。
+## Target Overview
+An Android game built with Unity in IL2CPP mode. The in-app purchase flow and core algorithms are written in C# but compiled down to native code. The goal is to restore method names, locate the key logic, and modify it by patching or hooking.
 
-## 完整执行链路
+## Full Execution Chain
 
-1. 拆包 APK，确认是 IL2CPP
+1. Unpack the APK and confirm it is IL2CPP
    ```bash
    unzip target.apk -d apk
-   ls apk/lib/arm64-v8a/        # 看到 libil2cpp.so 即 IL2CPP
+   ls apk/lib/arm64-v8a/        # seeing libil2cpp.so means IL2CPP
    ls apk/assets/bin/Data/Managed/Metadata/
-   # 关键文件: global-metadata.dat
+   # key file: global-metadata.dat
    ```
-2. 用 **Il2CppDumper** 还原元数据
+2. Restore the metadata with **Il2CppDumper**
    ```bash
    Il2CppDumper libil2cpp.so global-metadata.dat output/
-   # 产物：DummyDll/ + script.json + il2cpp.h + dump.cs
+   # outputs: DummyDll/ + script.json + il2cpp.h + dump.cs
    ```
-3. 把 IDA 的 IL2CPP 脚本（`ida_with_struct.py`）跑一遍
-   - 加载 libil2cpp.so → File → Script File → 选 ida_with_struct.py → 选 script.json
-   - IDA 现在能看到 C# 方法名、签名、字符串
-4. 在 dump.cs 里按业务关键字搜（`AddCoin` / `OnPurchase` / `Verify` / `IsVip` / `CheckSign`）
-5. 拿到关键方法的偏移 → IDA 跳过去看反汇编 / 反编译
-6. 选择修改方式：
-   - **静态 patch**：直接 IDA 把判断改成 `mov w0, #1; ret`
-   - **动态 hook**：Frida 接 il2cpp 方法（用 Frida-Il2CppBridge）
-7. 重打包验证 / 注入验证
+3. Run the IDA IL2CPP script (`ida_with_struct.py`)
+   - Load libil2cpp.so -> File -> Script File -> pick ida_with_struct.py -> pick script.json
+   - IDA now shows C# method names, signatures, and strings
+4. Search dump.cs for business keywords (`AddCoin` / `OnPurchase` / `Verify` / `IsVip` / `CheckSign`)
+5. Take the offset of the key method, jump there in IDA, and read the disassembly / decompilation
+6. Pick a modification approach:
+   - **Static patch**: change the check directly in IDA to `mov w0, #1; ret`
+   - **Dynamic hook**: hook the il2cpp method with Frida (using Frida-Il2CppBridge)
+7. Verify by repackaging or by injecting
 
-## 踩坑记录
+## Pitfalls Encountered
 
-| 问题 | 原因 | 解决方案 | 耗时 |
+| Problem | Cause | Solution | Time spent |
 |------|------|---------|------|
-| Il2CppDumper 报 metadata 版本不支持 | 新版 Unity 改了 metadata 格式 | 升级 Il2CppDumper 到最新 / 用 Il2CppInspectorRedux 替代 | 30min |
-| global-metadata.dat 加密了 | 用了 AntiCheatToolkit / 自定义加密 | 找游戏初始化时的解密函数（通常在 il2cpp_init 周围）→ Frida 在 mmap 后 dump | 2h |
-| dump.cs 看到方法名但 IDA 没匹配 | script.json 与 so 不一致 | 必须用同一次 dump 的产物；换 IDA 时清缓存 | 20min |
-| Frida hook IL2CPP 方法报错 | IL2CPP 方法不是标准 Java/ObjC，要算 method offset | 用 frida-il2cpp-bridge 库，不要硬写 Interceptor.attach | 1h |
-| Patch 后游戏闪退 | 校验文件 hash 或 anti-tamper | 找 hash 校验逻辑也 patch 掉，或用 hook 不改文件 | 2h |
-| 重打包后启动崩溃 | apksigner v2 签名不能改字节后再签 | 删 META-INF + apktool b + apksigner sign 一气 | 30min |
+| Il2CppDumper reports an unsupported metadata version | Newer Unity changed the metadata format | Upgrade Il2CppDumper to the latest version, or switch to Il2CppInspectorRedux | 30min |
+| global-metadata.dat is encrypted | AntiCheatToolkit or custom encryption in use | Find the decryption routine used at game startup (usually around il2cpp_init), then dump with Frida after the mmap | 2h |
+| Method names visible in dump.cs but IDA does not match them | script.json does not correspond to the .so | You must use the artifacts from a single dump run; clear the cache when switching IDA instances | 20min |
+| Frida errors when hooking IL2CPP methods | IL2CPP methods are not standard Java/ObjC, the method offset has to be computed | Use the frida-il2cpp-bridge library instead of hand-writing Interceptor.attach | 1h |
+| Game crashes after patching | File hash validation or anti-tamper | Find and patch the hash check too, or hook instead so no file changes | 2h |
+| Crash on launch after repackaging | An apksigner v2 signature cannot be re-signed after bytes are modified | Delete META-INF + apktool b + apksigner sign in one pass | 30min |
 
-## 工具链发现
+## Toolchain Findings
 
-- **Il2CppDumper** 老牌但仍是默认选择
-- **Il2CppInspectorRedux** 更现代，支持新 Unity，能输出 IDA / Ghidra / Binary Ninja 多种插件脚本
-- **frida-il2cpp-bridge** 是 IL2CPP 上 hook 的事实标准，比裸 Frida 强 N 倍
-- **DnSpy** / **dnSpyEx** 用于看 DummyDll（dump 出来的伪 .NET assembly）
-- **UnityCheat** 系列辅助工具（GameGuardian 系不展开）
+- **Il2CppDumper** is the veteran tool and still the default choice
+- **Il2CppInspectorRedux** is more modern, supports newer Unity, and emits plugin scripts for IDA / Ghidra / Binary Ninja
+- **frida-il2cpp-bridge** is the de facto standard for hooking IL2CPP, orders of magnitude better than bare Frida
+- **DnSpy** / **dnSpyEx** for browsing DummyDll (the pseudo .NET assemblies produced by the dump)
+- **UnityCheat** family of helper tools (the GameGuardian family is out of scope here)
 
-## 关键代码/命令
+## Key Code/Commands
 
-frida-il2cpp-bridge hook 示例：
+frida-il2cpp-bridge hook example:
 
 ```typescript
 // hook.ts
@@ -64,72 +64,72 @@ Il2Cpp.perform(() => {
     const PlayerData = Assembly.class("PlayerData");
     PlayerData.method("AddCoin").implementation = function (n: number) {
         console.log("[+] AddCoin called with:", n);
-        return this.method("AddCoin").invoke(99999); // 改成 99999
+        return this.method("AddCoin").invoke(99999); // force it to 99999
     };
 
     // hook instance method
     const Purchase = Assembly.class("Purchase");
     Purchase.method("VerifyReceipt").implementation = function () {
-        console.log("[+] VerifyReceipt → always true");
+        console.log("[+] VerifyReceipt -> always true");
         return true;
     };
 });
 ```
 
 ```bash
-# 编译 + 注入
+# compile + inject
 npm install frida-il2cpp-bridge
 frida-compile hook.ts -o hook.js
 frida -U -f com.target.game -l hook.js --no-pause
 ```
 
-IDA 静态 patch：
+Static patching in IDA:
 
 ```text
-1. 打开 libil2cpp.so，跑 il2cpp_load_metadata.py
-2. 跳到 dump.cs 中 IsPurchaseValid 对应的偏移
-3. 函数开头改成 MOV W0, #1; RET（ARM64）
-4. Apply Patches → Save → 替换回 APK → 重签名
+1. Open libil2cpp.so and run il2cpp_load_metadata.py
+2. Jump to the offset that dump.cs gives for IsPurchaseValid
+3. Change the start of the function to MOV W0, #1; RET (ARM64)
+4. Apply Patches -> Save -> put it back into the APK -> re-sign
 ```
 
-## 对本包的改进建议
+## Suggested Improvements to This Package
 
-- `game-security/SKILL.md` 已覆盖 Unity，但缺 IL2CPP **完整工作链** 案例
-- `game-security/references/il2cpp-cheatsheet.md` 单独成文：dump 工具对比、frida-bridge 模板、加密 metadata 处理
-- bootstrap manifest 增加 frida-il2cpp-bridge
+- `game-security/SKILL.md` already covers Unity but lacks a **complete end-to-end workflow** case for IL2CPP
+- Give `game-security/references/il2cpp-cheatsheet.md` its own document: dump tool comparison, frida-bridge templates, handling encrypted metadata
+- Add frida-il2cpp-bridge to the bootstrap manifest
 
-## 可复用的模式/脚本片段
+## Reusable Patterns/Script Snippets
 
-**IL2CPP 标准流程**：
+**Standard IL2CPP workflow**:
 
 ```text
-1. 确认 IL2CPP（看 lib/abi 下有无 libil2cpp.so）
-2. 找到 metadata（assets/bin/Data/Managed/Metadata/global-metadata.dat 或被加密）
-3. Il2CppDumper / Inspector 还原
-4. IDA + 脚本带回元信息
-5. dump.cs 搜业务关键词
-6. 选择 patch 还是 hook
-7. 验证（启动 + 实际场景）
+1. Confirm IL2CPP (check whether libil2cpp.so is under lib/abi)
+2. Locate the metadata (assets/bin/Data/Managed/Metadata/global-metadata.dat, or encrypted)
+3. Restore it with Il2CppDumper / Inspector
+4. Load the metadata back into IDA with the script
+5. Search dump.cs for business keywords
+6. Decide between patching and hooking
+7. Verify (launch the app + exercise the real scenario)
 ```
 
-**加密 metadata 处理**：
+**Handling encrypted metadata**:
 
 ```text
-1. Frida 在 fopen/open 系调用上挂钩，看谁读 global-metadata.dat
-2. 在 mmap/read 后 dump 内存里已解密的元数据
-3. 把 dump 出来的内存当 metadata 喂给 Il2CppDumper
+1. Use Frida to hook the fopen/open family and see who reads global-metadata.dat
+2. Dump the already-decrypted metadata from memory after the mmap/read
+3. Feed the dumped memory to Il2CppDumper as the metadata file
 ```
 
-## 进化动作
-- [ ] game-security 增加 il2cpp 完整章节
-- [ ] bootstrap-manifest 加入 frida-il2cpp-bridge / Il2CppInspectorRedux
-- [x] 路由矩阵已含 Unity / IL2CPP
+## Evolution Actions
+- [ ] Add a complete il2cpp chapter to game-security
+- [ ] Add frida-il2cpp-bridge / Il2CppInspectorRedux to bootstrap-manifest
+- [x] The routing matrix already covers Unity / IL2CPP
 
-## 环境信息
-- Windows / macOS（运行 Il2CppDumper 用），目标设备 Android arm64
-- IDA Pro 7.7+ 或 Ghidra 11+
+## Environment Details
+- Windows / macOS (to run Il2CppDumper), target device Android arm64
+- IDA Pro 7.7+ or Ghidra 11+
 - frida-tools 16.x, frida-il2cpp-bridge 0.9+
-- Unity 版本: 2019.x - 2022.x（不同版本 metadata 格式略异）
+- Unity versions: 2019.x - 2022.x (the metadata format differs slightly between versions)
 
-## 脱敏要求
-本条目为种子数据，基于公开技术模式编写，不涉及任何真实游戏。包名 `com.target.game` 为占位符。
+## Redaction Requirements
+This entry is seed data written from publicly documented technical patterns and does not involve any real game. The package name `com.target.game` is a placeholder.

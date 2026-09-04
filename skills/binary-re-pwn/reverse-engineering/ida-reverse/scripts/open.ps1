@@ -87,10 +87,10 @@ if ($TimeoutSeconds -le 0) {
     exit 1
 }
 
-# 判断是否用了临时副本（避免递归复制）
+# Determine whether a temporary copy is already in use (avoids recursive copying)
 $isTempCopy = $Path.StartsWith($TempDir, [StringComparison]::OrdinalIgnoreCase)
 
-# System32 文件自动复制到 Temp
+# Files in System32 are automatically copied to Temp
 if (-not $isTempCopy -and $Path -match "C:\\Windows\\System32") {
     $Filename = [System.IO.Path]::GetFileName($Path)
     $TempPath = "$TempDir\$Filename"
@@ -101,7 +101,7 @@ if (-not $isTempCopy -and $Path -match "C:\\Windows\\System32") {
     }
 }
 
-# 清理同名旧数据库文件（只在非 Temp 副本时尝试）
+# Clean up old database files with the same name (only attempted when not a Temp copy)
 if (-not $isTempCopy) {
     $dir = [System.IO.Path]::GetDirectoryName($Path)
     $base = [System.IO.Path]::GetFileNameWithoutExtension($Path)
@@ -114,7 +114,7 @@ if (-not $isTempCopy) {
             if (Test-Path $f) { $hasLocked = $true }
         }
     }
-    # 旧数据库文件被锁，自动用 Temp 副本
+    # The old database file is locked, so fall back to a Temp copy automatically
     if ($hasLocked) {
         $guid = [System.Guid]::NewGuid().ToString("N").Substring(0, 8)
         $newName = "$guid-$([System.IO.Path]::GetFileName($Path))"
@@ -128,7 +128,7 @@ if (-not $isTempCopy) {
 $autoAnalysis = if ($NoAutoAnalysis) { "false" } else { "true" }
 $escapedPath = $Path -replace '\\', '\\'
 
-# 始终使用明确的会话 ID，便于超时时轮询会话状态判断是否已成功打开
+# Always use an explicit session ID so that on timeout we can poll the session state to see whether the open actually succeeded
 if (-not $SessionId) {
     $SessionId = [System.Guid]::NewGuid().ToString("N").Substring(0, 8)
 }
@@ -142,7 +142,7 @@ if ($SessionId) {
 "@
 }
 
-# 将打开请求放到后台，避免 HTTP 长时间不回包时阻塞整个脚本
+# Run the open request in the background so a long stalled HTTP response does not block the whole script
 $openJob = Start-Job -ScriptBlock {
     param($RequestBody, $RequestPort)
     try {
@@ -216,7 +216,7 @@ try {
         $tag = if ($isTempCopy) { " (temp copy)" } else { "" }
         Write-Output "OK:$($session.filename):$($session.session_id)$tag"
     } else {
-        # 自动降级：非 Temp 副本失败时，复制到 Temp 重试
+        # Automatic fallback: when the non-Temp copy fails, copy to Temp and retry
         if (-not $isTempCopy) {
             $guid = [System.Guid]::NewGuid().ToString("N").Substring(0, 8)
             $newName = "$guid-$([System.IO.Path]::GetFileName($Path))"

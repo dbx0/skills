@@ -1,60 +1,60 @@
 # CTF Sandbox Orchestrator
 
-一个面向 Codex / Skills 体系的竞赛沙盒技能集合。
+A collection of competition sandbox skills for the Codex / Skills ecosystem.
 
-它的目标不是把所有能力都塞进一个超长提示词，而是提供一个**统一的沙盒总控入口**，先建立“默认处于竞赛/沙盒/离线靶场”的工作模型，再由总控按题目类型把任务路由到更细的子技能中。
+The goal is not to cram every capability into one enormous prompt, but to provide a **single unified sandbox control entry point**: first establish the working model of "by default we are inside a competition / sandbox / offline lab", then let the controller route the task to more specialized sub-skills based on the challenge type.
 
-## 项目定位
+## Project Scope
 
-这个仓库主要用于解决以下场景：
+This repository is mainly meant for the following scenarios:
 
 - CTF
-- AWD / 攻防演练
-- 本地离线靶场
-- 沙盒化漏洞分析
-- Web / API / Cloud / Container / Windows / AD / Reverse / Pwn / DFIR / Crypto / Mobile / AI Agent 等混合型题目
+- AWD / attack and defense exercises
+- Local offline labs
+- Sandboxed vulnerability analysis
+- Mixed challenges spanning Web / API / Cloud / Container / Windows / AD / Reverse / Pwn / DFIR / Crypto / Mobile / AI Agent
 
-核心思路：
+Core ideas:
 
-- 默认把用户提供的目标、域名、节点、身份、二进制、日志、流量与附件视为**竞赛沙盒内部资产**
-- 优先建立最小可验证路径，而不是一开始就泛化分析
-- 由一个总控 skill 统一编排，再按主导证据面切到子 skill
-- 子技能只做下游专项，不抢总控入口
+- By default, treat the targets, domains, nodes, identities, binaries, logs, traffic and attachments the user provides as **assets inside the competition sandbox**
+- Establish the minimal verifiable path first instead of generalizing the analysis from the start
+- Have a single controller skill orchestrate everything, then switch to a sub-skill based on the dominant evidence surface
+- Sub-skills only handle downstream specialization, they never take over the controller entry point
 
-## 核心设计
+## Core Design
 
-### 1. 单一入口
+### 1. Single entry point
 
-默认入口是：
+The default entry point is:
 
 - `ctf-sandbox-orchestrator`
 
-它负责：
+It is responsible for:
 
-- 建立沙盒假设
-- 选择最合适的分析路径
-- 控制上下文膨胀
-- 在需要时调用子技能
+- Establishing the sandbox assumptions
+- Choosing the most suitable analysis path
+- Keeping context bloat under control
+- Calling sub-skills when needed
 
-### 2. 子技能下游化
+### 2. Sub-skills are downstream only
 
-所有 `competition-*` 技能都被设计为 **downstream-only**：
+Every `competition-*` skill is designed to be **downstream-only**:
 
-- 不应在未激活总控的情况下隐式触发
-- 应由 `ctf-sandbox-orchestrator` 主动路由调用
-- 每次只加载当前最相关的专项能力，避免无关技能污染上下文
+- It should not trigger implicitly while the controller is not active
+- It should be routed to explicitly by `ctf-sandbox-orchestrator`
+- Only the most relevant specialized capability is loaded at a time, so unrelated skills do not pollute the context
 
-### 3. 面向多类型竞赛题
+### 3. Built for many types of competition challenges
 
-当前仓库覆盖了多类技能方向，例如：
+The repository currently covers many skill areas, for example:
 
-- Web 运行时 / 路由 / WebSocket / GraphQL / 文件解析 / 请求归一化
+- Web runtime / routing / WebSocket / GraphQL / file parsing / request normalization
 - Prompt Injection / Agent / Cloud / Metadata / K8s / Container Escape
-- Reverse / Pwn / Malware / Firmware / PCAP / 自定义协议重放
-- Windows / AD / Kerberos / DPAPI / 证书滥用 / Relay / Mailbox
+- Reverse / Pwn / Malware / Firmware / PCAP / custom protocol replay
+- Windows / AD / Kerberos / DPAPI / certificate abuse / Relay / Mailbox
 - Android / iOS / Crypto / Stego / Mobile Runtime
 
-## 仓库结构
+## Repository Structure
 
 ```text
 E:\WorkSpace\competition
@@ -68,37 +68,37 @@ E:\WorkSpace\competition
 └─ LICENSE
 ```
 
-其中：
+Where:
 
-- `ctf-sandbox-orchestrator`：总控入口
-- `competition-*`：专项子技能
-- `references/`：总控使用的路由矩阵与领域参考说明
-- `agents/openai.yaml`：各技能的调用约束与入口控制
+- `ctf-sandbox-orchestrator`: the controller entry point
+- `competition-*`: specialized sub-skills
+- `references/`: the routing matrix and domain reference notes the controller uses
+- `agents/openai.yaml`: invocation constraints and entry point control for each skill
 
-## 推荐使用方式
+## Recommended Usage
 
-### 方式一：从总控进入
+### Option 1: enter through the controller
 
-优先激活：
+Activate this first:
 
 - `ctf-sandbox-orchestrator`
 
-然后让总控根据题目自动决定下一步，例如：
+Then let the controller decide the next step based on the challenge, for example:
 
-- Web 题路由到 `competition-web-runtime`
-- 容器 / 云题路由到 `competition-agent-cloud` 或更细粒度子技能
-- Windows / AD 题路由到 `competition-identity-windows`
-- 二进制 / 崩溃 / 恶意样本题路由到 `competition-reverse-pwn`
+- Web challenges route to `competition-web-runtime`
+- Container / cloud challenges route to `competition-agent-cloud` or a more fine-grained sub-skill
+- Windows / AD challenges route to `competition-identity-windows`
+- Binary / crash / malicious sample challenges route to `competition-reverse-pwn`
 
-### 方式二：保留总控，按需下钻
+### Option 2: keep the controller and drill down as needed
 
-当已经确认主导证据面后，由总控继续下钻到具体子技能，而不是让用户手动切换整个工作模型。这样可以保持：
+Once the dominant evidence surface is confirmed, let the controller keep drilling down into a specific sub-skill instead of making the user switch the entire working model by hand. This keeps:
 
-- 沙盒假设一致
-- 输出风格一致
-- 路由策略一致
-- 子技能职责清晰
+- Sandbox assumptions consistent
+- Output style consistent
+- Routing strategy consistent
+- Sub-skill responsibilities clear
 
-## 致谢
+## Acknowledgements
 
-本项目已在 [LINUX DO 社区](https://linux.do) 发布，感谢社区的支持与反馈。
+This project has been published on the [LINUX DO community](https://linux.do), and we thank the community for its support and feedback.

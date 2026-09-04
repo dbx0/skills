@@ -66,7 +66,7 @@ The following must be adapted per OS:
 
 ## Recommended routing for setup docs
 
-- Windows users: start from `README.md` / `README_zh.md`.
+- Windows users: start from `README.md`.
 - Kali users: start from `kali/README-kali.md`.
 - Ubuntu / Debian users: start from `docs/platforms/linux.md`.
 - macOS users: start from `docs/platforms/macos.md`.

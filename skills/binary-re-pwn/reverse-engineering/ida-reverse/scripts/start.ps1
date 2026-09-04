@@ -138,15 +138,15 @@ if ([string]::IsNullOrWhiteSpace($ServerPath)) {
     throw 'Missing required CLI tool: ida-pro-mcp — auto-bootstrap failed. Install manually: pip install git+https://github.com/mrexodia/ida-pro-mcp.git && ida-pro-mcp --install'
 }
 
-# 清理旧进程（杀进程树，包括 worker 子进程）
+# Clean up the old process (kill the process tree, including worker child processes)
 $old = Get-Process -Name "ida-pro-mcp" -ErrorAction SilentlyContinue
 if (-not $old) { $old = Get-Process -Name "idalib-mcp" -ErrorAction SilentlyContinue }
 if ($old) { taskkill /F /T /PID $old.Id 2>$null | Out-Null; Start-Sleep 2 }
 
-# 后台启动
+# Start in the background
 Start-Process -WindowStyle Hidden -FilePath $ServerPath -ArgumentList "--host 127.0.0.1 --port $Port"
 
-# 等待就绪
+# Wait until it is ready
 $ready = $false
 for ($i = 0; $i -lt 15; $i++) {
     Start-Sleep -Seconds 1

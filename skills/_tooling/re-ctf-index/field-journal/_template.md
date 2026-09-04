@@ -1,78 +1,78 @@
-# [日期] [项目简称]
+# [date] [short project name]
 
-## 场景分类
-<!-- APK逆向 / JS签名 / 二进制分析 / 渗透测试 / CTF / 抓包分析 / 其他 -->
+## Scenario Category
+<!-- APK reversing / JS signing / binary analysis / penetration testing / CTF / traffic capture analysis / other -->
 
-## 目标概述
-<!-- 一句话说明在干什么 -->
+## Target Overview
+<!-- One sentence on what is being done -->
 
-## 完整执行链路
-<!-- 从拿到目标到产出结果的完整步骤，包括走过的弯路 -->
+## Full Execution Chain
+<!-- The complete steps from receiving the target to producing the result, including the dead ends you went down -->
 
 1. ...
 2. ...
 3. ...
 
-## 踩坑记录
+## Pitfalls Log
 
-| 问题 | 原因 | 解决方案 | 耗时 |
+| Issue | Cause | Fix | Time spent |
 |------|------|---------|------|
 | ... | ... | ... | ... |
 
-## 工具链发现
-<!-- 用到了哪些工具，哪些好用，哪些有坑，版本兼容性问题 -->
+## Toolchain Findings
+<!-- Which tools were used, which worked well, which have gotchas, version compatibility issues -->
 
-## 关键代码/命令
+## Key Code/Commands
 
 ```
-<!-- 贴实际用到的关键命令、hook 脚本、解密逻辑 -->
+<!-- Paste the key commands, hook scripts and decryption logic actually used -->
 ```
 
-## 对本包的改进建议
-<!-- 路由是否准确？bootstrap 是否缺失？文档是否需要补充？新工具是否需要加入 manifest？ -->
+## Improvement Suggestions for This Package
+<!-- Is the routing accurate? Is anything missing from bootstrap? Do the docs need additions? Do new tools need to be added to the manifest? -->
 
-## 可复用的模式/脚本片段
-<!-- 如果产出了可复用的 hook 脚本、解密逻辑、绕过方案，贴在这里 -->
+## Reusable Patterns/Script Snippets
+<!-- If you produced a reusable hook script, decryption logic or bypass technique, paste it here -->
 
-## 进化动作
-<!-- 本次回写后实际执行了哪些更新 -->
-- [ ] 更新了路由矩阵
-- [ ] 更新了 tool-index
-- [ ] 更新了 bootstrap-manifest
-- [ ] 更新了子 skill 文档
-- [ ] 新增了 pitfalls 记录
-- [ ] 无需更新
+## Evolution Actions
+<!-- Which updates were actually performed during this write-back -->
+- [ ] Updated the routing matrix
+- [ ] Updated tool-index
+- [ ] Updated bootstrap-manifest
+- [ ] Updated the sub-skill documentation
+- [ ] Added a pitfalls entry
+- [ ] No update needed
 
-## 环境信息
-<!-- 记录当时的关键环境 -->
+## Environment Details
+<!-- Record the key environment details at the time -->
 - OS:
-- 工具版本:
-- 目标平台/版本:
+- Tool versions:
+- Target platform/version:
 
-## 脱敏要求
+## Anonymization Requirements
 
-> **本文件可能随仓库同步到远程，必须脱敏。完整规范见 [`anonymization.md`](anonymization.md)（占位符总表 + 自动检测脚本）。**
+> **This file may be synced to a remote repository, so it must be anonymized. The full specification is in [`anonymization.md`](anonymization.md) (master placeholder table + automated detection script).**
 
-- 目标域名/IP：用 `{target_domain}` / `{target_ip}` 替代（详见 `anonymization.md`）
-- 真实 URL 路径：保留结构，替换域名
-- Token/Cookie/密码/JWT/API key：用 `{token}` / `{password}` / `{api_key}` 占位
-- 用户名/手机号/邮箱：用 `{username}` / `{phone}` / `{user_email}` 占位
-- 内部 IP/端口：内网 IP 段保留前两段（`10.0.x.x`）
-- 漏洞 payload：可保留技术内容，但替换目标特征参数（如 `?id={user_id}`）
+- Target domain/IP: replace with `{target_domain}` / `{target_ip}` (see `anonymization.md` for details)
+- Real URL paths: keep the structure, replace the domain
+- Token/cookie/password/JWT/API key: use the `{token}` / `{password}` / `{api_key}` placeholders
+- Username/phone number/email: use the `{username}` / `{phone}` / `{user_email}` placeholders
+- Internal IPs/ports: keep only the first two octets of internal ranges (`10.0.x.x`)
+- Vulnerability payloads: technical content can stay, but replace target-identifying parameters (e.g. `?id={user_id}`)
 
-提交前对照 `anonymization.md` 末尾的 **Field-Journal 必查项 checklist** 跑一遍正则扫描。
+Before submitting, run a regex scan against the **field-journal mandatory checklist** at the end of `anonymization.md`.
 
-如果是私有仓库且确认不会公开，可以放宽以上限制，但仍建议脱敏。
+If the repository is private and confirmed never to go public, these rules can be relaxed, but anonymization is still recommended.
 
-## 索引同步（提交前最后一步）
+## Index Sync (the last step before submitting)
 
-写完本日志后，必须同步更新 `_index.md`：
+After writing this journal, you must update `_index.md` in step:
 
-1. 在「按场景分类」对应小节新增一行（含日期、关键词）
-2. 在「高频成功模式（按技术）」对应技术下追加本文件名
-3. 在「实体倒排（按目标特征）」对应实体下追加本文件名
-4. 更新「累计统计」的总数与"最近更新"日期
+1. Add a row under the matching subsection of "By Scenario Category" (including the date and keywords)
+2. Append this filename under the matching technique in "High-Frequency Successful Patterns (by technique)"
+3. Append this filename under the matching entity in "Entity Inverted Index (by target characteristic)"
+4. Update the totals and the "last updated" date in "Cumulative Statistics"
 
 ---
-<!-- [进化统计] 本包累计完成项目: N | 本次新增模式: X | 本次修复工具链问题: Y -->
-<!-- [社区贡献] 完成后询问用户是否 PR 到主仓库。流程见 CONTRIBUTE-BACK.md -->
+<!-- [Evolution stats] Cumulative projects completed in this package: N | New patterns this round: X | Toolchain issues fixed this round: Y -->
+<!-- [Community contribution] When done, ask the user whether to PR to the main repository. See CONTRIBUTE-BACK.md for the workflow. -->

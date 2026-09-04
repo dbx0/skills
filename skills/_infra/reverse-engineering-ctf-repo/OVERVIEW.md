@@ -2,7 +2,7 @@
 
 > A workflow router and tool orchestration system for code Agents: classify the task, choose the right Skill, then call real tools to execute.
 
-If this is your first time seeing this repository, start here. `README.md` / `README_zh.md` are AI Agent bootstrap entries: instruction-dense, execution-first, and optimized for an Agent to configure itself. This overview is for human readers, open-source users, and collaborators.
+If this is your first time seeing this repository, start here. `README.md` is the AI Agent bootstrap entry: instruction-dense, execution-first, and optimized for an Agent to configure itself. This overview is for human readers, open-source users, and collaborators.
 
 ## What is this?
 
@@ -127,10 +127,8 @@ Expected Agent behavior:
 
 ```text
 .
-├── README.md                    # AI Agent bootstrap entry (English)
-├── README_zh.md                 # AI Agent bootstrap entry (Chinese)
-├── OVERVIEW.md                  # Human-friendly overview (English)
-├── OVERVIEW_zh.md               # Human-friendly overview (Chinese)
+├── README.md                    # AI Agent bootstrap entry
+├── OVERVIEW.md                  # Human-friendly overview
 ├── RULES.md                     # Global routing and execution rules
 ├── ARCHITECTURE.md              # Architecture notes
 ├── skills/                      # Main Skill directory
@@ -153,7 +151,7 @@ Expected Agent behavior:
 ### For humans
 
 1. Read this overview to understand the project;
-2. read `README.md` or `README_zh.md` and let your Agent run the bootstrap flow;
+2. read `README.md` and let your Agent run the bootstrap flow;
 3. configure MCP, project rules, or system instructions for your client;
 4. validate routing with a real task.
 
@@ -161,7 +159,7 @@ Expected Agent behavior:
 
 If you are an AI Agent, do not stop at this overview. Enter the execution path:
 
-1. read `README.md` or `README_zh.md`;
+1. read `README.md`;
 2. execute section 0;
 3. read `RULES.md`;
 4. load `skills/SKILL.md` and `skills/routing.md`;
@@ -195,8 +193,7 @@ Keywords: AI Agent, Skill Router, Tool Orchestration, MCP, Workflow Automation, 
 
 ## Related documents
 
-- [README.md](README.md): English AI bootstrap entry
-- [README_zh.md](README_zh.md): Chinese AI bootstrap entry
+- [README.md](README.md): AI bootstrap entry
 - [PLATFORMS.md](PLATFORMS.md): platform support matrix
 - [docs/platforms/linux.md](docs/platforms/linux.md): generic Linux setup
 - [docs/platforms/macos.md](docs/platforms/macos.md): macOS setup

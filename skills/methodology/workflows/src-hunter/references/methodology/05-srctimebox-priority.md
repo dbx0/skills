@@ -1,161 +1,161 @@
-# SRC 时间盒优先级——基于 22,132 案例统计的高危占比排序
+# SRC time-box priority — high-severity-share ranking from 22,132 cases
 
-> 视角：黑盒 SRC 猎手在限定时间内（一次众测、一次 SRC 集中刷分、一次 HVV 演练）应该按什么顺序投入时间。
-> 配套读物：`01-attack-priority.md`（讲漏洞类型本身值多少钱）+ 本篇（讲在一类漏洞中"挖到 == 高危"的概率）。
-
----
-
-## 1. 一句话原则
-
-`01-attack-priority.md` 给的是 **"如果挖到值多少"**；
-本篇给的是 **"挖一个 == 高危的概率有多大"**。
-两者结合 → 时间投入回报率最高的先打。
-
-```
-时间盒回报 = 漏洞基线赏金（01 表）  ×  挖到即高危概率（本表）  /  平均探测代价
-```
+> Perspective: within a fixed time budget (one crowd test, one SRC scoring sprint, one HVV exercise), what order should a black-box SRC hunter invest time in.
+> Companion reading: `01-attack-priority.md` (how much each vulnerability type is worth) + this file (the probability that finding one in a class == high severity).
 
 ---
 
-## 2. 16 类漏洞的高危占比排名
+## 1. The one-line principle
 
-> 22,132 个真实样本，"高危"=平台/委员会评定为 high 或 critical。
+`01-attack-priority.md` gives **"how much it's worth if you find it"**;
+this file gives **"the probability that finding one == high severity"**.
+Combine the two → attack whatever has the highest return on time invested first.
 
-| 排名 | 漏洞类别 | 案例数 | 高危占比 | 领域 | 黑盒探测难度 |
+```
+Time-box return = baseline bounty (table 01)  ×  probability of high severity on a find (this table)  /  average probe cost
+```
+
+---
+
+## 2. High-severity-share ranking across 16 vulnerability classes
+
+> 22,132 real samples; "high severity" = rated high or critical by the platform/committee.
+
+| Rank | Vulnerability class | Cases | High-severity share | Domain | Black-box probe difficulty |
 |------|---------|-------|---------|------|------------|
-| 1 | **密码重置** | 777 | **88.0%** | 认证 | 中（需走完流程并比对响应） |
-| 2 | **任意账号 / 任意登录** | 220 | **86.4%** | 授权 | 低（看登录接口是否要求 password） |
-| 3 | **提现** | 59 | **83.1%** | 金融 | 高（需测试账号 + 风控边缘） |
-| 4 | **金额篡改** | 176 | **83.0%** | 金融 | 低（改 `amount=0.01` 即知） |
-| 5 | **余额篡改** | 113 | **77.9%** | 金融 | 中（需理解账本/积分模型） |
-| 6 | **任意用户注册** | 24 | **75.0%** | 授权 | 低（绕过邀请码 / 改邮箱后缀） |
-| 7 | **逻辑漏洞（综合）** | 266 | **74.8%** | 逻辑 | 中（流程 + 状态机） |
-| 8 | **订单篡改** | 1,227 | **74.2%** | 金融 | 中（改 status / 跳步骤） |
-| 9 | **价格篡改** | 70 | **74.3%** | 金融 | 低（改 `price`） |
-| 10 | **配置不当** | 1,796 | **72.6%** | 配置 | 低（端口扫 + 默认凭据） |
-| 11 | **任意操作** | 40 | **72.5%** | 授权 | 中（需认识"批准/审核"接口） |
-| 12 | **支付绕过** | 1,056 | **68.7%** | 金融 | 中（重放回调 / 跳过支付） |
-| 13 | **设计缺陷** | 1,391 | **65.3%** | 逻辑 | 高（需理解业务） |
-| 14 | **信息泄露** | 4,858 | **64.7%** | 信息 | 低（路径字典 + Wayback） |
-| 15 | **越权（IDOR / 横纵向）** | 1,705 | **62.3%** | 授权 | 低（双账号比对） |
-| 16 | **弱口令** | 7,513 | **58.2%** | 认证 | 低（爆破，注意限速） |
+| 1 | **Password reset** | 777 | **88.0%** | Auth | Medium (must run the whole flow and compare responses) |
+| 2 | **Arbitrary account / arbitrary login** | 220 | **86.4%** | Authz | Low (check whether the login endpoint requires a password) |
+| 3 | **Withdrawal** | 59 | **83.1%** | Finance | High (needs a test account + risk-control edge cases) |
+| 4 | **Amount tampering** | 176 | **83.0%** | Finance | Low (set `amount=0.01` and you know) |
+| 5 | **Balance tampering** | 113 | **77.9%** | Finance | Medium (needs an understanding of the ledger/points model) |
+| 6 | **Arbitrary user registration** | 24 | **75.0%** | Authz | Low (bypass the invite code / change the email suffix) |
+| 7 | **Logic flaws (general)** | 266 | **74.8%** | Logic | Medium (flow + state machine) |
+| 8 | **Order tampering** | 1,227 | **74.2%** | Finance | Medium (change status / skip steps) |
+| 9 | **Price tampering** | 70 | **74.3%** | Finance | Low (change `price`) |
+| 10 | **Misconfiguration** | 1,796 | **72.6%** | Config | Low (port scan + default credentials) |
+| 11 | **Arbitrary operation** | 40 | **72.5%** | Authz | Medium (must recognize "approve/review" endpoints) |
+| 12 | **Payment bypass** | 1,056 | **68.7%** | Finance | Medium (replay the callback / skip payment) |
+| 13 | **Design flaws** | 1,391 | **65.3%** | Logic | High (must understand the business) |
+| 14 | **Information disclosure** | 4,858 | **64.7%** | Information | Low (path wordlist + Wayback) |
+| 15 | **Broken access control (IDOR / horizontal-vertical)** | 1,705 | **62.3%** | Authz | Low (two-account comparison) |
+| 16 | **Weak passwords** | 7,513 | **58.2%** | Auth | Low (brute force, mind the rate limit) |
 
-> 三个最值得注意的反直觉数据：
-> 1. **密码重置 88%**——很多人只测"短信码爆破"，忽略了响应回显、绑定缺失、流程跳跃 4 模式。
-> 2. **配置不当 72.6%**——端口扫描 + 默认凭据是最低成本的"必中型"工作量。
-> 3. **任意账号 86.4%**——比泛 IDOR（62.3%）高 24 个百分点，专门盯"登录无密码、token 可伪造"的接口。
-
----
-
-## 3. SRC 时间盒打法（4 个模板）
-
-### 模板 A：6 小时快进——找一个能交的高危
-
-```
-0:00–0:30  扫端口 + 扫 admin 路径 + 跑默认凭据    （命中 → 配置 72.6% / 弱口令 58.2%）
-0:30–1:30  抓主要业务流（注册/登录/找回/下单/退）  → 同时记录所有参数
-1:30–2:30  密码重置 4 模式逐一过一遍              （88% 高危）
-2:30–4:00  双账号 IDOR 横纵向                    （62.3% 高危，但容易批量出活）
-4:00–5:00  支付/订单：改 amount/price/quantity    （74–83% 高危）
-5:00–6:00  整理证据 + 写报告 + 脱敏
-```
-
-### 模板 B：单日深度——一个目标打透
-
-```
-1. 先按"模板 A"过一轮地表层
-2. 没出货 → 进 SP/CP/合作方子域、冷门子产品（活动页、营销页、积分商城）
-3. 翻 GitHub 找该公司的代码泄露（高频参数已知，搜 `siteId`、`out_trade_no` 等）
-4. 翻 Wayback Machine 找下线接口（很多老接口仍在线）
-5. APP 抓包：和 Web 比对差异接口（APP 接口往往鉴权更弱）
-6. 第三方 SDK：客服 IM / 支付 SDK / 推送 SDK，看是否存在硬编码 secret
-```
-
-### 模板 C：HVV 演练——拿权限优先
-
-```
-P0 焦点（前 30%）：
-  - 扫所有 IP 的 6379/27017/2375/9200/2181 → 命中即拿数据/RCE
-  - 扫 7001/8080/8088 + WebLogic / JBoss / Tomcat 默认凭据
-  - 扫 Spring Actuator /heapdump、/env
-
-P1 焦点（30–60%）：
-  - .git / .svn / wwwroot.rar / *.bak（详见 dictionaries/）
-  - Shiro rememberMe 默认 key、Fastjson 1.2.x、Log4Shell
-
-P2 焦点（60–100%）：
-  - 业务漏洞（密码重置 / 越权 / 任意账号）
-  - GitHub 代码搜
-```
-
-### 模板 D：SRC 月度刷分——薅长尾
-
-```
-高危占比靠后但案例数大的两个矿：
-  - 信息泄露（64.7% × 4,858 案例 = 海量）
-  - 弱口令（58.2% × 7,513 案例 = 海量）
-
-策略：
-  1. 维护私有路径字典 + 弱口令字典（详见 dictionaries/）
-  2. 自动化扫一批新上的子域 / 新业务线
-  3. 每天花 30 分钟看 SRC 公告/更新，第一时间扫新增资产
-```
+> Three counterintuitive figures worth noting:
+> 1. **Password reset 88%** — many people test only "SMS-code brute force" and ignore the 4 patterns: response echo, missing binding, and flow-step skipping.
+> 2. **Misconfiguration 72.6%** — port scanning + default credentials is the lowest-cost "sure-hit" effort.
+> 3. **Arbitrary account 86.4%** — 24 points higher than general IDOR (62.3%); specifically target endpoints with "passwordless login, forgeable token".
 
 ---
 
-## 4. 与 `01-attack-priority.md` 的合用矩阵
+## 3. SRC time-box playbooks (4 templates)
 
-行：基线赏金等级（01 表）。列：高危占比段。
-单元格：实际投入排序。
+### Template A: 6-hour sprint — find one reportable high-severity bug
 
-| 基线 \ 高危占比 | 88% 段（密码重置/任意账号） | 72–83% 段（支付/订单/配置/任意操作） | 58–65% 段（IDOR/弱口令/信息泄露） |
+```
+0:00-0:30  Scan ports + scan admin paths + run default credentials    (hit → misconfiguration 72.6% / weak password 58.2%)
+0:30-1:30  Capture the main business flows (register/login/recover/order/return)  → record all parameters as you go
+1:30-2:30  Run through the 4 password-reset patterns one by one         (88% high severity)
+2:30-4:00  Two-account IDOR, horizontal and vertical                    (62.3% high severity, but bulk-friendly)
+4:00-5:00  Payment/order: change amount/price/quantity                  (74-83% high severity)
+5:00-6:00  Organize evidence + write the report + redact
+```
+
+### Template B: single-day depth — go deep on one target
+
+```
+1. First run one pass with "Template A" over the surface
+2. Nothing shipped → go into SP/CP/partner subdomains and obscure sub-products (event pages, marketing pages, points malls)
+3. Search GitHub for the company's code leaks (high-frequency params known; search `siteId`, `out_trade_no`, etc.)
+4. Search the Wayback Machine for decommissioned endpoints (many old ones are still live)
+5. Capture the app's traffic: compare with the web for differing endpoints (app endpoints often have weaker authz)
+6. Third-party SDKs: support IM / payment SDK / push SDK, check for a hardcoded secret
+```
+
+### Template C: HVV exercise — prioritize gaining access
+
+```
+P0 focus (first 30%):
+  - Scan 6379/27017/2375/9200/2181 on all IPs → hit means data/RCE
+  - Scan 7001/8080/8088 + WebLogic / JBoss / Tomcat default credentials
+  - Scan Spring Actuator /heapdump, /env
+
+P1 focus (30-60%):
+  - .git / .svn / wwwroot.rar / *.bak (see dictionaries/)
+  - Shiro rememberMe default key, Fastjson 1.2.x, Log4Shell
+
+P2 focus (60-100%):
+  - Business bugs (password reset / broken access / arbitrary account)
+  - GitHub code search
+```
+
+### Template D: SRC monthly scoring — harvest the long tail
+
+```
+Two mines with a lower high-severity share but large case counts:
+  - Information disclosure (64.7% × 4,858 cases = huge volume)
+  - Weak passwords (58.2% × 7,513 cases = huge volume)
+
+Strategy:
+  1. Maintain private path wordlists + weak-password lists (see dictionaries/)
+  2. Automatically scan a batch of newly launched subdomains / new business lines
+  3. Spend 30 minutes a day reading SRC announcements/updates, and scan new assets the moment they appear
+```
+
+---
+
+## 4. Combined matrix with `01-attack-priority.md`
+
+Rows: baseline bounty tier (table 01). Columns: high-severity-share band.
+Cells: the actual investment order.
+
+| Baseline \ High-severity share | 88% band (password reset / arbitrary account) | 72-83% band (payment/order/config/arbitrary op) | 58-65% band (IDOR/weak pw/info disclosure) |
 |---|---|---|---|
-| **P0（RCE / 任意写）** | — | **🔴 最优先**（配置不当含 RCE、Actuator 泄密钥） | 🟠 信息泄露含数据库密码时升 P0 |
-| **P0/P1（鉴权绕过 / 越权 admin）** | 🔴 任意账号 = 立刻报 | 🟠 任意操作 / 任意修改 | 🟡 普通 IDOR |
-| **P1（IDOR / 逻辑 / SQLi）** | 🟠 密码重置 → 接管单用户 = P1 | 🟡 价格 0.01 / 订单状态跳 | 🟡 横向 IDOR 单条数据 |
-| **P2（XSS / CSRF / 重定向）** | — | — | 🟢 拼链子（XSS + IDOR） |
+| **P0 (RCE / arbitrary write)** | — | **🔴 top priority** (misconfig includes RCE, Actuator leaking secrets) | 🟠 info disclosure rises to P0 when it holds a DB password |
+| **P0/P1 (auth bypass / admin escalation)** | 🔴 arbitrary account = report immediately | 🟠 arbitrary operation / arbitrary modification | 🟡 ordinary IDOR |
+| **P1 (IDOR / logic / SQLi)** | 🟠 password reset → single-user takeover = P1 | 🟡 price 0.01 / order-status skip | 🟡 horizontal IDOR, single record |
+| **P2 (XSS / CSRF / redirect)** | — | — | 🟢 chain it (XSS + IDOR) |
 
-🔴 立即报 / 🟠 高优先 / 🟡 中等 / 🟢 凑数 / — 不存在该组合
+🔴 report now / 🟠 high priority / 🟡 medium / 🟢 filler / — combination does not exist
 
 ---
 
-## 5. 探针决策树（按时间盒预算）
+## 5. Probe decision tree (by time-box budget)
 
 ```
-拿到目标 → 还有多少时间？
+Got the target → how much time is left?
 
-  ≤ 1h  → 只跑：默认凭据 + Actuator + .git + 弱口令 + 单一 IDOR
-  ≤ 6h  → 加：密码重置 4 模式 + 价格篡改 + 双账号 IDOR
-  ≤ 1d  → 加：订单状态机 + 验证码爆破 + 任意操作（批准/发布）
-  ≤ 1w  → 加：APP 逆向 + 子产品线 + 第三方 SDK + 业务深挖
+  ≤ 1h  → run only: default credentials + Actuator + .git + weak passwords + a single IDOR
+  ≤ 6h  → add: the 4 password-reset patterns + price tampering + two-account IDOR
+  ≤ 1d  → add: order state machine + verification-code brute force + arbitrary operation (approve/publish)
+  ≤ 1w  → add: app reverse engineering + sub-product lines + third-party SDKs + deep business digging
 ```
 
-每过完一段时间盒，必须做：
-1. 确认已发现项是否能证据闭环 → 不能闭环就别留到后期
-2. 评估是否还有"短链高占比"组合可挖
-3. 不要陷入"我再花一天就能链 RCE"的执念——按时间盒收手
+At the end of each time-box segment, you must:
+1. Confirm whether the findings so far can close the evidence loop → if not, don't leave them for later
+2. Assess whether there are still "short-chain, high-share" combinations to dig
+3. Don't fall into the "one more day and I'll chain RCE" obsession — call it per the time box
 
 ---
 
-## 6. 反直觉提醒
+## 6. Counterintuitive reminders
 
-> **三件最容易被忽视但高危占比最高的事：**
+> **The three most easily overlooked things with the highest high-severity share:**
 
-1. **拦响应包看验证码**——很多人只关心拦请求，但 88% 高危占比的密码重置漏洞中，最常见就是响应里直接给了 `verifyCode`。
-2. **登录接口看是否真的需要密码**——任意账号 86.4% 高危。看请求体：是否只发 `username` 就能换 token？是否 `password` 字段可空？
-3. **批准 / 审核 / 发布接口**——任意操作 72.5% 高危。这些往往是"管理员路径"但鉴权写在前端。
+1. **Intercept the response to look for the verification code** — many people only care about intercepting the request, but among password-reset bugs (88% high severity), the most common case is the response handing you `verifyCode` directly.
+2. **Check whether the login endpoint actually needs a password** — arbitrary account is 86.4% high severity. Look at the body: can you swap for a token by sending only `username`? Can the `password` field be empty?
+3. **Approve / review / publish endpoints** — arbitrary operation is 72.5% high severity. These are often "admin paths" but with authz enforced only in the frontend.
 
 ---
 
-## 7. 与 playbook 的对应
+## 7. Mapping to the playbooks
 
-| 排名段 | 主要 playbook |
+| Rank band | Main playbook |
 |--------|--------------|
-| 1（密码重置） | `playbooks/logic-flaws.md` §3.1 + `oauth-saml-jwt.md` |
-| 2/6/11（任意 X） | `playbooks/arbitrary-x-authz.md` |
-| 3/4/5/8/9/12（金融类） | `playbooks/logic-flaws.md` §3.4 + `industry/banking-finance.md` |
-| 7/13（逻辑/设计） | `playbooks/logic-flaws.md` |
-| 10（配置） | `playbooks/unauth-access.md` + `dictionaries/default-credentials-cn.md` |
-| 14（信息泄露） | `playbooks/info-disclosure.md` + `dictionaries/chinese-srcfingerprints.md` |
-| 15（IDOR） | `playbooks/logic-flaws.md` §3.2 + `playbooks/api-rest.md` |
-| 16（弱口令） | `playbooks/unauth-access.md` + `dictionaries/default-credentials-cn.md` |
+| 1 (password reset) | `playbooks/logic-flaws.md` §3.1 + `oauth-saml-jwt.md` |
+| 2/6/11 (arbitrary X) | `playbooks/arbitrary-x-authz.md` |
+| 3/4/5/8/9/12 (finance) | `playbooks/logic-flaws.md` §3.4 + `industry/banking-finance.md` |
+| 7/13 (logic/design) | `playbooks/logic-flaws.md` |
+| 10 (config) | `playbooks/unauth-access.md` + `dictionaries/default-credentials-cn.md` |
+| 14 (info disclosure) | `playbooks/info-disclosure.md` + `dictionaries/chinese-srcfingerprints.md` |
+| 15 (IDOR) | `playbooks/logic-flaws.md` §3.2 + `playbooks/api-rest.md` |
+| 16 (weak passwords) | `playbooks/unauth-access.md` + `dictionaries/default-credentials-cn.md` |

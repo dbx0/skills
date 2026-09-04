@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# bootstrap-reverse.sh — Kali Linux 版自动安装/补齐工具
-# 等价于 Windows 版的 bootstrap-reverse.ps1
+# bootstrap-reverse.sh — Kali Linux automatic tool install/top-up
+# equivalent to the Windows version, bootstrap-reverse.ps1
 #
-# 用法:
+# Usage:
 #   bash bootstrap-reverse.sh <capability1> [capability2] ... [--start-services] [--skip-refresh]
 #
-# 示例:
+# Examples:
 #   bash bootstrap-reverse.sh jadx apktool frida
 #   bash bootstrap-reverse.sh idapro --start-services
 #   bash bootstrap-reverse.sh jshookmcp anything-analyzer
@@ -15,7 +15,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/tool-discovery.sh"
 
-# ─── 参数解析 ──────────────────────────────────────────────────────────────────────
+# ─── Argument parsing ──────────────────────────────────────────────────────────────────────
 
 CAPABILITIES=()
 START_SERVICES=false
@@ -30,50 +30,50 @@ for arg in "$@"; do
             echo "mcp-kali-server metasploitmcp hexstrike-ai adaptixc2 atomic-operator sstimap xsstrike wpprobe fluxion gef coercer evil-winrm-py netexec responder bloodhound certipy"
             exit 0
             ;;
-        -*) echo "未知选项: $arg"; exit 1 ;;
+        -*) echo "Unknown option: $arg"; exit 1 ;;
         *) CAPABILITIES+=("$arg") ;;
     esac
 done
 
 if [[ ${#CAPABILITIES[@]} -eq 0 ]]; then
-    echo "用法: $0 <capability1> [capability2] ... [--start-services] [--skip-refresh]"
+    echo "Usage: $0 <capability1> [capability2] ... [--start-services] [--skip-refresh]"
     echo ""
-    echo "可用能力:"
+    echo "Available capabilities:"
     echo ""
-    echo "  [逆向分析]"
+    echo "  [Reverse engineering]"
     echo "    jadx apktool frida frida-ps idalib-mcp r2 rabin2 adb gef"
     echo ""
-    echo "  [渗透测试 - 经典工具]"
+    echo "  [Penetration testing - classic tools]"
     echo "    nmap sqlmap hashcat hydra gobuster ffuf msfconsole nuclei"
     echo "    netexec responder crackmapexec bloodhound certipy wfuzz"
     echo "    aircrack-ng coercer evil-winrm-py"
     echo ""
-    echo "  [渗透测试 - Kali 2026.1 新增]"
+    echo "  [Penetration testing - new in Kali 2026.1]"
     echo "    adaptixc2 atomic-operator sstimap xsstrike wpprobe fluxion"
     echo ""
-    echo "  [MCP 服务]"
+    echo "  [MCP services]"
     echo "    jshookmcp anything-analyzer idapro agent-browser"
     echo "    mcp-kali-server metasploitmcp hexstrike-ai pentestswarm"
     echo ""
-    echo "  [其他]"
+    echo "  [Other]"
     echo "    ghidra-mcp seclists proxycat burpsuite-mcp"
     echo ""
-    echo "示例:"
-    echo "  $0 mcp-kali-server metasploitmcp hexstrike-ai pentestswarm  # 全部渗透 MCP"
-    echo "  $0 adaptixc2 sstimap xsstrike wpprobe          # 安装 2026.1 新工具"
-    echo "  $0 pentestswarm --start-services               # 安装 Swarm AI"
-    echo "  $0 idapro --start-services                     # 安装并启动 IDA MCP"
+    echo "Examples:"
+    echo "  $0 mcp-kali-server metasploitmcp hexstrike-ai pentestswarm  # every pentest MCP"
+    echo "  $0 adaptixc2 sstimap xsstrike wpprobe          # install the new 2026.1 tools"
+    echo "  $0 pentestswarm --start-services               # install Swarm AI"
+    echo "  $0 idapro --start-services                     # install and start IDA MCP"
     exit 1
 fi
 
-# ─── 辅助函数 ──────────────────────────────────────────────────────────────────────
+# ─── Helper functions ──────────────────────────────────────────────────────────────────────
 
 log_info() { echo -e "\033[36m[INFO]\033[0m $*"; }
 log_ok() { echo -e "\033[32m[OK]\033[0m $*"; }
 log_warn() { echo -e "\033[33m[WARN]\033[0m $*"; }
 log_err() { echo -e "\033[31m[ERR]\033[0m $*"; }
 
-# 检查是否有 sudo 权限
+# Check for sudo privileges
 check_sudo() {
     if [[ $EUID -eq 0 ]]; then
         return 0
@@ -81,11 +81,11 @@ check_sudo() {
     if sudo -n true 2>/dev/null; then
         return 0
     fi
-    log_warn "部分操作需要 sudo 权限"
+    log_warn "Some operations require sudo privileges"
     return 1
 }
 
-# apt 安装
+# apt install
 install_apt_package() {
     local package="$1"
     log_info "apt install $package ..."
@@ -96,7 +96,7 @@ install_apt_package() {
     fi
 }
 
-# pip 安装
+# pip install
 install_pip_package() {
     local package="$1"
     local source="${2:-}"
@@ -106,7 +106,7 @@ install_pip_package() {
         || pip3 install --upgrade "$target"
 }
 
-# npm 全局安装
+# npm global install
 install_npm_global() {
     local package="$1"
     log_info "npm install -g $package ..."
@@ -117,13 +117,13 @@ install_npm_global() {
     fi
 }
 
-# GitHub Release 下载并解压
+# Download and extract a GitHub release
 install_github_release() {
     local repo="$1"
     local asset_regex="$2"
     local install_dir="$3"
 
-    log_info "从 GitHub Release 下载: $repo ..."
+    log_info "Downloading from the GitHub release: $repo ..."
 
     local api_url="https://api.github.com/repos/${repo}/releases/latest"
     local release_json
@@ -133,7 +133,7 @@ install_github_release() {
     download_url=$(echo "$release_json" | jq -r ".assets[] | select(.name | test(\"${asset_regex}\")) | .browser_download_url" | head -n1)
 
     if [[ -z "$download_url" || "$download_url" == "null" ]]; then
-        log_err "未找到匹配 $asset_regex 的 release asset"
+        log_err "No release asset matching $asset_regex"
         return 1
     fi
 
@@ -141,13 +141,13 @@ install_github_release() {
     filename=$(basename "$download_url")
     local tmp_file="/tmp/bootstrap-$$-${filename}"
 
-    log_info "下载: $download_url"
+    log_info "Downloading: $download_url"
     curl -sL -o "$tmp_file" "$download_url"
 
-    # 创建安装目录
+    # Create the install directory
     mkdir -p "$install_dir"
 
-    # 根据文件类型解压
+    # Extract according to file type
     case "$filename" in
         *.tar.gz|*.tgz)
             tar -xzf "$tmp_file" -C "$install_dir" --strip-components=1 2>/dev/null \
@@ -157,7 +157,7 @@ install_github_release() {
             local tmp_extract="/tmp/bootstrap-extract-$$"
             mkdir -p "$tmp_extract"
             unzip -qo "$tmp_file" -d "$tmp_extract"
-            # 如果只有一个顶层目录，strip 它
+            # If there is a single top-level directory, strip it
             local top_dirs
             top_dirs=$(find "$tmp_extract" -maxdepth 1 -mindepth 1 -type d)
             if [[ $(echo "$top_dirs" | wc -l) -eq 1 ]]; then
@@ -181,20 +181,20 @@ install_github_release() {
 
     rm -f "$tmp_file"
 
-    # 把 bin 目录加入 PATH（当前 session）
+    # Add the bin directory to PATH (current session only)
     if [[ -d "$install_dir/bin" ]]; then
         export PATH="$install_dir/bin:$PATH"
     else
         export PATH="$install_dir:$PATH"
     fi
 
-    log_ok "已安装到 $install_dir"
+    log_ok "Installed to $install_dir"
 }
 
-# 注册 MCP server 到 Claude 配置
+# Register an MCP server in the Claude config
 register_mcp_server() {
     local server_name="$1"
-    local config_json="$2"  # JSON 格式的 server 配置
+    local config_json="$2"  # server config in JSON form
 
     local config_path
     config_path=$(get_claude_mcp_config_path)
@@ -211,13 +211,13 @@ register_mcp_server() {
         local tmp_file="/tmp/mcp-config-$$.json"
         jq ".mcpServers.\"${server_name}\" = ${config_json}" "$config_path" > "$tmp_file"
         mv "$tmp_file" "$config_path"
-        log_ok "MCP server '$server_name' 已注册到 $config_path"
+        log_ok "MCP server '$server_name' registered in $config_path"
     else
-        log_warn "未安装 jq，无法自动注册 MCP server。请手动编辑 $config_path"
+        log_warn "jq is not installed, so the MCP server cannot be registered automatically. Edit $config_path manually."
     fi
 }
 
-# 等待端口就绪
+# Wait for a port to become ready
 wait_for_port() {
     local port="$1"
     local timeout="${2:-90}"
@@ -233,21 +233,21 @@ wait_for_port() {
     return 1
 }
 
-# ─── 能力安装逻辑 ──────────────────────────────────────────────────────────────────
+# ─── Capability install logic ──────────────────────────────────────────────────────────────────
 
 ensure_capability() {
     local name="$1"
 
-    # 先检查是否已可用
+    # First check whether it is already available
     if command -v "$name" &>/dev/null; then
-        log_ok "$name 已可用: $(command -v "$name")"
+        log_ok "$name is already available: $(command -v "$name")"
         return 0
     fi
 
-    log_info "开始安装: $name"
+    log_info "Installing: $name"
 
     case "$name" in
-        # ─── apt 预装/可装的工具 ───
+        # ─── Tools preinstalled or installable via apt ───
         nmap|sqlmap|hashcat|hydra|gobuster|ffuf|adb)
             install_apt_package "$name"
             ;;
@@ -265,7 +265,7 @@ ensure_capability() {
         seclists)
             install_apt_package "seclists"
             ;;
-        # ─── Kali 2026.1 新增工具（全部 apt 直装） ───
+        # ─── Tools new in Kali 2026.1 (all installable directly via apt) ───
         adaptixc2)
             install_apt_package "adaptixc2"
             ;;
@@ -277,7 +277,7 @@ ensure_capability() {
             ;;
         gef)
             install_apt_package "gef"
-            log_info "GEF 已安装。启动 gdb 时自动加载 GEF 增强功能。"
+            log_info "GEF installed. Its enhancements load automatically when gdb starts."
             ;;
         sstimap)
             install_apt_package "sstimap"
@@ -315,15 +315,15 @@ ensure_capability() {
         aircrack-ng)
             install_apt_package "aircrack-ng"
             ;;
-        # ─── Kali 原生 MCP 工具（apt 安装 + MCP 注册） ───
+        # ─── Kali native MCP tools (apt install + MCP registration) ───
         mcp-kali-server)
             install_apt_package "mcp-kali-server"
             register_mcp_server "kali-server" '{
                 "command": "kali-server-mcp",
                 "args": ["--port", "5000"]
             }'
-            log_info "启动方式: kali-server-mcp --port 5000"
-            log_info "然后用 mcp-server 连接 AI 客户端到 API server"
+            log_info "To start it: kali-server-mcp --port 5000"
+            log_info "Then connect AI clients to the API server with mcp-server"
             ;;
         metasploitmcp)
             install_apt_package "metasploitmcp"
@@ -331,7 +331,7 @@ ensure_capability() {
                 "command": "metasploitmcp",
                 "args": ["--transport", "stdio"]
             }'
-            log_info "MetasploitMCP 支持 stdio 和 HTTP 两种模式"
+            log_info "MetasploitMCP supports both stdio and HTTP modes"
             log_info "  stdio: metasploitmcp --transport stdio"
             log_info "  HTTP:  metasploitmcp --transport http --port 8085"
             ;;
@@ -341,42 +341,42 @@ ensure_capability() {
                 "command": "hexstrike-ai",
                 "args": []
             }'
-            log_info "HexStrike AI 已安装。150+ 安全工具通过 MCP 暴露给 AI agent。"
+            log_info "HexStrike AI installed. It exposes 150+ security tools to AI agents over MCP."
             ;;
-        # ─── Pentest Swarm AI（群体智能渗透框架） ───
+        # ─── Pentest Swarm AI (swarm-intelligence pentest framework) ───
         pentestswarm)
             if command -v pentestswarm &>/dev/null; then
-                log_ok "pentestswarm 已可用"
+                log_ok "pentestswarm is available"
             elif command -v go &>/dev/null; then
                 log_info "go install pentestswarm ..."
                 go install github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@latest
             elif command -v docker &>/dev/null; then
-                log_info "拉取 pentestswarm Docker 镜像 ..."
+                log_info "Pulling the pentestswarm Docker image ..."
                 docker pull ghcr.io/armur-ai/pentestswarm:latest
-                log_info "使用方式: docker run --rm ghcr.io/armur-ai/pentestswarm:latest scan <target> --scope <scope>"
+                log_info "Usage: docker run --rm ghcr.io/armur-ai/pentestswarm:latest scan <target> --scope <scope>"
             else
-                log_warn "需要 Go 1.24+ 或 Docker 来安装 pentestswarm"
-                log_info "安装 Go: apt install golang-go"
-                log_info "然后: go install github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@latest"
+                log_warn "Installing pentestswarm requires Go 1.24+ or Docker"
+                log_info "Install Go with: apt install golang-go"
+                log_info "Then: go install github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@latest"
                 return 1
             fi
             register_mcp_server "pentestswarm" '{
                 "command": "pentestswarm",
                 "args": ["mcp", "serve"]
             }'
-            log_info "Pentest Swarm AI 已配置"
-            log_info "  MCP 模式: pentestswarm mcp serve"
-            log_info "  扫描模式: pentestswarm scan <target> --scope <scope> --swarm"
-            log_info "  需要设置: export PENTESTSWARM_ORCHESTRATOR_API_KEY=<your-claude-key>"
+            log_info "Pentest Swarm AI configured"
+            log_info "  MCP mode:  pentestswarm mcp serve"
+            log_info "  Scan mode: pentestswarm scan <target> --scope <scope> --swarm"
+            log_info "  Must be set: export PENTESTSWARM_ORCHESTRATOR_API_KEY=<your-claude-key>"
             ;;
 
-        # ─── pip 安装 ───
+        # ─── pip install ───
         frida|frida-ps)
             install_pip_package "frida-tools"
             ;;
         idalib-mcp)
             install_pip_package "ida-pro-mcp" "git+https://github.com/mrexodia/ida-pro-mcp.git"
-            log_info "运行 ida-pro-mcp --install 完成 IDA 插件安装"
+            log_info "Run ida-pro-mcp --install to finish installing the IDA plugin"
             ;;
         proxycat)
             install_pip_package "proxycat"
@@ -389,12 +389,12 @@ ensure_capability() {
             ;;
         ghidra-mcp)
             if command -v ghidra &>/dev/null; then
-                log_ok "ghidra 已通过 apt 安装"
+                log_ok "ghidra installed via apt"
             else
                 install_apt_package "ghidra" 2>/dev/null \
                     || install_github_release "NationalSecurityAgency/ghidra" "^ghidra_.*_PUBLIC_.*\\.zip$" "$HOME/tools/ghidra"
             fi
-            log_warn "GhidraMCP 插件需手动安装: https://github.com/LaurieWired/GhidraMCP/releases"
+            log_warn "The GhidraMCP plugin must be installed manually: https://github.com/LaurieWired/GhidraMCP/releases"
             ;;
         nuclei)
             if command -v go &>/dev/null; then
@@ -427,7 +427,7 @@ ensure_capability() {
             npx playwright install chromium 2>/dev/null || true
             ;;
 
-        # ─── 本地 HTTP MCP 服务 ───
+        # ─── Local HTTP MCP services ───
         anything-analyzer)
             register_mcp_server "anything-analyzer" "{\"url\": \"http://localhost:23816/mcp\"}"
             if [[ "$START_SERVICES" == "true" ]]; then
@@ -435,7 +435,7 @@ ensure_capability() {
             fi
             ;;
         idapro)
-            # 先确保 idalib-mcp 已安装
+            # Make sure idalib-mcp is installed first
             ensure_capability "idalib-mcp"
             register_mcp_server "idapro" "{\"url\": \"http://127.0.0.1:13337/mcp\"}"
             if [[ "$START_SERVICES" == "true" ]]; then
@@ -443,32 +443,32 @@ ensure_capability() {
             fi
             ;;
 
-        # ─── 手动安装 ───
+        # ─── Manual install ───
         burpsuite-mcp)
             log_warn "MANUAL_INSTALL_REQUIRED: burpsuite-mcp"
-            log_warn "Kali 预装 BurpSuite，在扩展市场搜索 MCP 插件安装"
+            log_warn "BurpSuite is preinstalled on Kali; search the extension marketplace for the MCP plugin"
             register_mcp_server "burpsuite" "{\"url\": \"http://localhost:9876/mcp\"}"
             ;;
 
         *)
-            log_err "未知能力: $name"
+            log_err "Unknown capability: $name"
             return 1
             ;;
     esac
 }
 
-# ─── 服务启动 ──────────────────────────────────────────────────────────────────────
+# ─── Service startup ──────────────────────────────────────────────────────────────────────
 
 start_anything_analyzer() {
     if test_tcp_port 23816 2>/dev/null; then
-        log_ok "anything-analyzer 已在运行 (port 23816)"
+        log_ok "anything-analyzer is already running (port 23816)"
         return 0
     fi
 
     local repo_dir="$HOME/tools/anything-analyzer"
 
     if [[ ! -d "$repo_dir" ]]; then
-        log_info "克隆 anything-analyzer ..."
+        log_info "Cloning anything-analyzer ..."
         git clone https://github.com/Mouseww/anything-analyzer.git "$repo_dir"
     fi
 
@@ -478,18 +478,18 @@ start_anything_analyzer() {
 
     (cd "$repo_dir" && pnpm install && nohup pnpm dev > /tmp/anything-analyzer.log 2>&1 &)
 
-    log_info "等待 anything-analyzer 启动 (port 23816) ..."
+    log_info "Waiting for anything-analyzer to start (port 23816) ..."
     if wait_for_port 23816 120; then
-        log_ok "anything-analyzer 已启动"
+        log_ok "anything-analyzer started"
     else
-        log_err "anything-analyzer 启动超时，查看日志: /tmp/anything-analyzer.log"
+        log_err "anything-analyzer timed out on startup; check the log: /tmp/anything-analyzer.log"
         return 1
     fi
 }
 
 start_idapro_service() {
     if test_tcp_port 13337 2>/dev/null; then
-        log_ok "IDA Pro MCP 已在运行 (port 13337)"
+        log_ok "IDA Pro MCP is already running (port 13337)"
         return 0
     fi
 
@@ -497,13 +497,13 @@ start_idapro_service() {
     if [[ -x "$ida_start_script" ]]; then
         bash "$ida_start_script"
     else
-        log_warn "IDA 启动脚本不存在: $ida_start_script"
-        log_warn "请手动启动 IDA Pro，插件会自动监听 13337 端口"
+        log_warn "The IDA start script does not exist: $ida_start_script"
+        log_warn "Start IDA Pro manually; the plugin listens on port 13337 automatically"
         return 1
     fi
 }
 
-# ─── 主流程 ────────────────────────────────────────────────────────────────────────
+# ─── Main flow ────────────────────────────────────────────────────────────────────────
 
 RESULTS=()
 
@@ -515,16 +515,16 @@ for cap in "${CAPABILITIES[@]}"; do
     fi
 done
 
-# 刷新工具索引
+# Refresh the tool index
 if [[ "$SKIP_REFRESH" != "true" ]]; then
-    log_info "刷新工具索引 ..."
+    log_info "Refreshing the tool index ..."
     bash "$SCRIPT_DIR/refresh-tool-index.sh" >/dev/null 2>&1 || true
 fi
 
-# 输出结果
+# Print the result
 echo ""
 echo "═══════════════════════════════════════════"
-echo "  Bootstrap 完成"
+echo "  Bootstrap complete"
 echo "═══════════════════════════════════════════"
 for r in "${RESULTS[@]}"; do
     name=$(echo "$r" | jq -r '.name' 2>/dev/null || echo "$r")

@@ -1,6 +1,6 @@
-# radare2 速查表
+# radare2 cheat sheet
 
-## 基础侦察
+## Basic recon
 
 ```powershell
 rabin2 -I sample.exe
@@ -10,7 +10,7 @@ rabin2 -E sample.exe
 rabin2 -zz sample.exe
 ```
 
-## 进入交互
+## Entering interactive mode
 
 ```powershell
 r2 sample.exe
@@ -27,7 +27,7 @@ pdf
 q
 ```
 
-## 字符串和引用
+## Strings and references
 
 ```text
 iz~http
@@ -37,7 +37,7 @@ s <addr>
 pdf
 ```
 
-## 常用查看
+## Common views
 
 ```text
 px 64
@@ -59,13 +59,13 @@ wx 9090
 wq
 ```
 
-## 非交互模式
+## Non-interactive mode
 
 ```powershell
 r2 -A -q -c "afl;iz;ii;q" sample.exe
 ```
 
-## 其他工具
+## Other tools
 
 ### rasm2
 

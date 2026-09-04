@@ -1,52 +1,52 @@
 ---
 name: lumine-reverse-2026-05-15
-description: Go 1.24.5 TLS 分片代理 lumine v0.9.1 全量逆向恢复，含 7 个包源码重建
+description: Full reverse-engineering recovery of lumine v0.9.1, a Go 1.24.5 TLS fragmentation proxy, including source reconstruction of 7 packages
 metadata:
   type: project
 ---
 
-# lumine v0.9.1 — Go TLS 分片代理逆向
+# lumine v0.9.1 — reversing a Go TLS fragmentation proxy
 
-**日期**: 2026-05-15
-**目标**: `lumine_v0.9.1_windows_amd64.exe` (PE32+, Go 1.24.5, 11.6 MB)
-**原文**: `REVERSE_REPORT.md`
+**Date**: 2026-05-15
+**Target**: `lumine_v0.9.1_windows_amd64.exe` (PE32+, Go 1.24.5, 11.6 MB)
+**Source report**: `REVERSE_REPORT.md`
 
-## 背景
+## Background
 
-用户要求将二进制还原为可读 Go 源码。目标是一个 TLS 反 DPI 代理工具，技术源自 Python [TlsFragment](https://github.com/maoist2009/TlsFragment)。
+The request was to recover readable Go source from the binary. The target is a TLS anti-DPI proxy whose technique derives from the Python project [TlsFragment](https://github.com/maoist2009/TlsFragment).
 
-## 过程
+## Process
 
-1. **工具链搭建**: Python + capstone 反汇编, GoReSym 恢复符号表 (1944 个 Go 函数, 269 个来自项目)
-2. **包结构识别**: 从 GoReSym 的 `package.function` 命名推断出 12 个包
-3. **类型恢复**: 通过 `config.json` 反推 JSON 反序列化类型，结合函数引用恢复字段
-4. **源码重建**: 按包逐个编写可读 Go 代码，保留逻辑而非逐行还原
-5. **子包补全**: dial (出站绑定), errors (错误类型), format (字符串工具)
+1. **Toolchain setup**: Python + capstone for disassembly, GoReSym to recover the symbol table (1,944 Go functions, 269 of them from the project itself)
+2. **Package structure identification**: inferred 12 packages from GoReSym's `package.function` naming
+3. **Type recovery**: derived the JSON deserialization types from `config.json`, recovering fields by cross-referencing function usage
+4. **Source reconstruction**: wrote readable Go package by package, preserving the logic rather than restoring it line by line
+5. **Sub-package completion**: dial (outbound binding), errors (error types), format (string helpers)
 
-## 关键发现
+## Key findings
 
-- 核心反 DPI 机制: TLS 记录分段 + 噪声注入 + 等待 ACK + OOB + Fake TTL
-- 策略引擎: 域名 Trie + IP Trie → Policy 匹配
-- 依赖 `go-freelru` (LRU 缓存) 做 DNS/TTL 缓存
-- 源仓库 `github.com/moi-si/lumine` 返回 404，只能完全靠二进制恢复
+- Core anti-DPI mechanism: TLS record fragmentation + noise injection + waiting for ACK + OOB + fake TTL
+- Policy engine: domain trie + IP trie → policy match
+- Depends on `go-freelru` (an LRU cache) for DNS/TTL caching
+- The source repository `github.com/moi-si/lumine` returns 404, so recovery had to come entirely from the binary
 
-## 工具
+## Tools
 
-| 工具 | 用途 | 版本 |
+| Tool | Purpose | Version |
 |---|---|---|
-| GoReSym | Go 符号恢复 | v1.7.1 (Mandiant) |
-| Capstone | 反汇编引擎 | latest |
-| pefile | PE 结构解析 | latest |
+| GoReSym | Go symbol recovery | v1.7.1 (Mandiant) |
+| Capstone | Disassembly engine | latest |
+| pefile | PE structure parsing | latest |
 
-## 踩坑记录
+## Pitfalls encountered
 
-1. **Python3 路径问题**: WindowsApps 的 stub python3 不支持 pip install capstone，需用完整 CPython 路径
-2. **GoReSym 子进程路径**: `~` 不会自动展开，需 `os.path.expanduser()`
-3. **tab/space 混用**: 自动生成的 Python 反编译脚本中存在 tab/space 混合，导致 Go 源码格式错误；v3 版全部用空格解决
-4. **vendor-less GoReSym**: Go 1.24.5 的 binary 不带 vendor 符号时，GoReSym 仍能提取函数名但参数和局部变量不可恢复
-5. **字符串噪声**: Go 标准库字符串常量大量混入，需要仔细从包级别过滤
+1. **Python3 path problem**: the WindowsApps stub python3 cannot `pip install capstone`; use a full CPython install path instead
+2. **GoReSym subprocess paths**: `~` is not expanded automatically, so call `os.path.expanduser()`
+3. **Mixed tabs and spaces**: the generated Python decompilation scripts mixed tabs and spaces, corrupting the Go source formatting; v3 fixed it by using spaces throughout
+4. **vendor-less GoReSym**: when a Go 1.24.5 binary carries no vendor symbols, GoReSym still extracts function names, but parameters and locals are unrecoverable
+5. **String noise**: Go standard library string constants flood the output and must be filtered carefully at package level
 
-## 产物
+## Artifacts
 
-- `REVERSE_REPORT.md` — 完整逆向分析报告
-- `reconstructed_src_v3/` — 7 个 Go 源文件，core engine + 3 个子包
+- `REVERSE_REPORT.md` — the full reverse-engineering report
+- `reconstructed_src_v3/` — 7 Go source files: the core engine plus 3 sub-packages

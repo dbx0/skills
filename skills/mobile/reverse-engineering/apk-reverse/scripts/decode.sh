@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# decode.sh — APK 解包（jadx 反编译 + apktool 解包）
-# 等价于 Windows 版的 decode.ps1
+# decode.sh — APK unpacking (jadx decompile + apktool unpack)
+# equivalent to the Windows version, decode.ps1
 #
-# 用法:
+# Usage:
 #   bash decode.sh <apk_path> [--name <task_name>] [--out <output_dir>]
 #                              [--skip-jadx] [--skip-apktool] [--clean]
 
@@ -11,7 +11,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KALI_BOOTSTRAP="$(cd "$SCRIPT_DIR/../../../kali/scripts" 2>/dev/null && pwd)/bootstrap-reverse.sh"
 
-# ─── 参数解析 ──────────────────────────────────────────────────────────────────────
+# ─── Argument parsing ──────────────────────────────────────────────────────────────────────
 
 APK_PATH=""
 TASK_NAME=""
@@ -27,43 +27,43 @@ while [[ $# -gt 0 ]]; do
         --skip-jadx) SKIP_JADX=true; shift ;;
         --skip-apktool) SKIP_APKTOOL=true; shift ;;
         --clean) CLEAN=true; shift ;;
-        -*) echo "未知选项: $1"; exit 1 ;;
+        -*) echo "Unknown option: $1"; exit 1 ;;
         *) APK_PATH="$1"; shift ;;
     esac
 done
 
 if [[ -z "$APK_PATH" ]]; then
-    echo "用法: $0 <apk_path> [--name <name>] [--out <dir>] [--skip-jadx] [--skip-apktool] [--clean]"
+    echo "Usage: $0 <apk_path> [--name <name>] [--out <dir>] [--skip-jadx] [--skip-apktool] [--clean]"
     exit 1
 fi
 
 if [[ ! -f "$APK_PATH" ]]; then
-    echo "ERR: APK 文件不存在: $APK_PATH"
+    echo "ERR: APK file does not exist: $APK_PATH"
     exit 1
 fi
 
-# ─── 工具检测与自动安装 ─────────────────────────────────────────────────────────────
+# ─── Tool detection and auto-install ─────────────────────────────────────────────────────────────
 
 ensure_tool() {
     local name="$1"
     if command -v "$name" &>/dev/null; then
         return 0
     fi
-    echo "INFO: $name 未找到，尝试自动安装..."
+    echo "INFO: $name not found, attempting automatic install..."
     if [[ -x "$KALI_BOOTSTRAP" ]]; then
         bash "$KALI_BOOTSTRAP" "$name" --skip-refresh 2>/dev/null || true
     fi
     if ! command -v "$name" &>/dev/null; then
-        echo "ERR: $name 安装失败，请手动安装"
+        echo "ERR: $name install failed, install it manually"
         return 1
     fi
-    echo "INFO: $name 安装成功"
+    echo "INFO: $name installed successfully"
 }
 
 [[ "$SKIP_JADX" != "true" ]] && ensure_tool "jadx"
 [[ "$SKIP_APKTOOL" != "true" ]] && ensure_tool "apktool"
 
-# ─── 路径计算 ──────────────────────────────────────────────────────────────────────
+# ─── Path resolution ──────────────────────────────────────────────────────────────────────
 
 APK_BASENAME=$(basename "$APK_PATH" .apk | sed 's/[^A-Za-z0-9._-]/_/g')
 TASK_NAME="${TASK_NAME:-$APK_BASENAME}"
@@ -78,25 +78,25 @@ fi
 
 mkdir -p "$TASK_ROOT"
 
-# ─── jadx 反编译 ──────────────────────────────────────────────────────────────────
+# ─── jadx decompile ──────────────────────────────────────────────────────────────────
 
 JADX_EXIT=0
 if [[ "$SKIP_JADX" != "true" ]]; then
     rm -rf "$JADX_OUT"
-    echo "=== jadx 反编译 ==="
+    echo "=== jadx decompile ==="
     jadx -d "$JADX_OUT" "$APK_PATH" || JADX_EXIT=$?
 fi
 
-# ─── apktool 解包 ─────────────────────────────────────────────────────────────────
+# ─── apktool unpack ─────────────────────────────────────────────────────────────────
 
 APKTOOL_EXIT=0
 if [[ "$SKIP_APKTOOL" != "true" ]]; then
     rm -rf "$APKTOOL_OUT"
-    echo "=== apktool 解包 ==="
+    echo "=== apktool unpack ==="
     apktool d "$APK_PATH" -o "$APKTOOL_OUT" -f || APKTOOL_EXIT=$?
 fi
 
-# ─── 统计输出 ──────────────────────────────────────────────────────────────────────
+# ─── Summary output ──────────────────────────────────────────────────────────────────────
 
 PACKAGE=""
 if [[ -f "$APKTOOL_OUT/AndroidManifest.xml" ]]; then
@@ -114,7 +114,7 @@ SO_COUNT=0
 
 echo ""
 echo "═══════════════════════════════════════════"
-echo "  APK 解包完成"
+echo "  APK unpacking complete"
 echo "═══════════════════════════════════════════"
 echo "  task_root=$TASK_ROOT"
 echo "  jadx_out=$JADX_OUT"

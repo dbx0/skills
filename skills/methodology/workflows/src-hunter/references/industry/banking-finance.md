@@ -1,338 +1,338 @@
-# 银行 / 金融行业渗透 playbook
+# Banking / finance industry pentest playbook
 
-> 视角：黑盒，针对国内银行（国有/股份制/城商/民营）+ 第三方支付 + 聚合支付 + 互金平台。
-> 数据基础：金融领域 2,919 个真实案例，68%–88% 高危占比。
-
----
-
-## 1. 一句话定位
-
-银行/金融业的漏洞特点：**资金类漏洞占比小但单发价值高**，**鉴权层 + 接口层是主战场**。一个支付绕过的赏金可以等于普通 SaaS 一年的全部收益。
-
-不要盯着"网银 RCE"——那是十年前的玩法。今天值钱的是：
-- 第三方支付 / 聚合支付的接口签名缺陷
-- 手机银行 APP 的接口（鉴权往往比 Web 弱）
-- 直销银行 / 微信银行的"轻量化"业务系统
-- 信贷 / 风控管理后台的越权
+> Perspective: black-box, targeting domestic banks (state-owned / joint-stock / city commercial / private) + third-party payment + aggregated payment + internet-finance platforms.
+> Data basis: 2,919 real cases in the finance domain, with a 68%-88% high-severity share.
 
 ---
 
-## 2. 攻击面分层模型
+## 1. One-line positioning
+
+Vulnerability profile of the banking/finance sector: **funds-class bugs are a small share but high value per instance**, and **the authentication and interface layers are the main battleground**. A single payment-bypass bounty can equal a whole year's earnings from an ordinary SaaS target.
+
+Do not fixate on "online-banking RCE" — that was the game ten years ago. What pays today is:
+- signature flaws in third-party / aggregated payment interfaces
+- mobile-banking app interfaces (authz is often weaker than the web)
+- the "lightweight" business systems of direct banking / WeChat banking
+- broken access control in credit / risk-control admin panels
+
+---
+
+## 2. Layered attack-surface model
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                          第一层：互联网边界                              │
+│                          Layer 1: internet edge                          │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  网银系统 │ 手机银行 │ 微信银行 │ 直销银行 │ 信用卡中心 │ 官网/活动页    │
-│  小程序   │ APP      │ H5       │ 公众号   │ 营销活动   │ 客服系统       │
+│  online banking │ mobile banking │ WeChat banking │ direct banking │ credit-card center │ website/event pages │
+│  mini-program   │ app            │ H5             │ official account │ marketing campaigns │ support system   │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                          第二层：接口/通道层                             │
+│                          Layer 2: interface / channel                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  支付接口 │ 银联通道 │ 快捷支付 │ 代扣代付 │ 聚合支付 │ 开放银行 API     │
-│  发卡接口 │ 风控接口 │ 短信网关 │ 二次认证 │ 数字证书 │ 人脸识别         │
+│  payment interface │ UnionPay channel │ quick pay │ agency debit/credit │ aggregated payment │ open-banking API │
+│  card-issuing interface │ risk-control interface │ SMS gateway │ second-factor auth │ digital certificate │ face recognition │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                          第三层：内部系统层                              │
+│                          Layer 3: internal systems                       │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  核心银行 │ 信贷系统 │ 风控系统 │ 反洗钱   │ 客户管理 CRM │ 报表系统    │
-│  对账系统 │ 清算系统 │ 票据系统 │ 衍生品   │ 内部 OA      │ 邮件系统    │
+│  core banking │ credit system │ risk-control system │ anti-money-laundering │ customer management CRM │ reporting system │
+│  reconciliation system │ clearing system │ bill system │ derivatives │ internal OA │ mail system │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. 高危漏洞类型分布（金融特化）
+## 3. High-severity vulnerability distribution (finance-specific)
 
-### 3.1 第一梯队：资金类（68%–88% 高危）
+### 3.1 First tier: funds class (68%-88% high severity)
 
-| 漏洞类型 | 高危占比 | 银行特有场景 | 主要 playbook |
+| Vulnerability type | High-severity share | Bank-specific scenario | Main playbook |
 |---------|---------|-------------|--------------|
-| 密码重置 | 88.0% | 网银/手机银行登录密码、交易密码、支付密码 | `logic-flaws.md` §3.1 |
-| 提现 | 83.1% | 转账限额绕过、提现校验缺陷 | 本篇 §4.3 |
-| 金额篡改 | 83.0% | 转账金额、理财金额、还款金额 | `logic-flaws.md` §3.4 |
-| 余额篡改 | 77.9% | 账户余额、积分、虚拟卡 | 本篇 §4.4 |
-| 订单篡改 | 74.2% | 信用卡订单、理财下单 | `logic-flaws.md` §3.4 |
-| 价格篡改 | 74.3% | 理财产品价格、增值服务 | `logic-flaws.md` §3.4 |
-| 支付绕过 | 68.7% | 快捷支付、代扣代付、跨行转账 | 本篇 §4.1 |
+| Password reset | 88.0% | online/mobile banking login password, transaction password, payment password | `logic-flaws.md` §3.1 |
+| Withdrawal | 83.1% | transfer-limit bypass, withdrawal-validation flaws | this file §4.3 |
+| Amount tampering | 83.0% | transfer amount, investment amount, repayment amount | `logic-flaws.md` §3.4 |
+| Balance tampering | 77.9% | account balance, points, virtual card | this file §4.4 |
+| Order tampering | 74.2% | credit-card orders, investment orders | `logic-flaws.md` §3.4 |
+| Price tampering | 74.3% | investment product price, value-added services | `logic-flaws.md` §3.4 |
+| Payment bypass | 68.7% | quick pay, agency debit/credit, interbank transfer | this file §4.1 |
 
-### 3.2 第二梯队：鉴权 / 信息类
+### 3.2 Second tier: authentication / information class
 
-| 漏洞类型 | 案例数 | 银行特化场景 |
+| Vulnerability type | Cases | Bank-specific scenario |
 |---------|-------|------------|
-| 弱口令 | 7,513 | 网银运维后台、ATM 监控、行内 OA |
-| 越权 | 1,705 | 查看他人账户 / 流水 / 客户信息 |
-| 验证码 | 334 | 登录、转账、密码重置、人脸识别 |
-| 信息泄露 | 4,858 | 客户 PII / 交易记录 / 信贷资料 |
+| Weak passwords | 7,513 | online-banking ops panels, ATM monitoring, in-bank OA |
+| Broken access | 1,705 | viewing others' accounts / statements / customer info |
+| Verification codes | 334 | login, transfer, password reset, face recognition |
+| Information disclosure | 4,858 | customer PII / transaction records / credit materials |
 
-### 3.3 第三梯队：客户端 / 移动端
+### 3.3 Third tier: client / mobile
 
-银行特有，通用 SRC 库少有覆盖：
+Bank-specific, rarely covered by generic SRC libraries:
 
-- **手机银行 APP 加固绕过**：Frida / Objection 反调试
-- **SSL Pinning 绕过**：Frida hook
-- **本地存储敏感数据**：sqlite / sharedPrefs / 内存中的明文密码
-- **签名算法逆向**：交易请求签名（HMAC / RSA）
-- **小程序密钥硬编码**：微信小程序包内的 AppSecret / 签名 key
+- **Mobile-banking app hardening bypass**: Frida / Objection anti-debugging
+- **SSL pinning bypass**: Frida hook
+- **Sensitive data in local storage**: sqlite / sharedPrefs / cleartext passwords in memory
+- **Reversing signing algorithms**: transaction-request signatures (HMAC / RSA)
+- **Hardcoded mini-program secrets**: the AppSecret / signing key inside a WeChat mini-program package
 
 ---
 
-## 4. 银行特有攻击场景
+## 4. Bank-specific attack scenarios
 
-### 4.1 第三方/聚合支付接口（重点矿区）
+### 4.1 Third-party / aggregated payment interfaces (a key mine)
 
 ```
-攻击面：
-├── 商户密钥泄露（GitHub/Gitee/外包代码）
-├── 异步通知（notify_url）签名缺陷
-├── 同步回调（return_url）参数可控
-├── 金额二次校验缺失
-├── 商户号越权（A 商户的 mch_id 用 B 商户密钥）
-└── 测试支付网关凭据（沙箱密钥用于生产）
+Attack surface:
+├── merchant key disclosure (GitHub/Gitee/outsourced code)
+├── async-notification (notify_url) signature flaws
+├── sync-callback (return_url) controllable parameters
+├── missing second amount validation
+├── merchant-number broken access (using merchant A's mch_id with merchant B's key)
+└── test payment-gateway credentials (sandbox key used in production)
 ```
 
-**探针清单**：
+**Probe checklist**:
 
 ```bash
-# 1. notify_url 重放
+# 1. notify_url replay
 curl -X POST https://target/pay/notify \
   -d "out_trade_no=ORDER001&total_fee=100&trade_status=SUCCESS&sign=XXX"
-# 看是否多次发货
+# see whether it ships the goods multiple times
 
-# 2. 签名校验缺失测试
-# 删除 sign / 置空 sign / 用错误 sign
+# 2. missing-signature-check test
+# remove sign / empty sign / use a wrong sign
 curl -X POST https://target/pay/notify -d "out_trade_no=ORDER001&trade_status=SUCCESS"
 
-# 3. 修改 total_fee 但保持 sign
-# （多数实现是先校 sign 再处理金额，但有少数实现把 sign 算法暴露在前端）
+# 3. modify total_fee but keep sign
+# (most implementations check sign first, then process the amount, but a few expose the sign algorithm in the frontend)
 ```
 
-**关键参数**：`amount` / `total_fee` / `price` / `total` / `out_trade_no` / `trade_no` / `mch_id` / `sign` / `signature` / `appid` / `nonce_str` / `notify_url` / `return_url` / `attach`。
+**Key parameters**: `amount` / `total_fee` / `price` / `total` / `out_trade_no` / `trade_no` / `mch_id` / `sign` / `signature` / `appid` / `nonce_str` / `notify_url` / `return_url` / `attach`.
 
-### 4.2 手机银行 APP
-
-```
-APP 渗透流程：
-1. 抓包突破：绕过 SSL Pinning（Frida / Objection）
-2. 逆向分析：脱壳 → jadx 反编译 → 签名算法逆向 → 密钥提取
-3. Hook 测试：绕过人脸/指纹/手势校验、修改限额检测
-4. 接口比对：APP 接口 vs Web 接口的差异（APP 接口往往鉴权更弱）
-5. 内部 SDK：埋点/推送/客服 IM 的 SDK 是否暴露内部接口
-```
-
-**APP 鉴权常见缺陷**：
-- APP 接口仅校验 token，不校验角色
-- APP 接口跳过 Web 的 WAF / 风控
-- APP 接口的 user-agent / 客户端类型 校验可绕过（仿造 `User-Agent: BankApp/1.0`）
-
-详见 `playbooks/mobile.md`。
-
-### 4.3 提现 / 转账（83.1% 高危）
+### 4.2 Mobile-banking app
 
 ```
-转账接口测试矩阵：
-1. 金额向负
-   amount = -1000  → 收款方扣款，发款方加款
-2. 限额绕过
-   - 改 amount 数据类型：number → string ("100")
-   - 用科学计数：1e10
-   - 用极小小数：0.001 × 1000 次（凑齐限额）
-3. 双花 / 竞态
-   并发提现 N 次余额额度
-4. 改收款方 (to_account / payee_id)
-   把转账目标改成攻击者控制的账户
-5. 状态机
-   - 改 status=SUCCESS（伪造已成功）
-   - 重放成功的转账回调
+App pentest flow:
+1. Traffic capture: bypass SSL pinning (Frida / Objection)
+2. Reverse analysis: unpack → jadx decompile → reverse the signing algorithm → extract the key
+3. Hook testing: bypass face/fingerprint/gesture checks, modify limit checks
+4. Interface comparison: app interfaces vs web interfaces (app interfaces often have weaker authz)
+5. Internal SDKs: whether the analytics/push/support-IM SDK exposes internal interfaces
 ```
 
-**红线**：
-- 不实际向陌生账户转账。所有金额测试用研究员自有账号 → 自有账号。
-- 极小金额（0.01 元）即停。
-- 任何"返还" / "撤回"操作都要立即截图存证，便于后续对账。
+**Common app authz flaws**:
+- The app interface only checks the token, not the role
+- The app interface skips the web's WAF / risk control
+- The app interface's user-agent / client-type check can be bypassed (forge `User-Agent: BankApp/1.0`)
 
-### 4.4 余额 / 积分 / 卡券
+See `playbooks/mobile.md`.
 
-| 攻击 | 方法 |
+### 4.3 Withdrawal / transfer (83.1% high severity)
+
+```
+Transfer-interface test matrix:
+1. Negative amount
+   amount = -1000  → the payee is debited, the payer is credited
+2. Limit bypass
+   - change the amount data type: number → string ("100")
+   - use scientific notation: 1e10
+   - use tiny decimals: 0.001 × 1000 times (to reach the limit)
+3. Double spend / race
+   concurrent withdrawals of N times the balance limit
+4. Change the payee (to_account / payee_id)
+   redirect the transfer target to an attacker-controlled account
+5. State machine
+   - set status=SUCCESS (forge a completed state)
+   - replay a successful transfer callback
+```
+
+**Red line**:
+- Do not actually transfer to a stranger's account. All amount tests use the researcher's own account → their own account.
+- Stop at a tiny amount (0.01 yuan).
+- Screenshot any "refund" / "reversal" operation immediately as evidence, for later reconciliation.
+
+### 4.4 Balance / points / coupons
+
+| Attack | Method |
 |------|------|
-| 负向转账 | `amount=-100` |
-| 余额计算绕过 | 客户端请求中改 `balance` 参数 |
-| 小数精度漏洞 | 提现 0.001 × 10000 次（舍入累积）|
-| 卡券生成 | 任意调发卡接口 |
-| 积分汇率 | 兑换接口里改"1 积分 = X 元"的值 |
+| Negative transfer | `amount=-100` |
+| Balance-computation bypass | change the `balance` parameter in the client request |
+| Decimal-precision flaw | withdraw 0.001 × 10000 times (rounding accumulation) |
+| Coupon generation | call the card-issuing interface arbitrarily |
+| Points exchange rate | change the "1 point = X yuan" value in the redemption interface |
 
-真实案例：
-- 神舟专车充值流程免输信用卡交易密码（套现绕过）
-- 鱼泡泡 APP 任意用户登录可影响余额（sign 绕过）
-- 宁波银行直销银行看任意卡余额
-- 中国平安某处验证逻辑问题导致管理商品价格
+Real cases:
+- Shenzhou Zhuanche recharge flow skips the credit-card transaction password (cash-out bypass)
+- Yupaopao app arbitrary-user login can affect balances (sign bypass)
+- Bank of Ningbo direct banking views any card's balance
+- A validation-logic issue at Ping An led to managing product prices
 
-### 4.5 验证绕过（金融行业特别版）
+### 4.5 Verification bypass (finance-sector edition)
 
-#### 短信验证码
-
-```
-├── 爆破：4–6 位数字 + 100 线程，30 秒爆完
-├── 并发：绕过频率限制
-├── 复用：同一验证码用多次
-├── 回显：响应中泄露
-├── 万能：测试期 0000 / 1234
-└── 跨流程：注册流程的码用于重置
-```
-
-#### 人脸识别
+#### SMS verification codes
 
 ```
-├── 照片攻击：纸照 / 屏幕回放
-├── 视频攻击：眨眼 / 摇头视频
-├── Hook 返回值：Frida hook 人脸校验函数
-├── 接口重放：重放成功的人脸 API 响应
-└── 替换人脸数据：抓包修改 face_data 字段
+├── Brute force: 4-6 digits + 100 threads, cracked in 30 seconds
+├── Concurrency: bypass the rate limit
+├── Reuse: use the same code multiple times
+├── Echo: leaked in the response
+├── Universal: 0000 / 1234 during the test period
+└── Cross-flow: the registration-flow code used for reset
 ```
 
-#### U 盾 / 数字证书
-
-> 大多数 U 盾相关攻击在 2020 年后已被生物识别+硬件 TEE 取代，仅在企业网银仍少量在线。
-
-#### 交易签名
+#### Face recognition
 
 ```
-├── 签名密钥硬编码 / 通过 GitHub 找到
-├── 关键字段未参与签名（如改 amount，sign 不变也通过）
-├── 签名校验可选（删 sign 字段直接通过）
-└── 签名算法降级（RSA → HMAC → MD5 → 无）
+├── Photo attack: printed photo / screen replay
+├── Video attack: blink / head-shake video
+├── Hook the return value: Frida hook the face-check function
+├── Interface replay: replay a successful face-API response
+└── Replace the face data: intercept and modify the face_data field
+```
+
+#### USB shield / digital certificate
+
+> Most USB-shield attacks were superseded after 2020 by biometrics + a hardware TEE; only a small amount remains online in corporate online banking.
+
+#### Transaction signing
+
+```
+├── Signing key hardcoded / found via GitHub
+├── Key fields not covered by the signature (e.g. changing amount passes with sign unchanged)
+├── Optional signature check (removing the sign field passes directly)
+└── Signing-algorithm downgrade (RSA → HMAC → MD5 → none)
 ```
 
 ---
 
-## 5. 高价值目标资产
+## 5. High-value target assets
 
-| 目标系统 | 价值 | 黑盒可见度 |
+| Target system | Value | Black-box visibility |
 |---------|-----|-----------|
-| 核心银行系统 | ⭐⭐⭐⭐⭐ | 极低（内网） |
-| 信贷系统 | ⭐⭐⭐⭐ | 中（部分对外暴露审批/查询接口） |
-| 风控系统 | ⭐⭐⭐⭐ | 低 |
-| 反洗钱系统 | ⭐⭐⭐⭐ | 低 |
-| CRM / KYC | ⭐⭐⭐ | 中 |
-| 客服 / 工单系统 | ⭐⭐ | 高（最容易突破） |
-| 营销活动 / H5 | ⭐⭐ | 极高（最常见入口） |
-| 信用卡中心 | ⭐⭐⭐⭐ | 中 |
+| Core banking system | ⭐⭐⭐⭐⭐ | very low (internal) |
+| Credit system | ⭐⭐⭐⭐ | medium (some approval/query interfaces exposed externally) |
+| Risk-control system | ⭐⭐⭐⭐ | low |
+| Anti-money-laundering system | ⭐⭐⭐⭐ | low |
+| CRM / KYC | ⭐⭐⭐ | medium |
+| Support / ticketing system | ⭐⭐ | high (easiest to break into) |
+| Marketing campaign / H5 | ⭐⭐ | very high (most common entry point) |
+| Credit-card center | ⭐⭐⭐⭐ | medium |
 
-**实战路径**：从营销活动 H5 / 客服系统 → 撞库 / 越权 → 客户 PII → 联动信用卡中心 → 信贷系统。
+**Practical path**: from a marketing-campaign H5 / support system → credential stuffing / broken access → customer PII → pivot to the credit-card center → the credit system.
 
 ---
 
-## 6. GetShell / 横向移动
+## 6. GetShell / lateral movement
 
-### 6.1 边界设备
+### 6.1 Edge devices
 
 ```
-VPN / 网关漏洞：
+VPN / gateway vulnerabilities:
 ├── Pulse Secure CVE-2019-11510
 ├── Fortinet CVE-2018-13379
 ├── Citrix CVE-2019-19781
-├── 深信服 VPN 任意密码重置
-└── 安恒 / 启明 / 天融信 设备弱口令
+├── Sangfor VPN arbitrary password reset
+└── DBAppSecurity / Venustech / Topsec device weak passwords
 
-CDN 回源：
-├── 找真实 IP（fofa "icon_hash" / 历史 DNS）
-├── 直接打回源
-└── 配置层：Host 头注入
+CDN origin pull:
+├── find the real IP (fofa "icon_hash" / historical DNS)
+├── hit the origin directly
+└── config layer: Host header injection
 ```
 
-### 6.2 第三方外包 / 供应链
+### 6.2 Third-party outsourcing / supply chain
 
 ```
-供应链路径：
-├── 外包公司 → 开发测试环境 → 正式环境
-├── 设备供应商 → 预置账号
-├── 服务提供商 → 短信 / 身份核验 / 反欺诈 SDK
-└── 印刷厂 / 卡商 → 卡号 / 加密密钥
+Supply-chain paths:
+├── outsourcing company → dev/test environment → production
+├── device vendor → preset accounts
+├── service provider → SMS / identity-verification / anti-fraud SDK
+└── printing house / card vendor → card numbers / encryption keys
 ```
 
-### 6.3 GetShell 优先级（金融场景）
+### 6.3 GetShell priority (finance scenarios)
 
 ```
-1. Struts2 RCE（S2-045/046/048/052/057/059）── 银行老系统常见
-2. WebLogic 反序列化（CVE-2017-10271 / 2019-2725 / 2020-14882）
-3. Shiro 反序列化（rememberMe）── 国产 OA / 工单系统常见
-4. Fastjson RCE 1.2.x ── 接口层常见
-5. Log4Shell ── 内部日志框架
-6. 文件上传绕过 ── OA / CMS 编辑器
+1. Struts2 RCE (S2-045/046/048/052/057/059) — common in old bank systems
+2. WebLogic deserialization (CVE-2017-10271 / 2019-2725 / 2020-14882)
+3. Shiro deserialization (rememberMe) — common in CN OA / ticketing systems
+4. Fastjson RCE 1.2.x — common at the interface layer
+5. Log4Shell — internal logging frameworks
+6. File-upload bypass — OA / CMS editors
 ```
 
-详见 `playbooks/rce.md` 和 `playbooks/file-upload.md`。
+See `playbooks/rce.md` and `playbooks/file-upload.md`.
 
 ---
 
-## 7. 实战 Checklist
+## 7. Practical checklist
 
-### 7.1 信息收集
-- [ ] 子域枚举（含 ipv6）
-- [ ] APP / 小程序 / 公众号下载分析
-- [ ] GitHub / Gitee / 码云代码搜索（公司名 + commitor 邮箱）
-- [ ] 历史接口 Wayback Machine
-- [ ] 微信小程序 + 公众号底部菜单的 H5
-- [ ] 营销活动页 / 双 11 / 春节红包活动页
-- [ ] 客服系统 / 工单系统的子域
-- [ ] 信用卡中心独立子站
+### 7.1 Information gathering
+- [ ] Subdomain enumeration (including IPv6)
+- [ ] Download and analyze the app / mini-program / official account
+- [ ] GitHub / Gitee / Code Cloud code search (company name + committer email)
+- [ ] Historical interfaces via the Wayback Machine
+- [ ] H5 pages in the WeChat mini-program + official account bottom menu
+- [ ] Marketing-campaign pages / Double-11 / Spring Festival red-packet pages
+- [ ] Subdomains of the support / ticketing system
+- [ ] The credit-card center's standalone sub-site
 
-### 7.2 漏洞探测
-- [ ] 弱口令（运维后台 / OA / 邮件）
-- [ ] 业务逻辑（支付 / 转账 / 密码重置 / 信用卡分期）
-- [ ] 越权（横向 / 纵向）
-- [ ] 接口安全（签名 / 加密 / 重放）
-- [ ] APP 客户端安全（脱壳 / Pinning / 本地存储）
-- [ ] 第三方支付 notify_url 缺陷
-- [ ] 验证码（短信 / 图形 / 人脸）
-- [ ] 任意 X 子授权（任意账号 / 任意操作）
+### 7.2 Vulnerability probing
+- [ ] Weak passwords (ops panels / OA / mail)
+- [ ] Business logic (payment / transfer / password reset / credit-card installments)
+- [ ] Broken access (horizontal / vertical)
+- [ ] Interface security (signature / encryption / replay)
+- [ ] App client security (unpacking / pinning / local storage)
+- [ ] Third-party payment notify_url flaws
+- [ ] Verification codes (SMS / graphical / face)
+- [ ] Arbitrary-X sub-authorization (arbitrary account / arbitrary operation)
 
-### 7.3 深度利用
-- [ ] 支付金额篡改（自账→自账）
-- [ ] 验证码并发爆破
-- [ ] 人脸识别接口重放
-- [ ] 并发条件竞争（提现 / 优惠券）
-- [ ] 内部接口越权（仅限可证明）
+### 7.3 Deep exploitation
+- [ ] Payment amount tampering (own account → own account)
+- [ ] Concurrent verification-code brute force
+- [ ] Face-recognition interface replay
+- [ ] Concurrency race conditions (withdrawal / coupon)
+- [ ] Internal-interface broken access (only where provable)
 
 ---
 
-## 8. 真实案例指纹（金融）
+## 8. Real-case fingerprints (finance)
 
-| 案例 | 一句话指纹 | 漏洞分类 |
+| Case | One-line fingerprint | Vulnerability class |
 |------|----------|---------|
-| 中原银行 GetShell（影响财付通 / 支付宝）| 边界 Web RCE → 内网 | 边界 RCE |
-| 通联支付文件遍历读取（Oracle EBS）| `/oracle.../read?path=` | 任意文件读 |
-| 某第三方支付机构 SOAP 注入（DBA + 9 库）| WSDL 暴露 + WS 注入 | SQLi |
-| 神舟专车充值免交易密码 | 客户端跳过 PIN | 支付绕过 |
-| 鱼泡泡 APP 任意账号 | sign 字段空值绕过 | 任意账号 |
-| 宁波银行直销银行看任意卡余额 | API 不校验账户归属 | IDOR |
-| 百姓大药房 2000W PII + 余额 | 弱口令 + 后台越权 | 弱口令 |
-| 中国平安 100W PII + 价格管理 | 鉴权 + 价格校验缺失 | 越权 |
+| Zhongyuan Bank GetShell (affecting Tenpay / Alipay) | edge web RCE → internal network | edge RCE |
+| Allinpay file-traversal read (Oracle EBS) | `/oracle.../read?path=` | arbitrary file read |
+| A third-party payment institution SOAP injection (DBA + 9 databases) | WSDL exposed + WS injection | SQLi |
+| Shenzhou Zhuanche recharge without transaction password | client skips the PIN | payment bypass |
+| Yupaopao app arbitrary account | sign field empty-value bypass | arbitrary account |
+| Bank of Ningbo direct banking views any card balance | API does not check account ownership | IDOR |
+| Baixing Pharmacy 20M PII + balance | weak password + backend broken access | weak password |
+| Ping An 1M PII + price management | authz + missing price validation | broken access |
 
 ---
 
-## 9. 红线（金融行业 SRC 特别版）
+## 9. Red lines (finance-sector SRC edition)
 
-- **绝不**：转账给陌生账户。研究员账号自转自即停。
-- **绝不**：实测信用卡盗刷 / 套现 / 实物兑换。
-- **绝不**：使用真实客户的身份证 / 银行卡 / 手机号测试。准备 5+ 个研究员名下的测试卡。
-- **绝不**：扫描银行公开 IP 段（涉嫌违反《关键信息基础设施安全保护条例》）。仅扫漏洞奖励计划明确授权的资产。
-- **绝不**：在生产环境留 webshell / cron / SSH 公钥。证明到 RCE 即停，立即清理 + 在报告中说明清理时间。
-- **绝不**：数据外泄（即使是给厂方）。报告中只贴 1–3 条脱敏样本。
+- **Never**: transfer to a stranger's account. Stop at a researcher's own-to-own transfer.
+- **Never**: actually test credit-card fraud / cash-out / physical redemption.
+- **Never**: use a real customer's ID card / bank card / phone number for testing. Prepare 5+ test cards in the researcher's own name.
+- **Never**: scan a bank's public IP ranges (potential violation of the Critical Information Infrastructure Security Protection Regulations). Only scan assets explicitly authorized by the bug-bounty program.
+- **Never**: leave a webshell / cron / SSH public key in production. Stop at proving RCE, clean up immediately, and note the cleanup time in the report.
+- **Never**: exfiltrate data (even to the vendor). Paste only 1-3 redacted samples in the report.
 
 ---
 
-## 10. 与方法论 / 字典链接
+## 10. Links to methodology / dictionaries
 
 ```
-methodology/05-srctimebox-priority.md   →  金融行业的 88% / 83% 重点漏洞
-playbooks/logic-flaws.md                 →  支付 / 订单 / 密码重置详细
-playbooks/arbitrary-x-authz.md           →  任意账号（86.4%）/ 任意操作
-playbooks/oauth-saml-jwt.md              →  SSO / JWT / 联邦身份
-playbooks/mobile.md                      →  手机银行 APP
-playbooks/race-conditions.md             →  并发提现 / 优惠券
-dictionaries/default-credentials-cn.md   →  网银 / OA / 监控的国产默认凭据
-dictionaries/chinese-srcfingerprints.md  →  金融常见组件指纹（致远 OA / 用友 / 金蝶等）
+methodology/05-srctimebox-priority.md   →  the 88% / 83% priority bugs in finance
+playbooks/logic-flaws.md                 →  payment / order / password-reset details
+playbooks/arbitrary-x-authz.md           →  arbitrary account (86.4%) / arbitrary operation
+playbooks/oauth-saml-jwt.md              →  SSO / JWT / federated identity
+playbooks/mobile.md                      →  mobile-banking app
+playbooks/race-conditions.md             →  concurrent withdrawal / coupons
+dictionaries/default-credentials-cn.md   →  CN default credentials for online banking / OA / monitoring
+dictionaries/chinese-srcfingerprints.md  →  common finance component fingerprints (Seeyon OA / Yonyou / Kingdee, etc.)
 ```

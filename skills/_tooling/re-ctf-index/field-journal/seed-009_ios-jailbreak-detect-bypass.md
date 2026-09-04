@@ -1,44 +1,44 @@
-# [种子] iOS 越狱检测绕过 + 抓包
+# [Seed] iOS Jailbreak Detection Bypass + Traffic Capture
 
-## 场景分类
-iOS 逆向 / 移动安全测试
+## Scenario Category
+iOS reversing / mobile security testing
 
-## 目标概述
-某 iOS 应用在越狱设备上启动即闪退或显示"环境异常"，需要绕过越狱检测才能进一步分析其 HTTP 请求。
+## Target Overview
+An iOS app crashes on launch or displays "abnormal environment" on a jailbroken device. Jailbreak detection has to be bypassed before its HTTP requests can be analyzed further.
 
-## 完整执行链路
+## Full Execution Chain
 
-1. 越狱机准备（Dopamine / palera1n / unc0ver）→ 装 frida-server（Cydia 源 `build.frida.re`）
-2. 把 IPA 拖到机器，AppSync Unified 装签名 → 启动确认能 `frida-ps -U`
-3. 启动 App → 闪退或弹"环境异常"
-4. 用 `frida-trace -U -i 'open' -i 'stat' -i 'access' -i 'fork' com.target.app` 看检测调用
-5. 常见命中：探测 `/Applications/Cydia.app`、`/private/var/lib/apt`、`/usr/sbin/sshd`、`fork()` 是否成功、`/etc/apt`
-6. 用 objection 一键绕过：`objection --gadget com.target.app explore -s "ios jailbreak disable"`
-7. 启动成功后用 frida hook NSURLSession 抓包，或配 mitmproxy 装系统证书
+1. Prepare a jailbroken device (Dopamine / palera1n / unc0ver) → install frida-server (Cydia repo `build.frida.re`)
+2. Copy the IPA onto the device, sign it with AppSync Unified → launch it and confirm `frida-ps -U` works
+3. Launch the app → it crashes or pops "abnormal environment"
+4. Run `frida-trace -U -i 'open' -i 'stat' -i 'access' -i 'fork' com.target.app` to observe the detection calls
+5. Common hits: probing `/Applications/Cydia.app`, `/private/var/lib/apt`, `/usr/sbin/sshd`, whether `fork()` succeeds, `/etc/apt`
+6. One-shot bypass with objection: `objection --gadget com.target.app explore -s "ios jailbreak disable"`
+7. Once it launches, hook NSURLSession with frida to capture traffic, or set up mitmproxy and install its system certificate
 
-## 踩坑记录
+## Pitfalls Encountered
 
-| 问题 | 原因 | 解决方案 | 耗时 |
+| Problem | Cause | Solution | Time spent |
 |------|------|---------|------|
-| objection 绕过后还是闪退 | App 用了 SSL Pinning + 越狱检测双重 | 同时启用 `ios sslpinning disable` 与 `ios jailbreak disable` | 15min |
-| App 在启动前就检测，hook 来不及 | 越狱检测在 `+load` 或 `__attribute__((constructor))` 里 | 用 `-f` spawn 模式 + `frida-trace --aux 'spawn=1'` | 20min |
-| Hook stat 之后 App 卡住 | stat 被 hook 后部分系统调用也被影响 | 只 hook 应用 bundle 内代码触发的 stat（按 caller 过滤） | 30min |
-| Frida-server 启动后 App 仍能检测到 | App 检测了 27042 端口与 frida 字符串 | 用 `frida-server` 改名 + 改默认端口（`-l 0.0.0.0:1234`），客户端用 `-H ip:1234` | 25min |
-| mitmproxy 装证书后仍 SSL 错误 | iOS 14+ 系统证书需要在"通用 → 关于本机 → 证书信任设置"再开一道开关 | 装完证书去信任设置勾选 | 10min |
+| Still crashing after the objection bypass | The app used both SSL pinning and jailbreak detection | Enable `ios sslpinning disable` and `ios jailbreak disable` at the same time | 15min |
+| The app detects before launch, so the hook lands too late | Jailbreak detection lives in `+load` or `__attribute__((constructor))` | Use `-f` spawn mode + `frida-trace --aux 'spawn=1'` | 20min |
+| The app hangs after hooking stat | Hooking stat also affects some system calls | Only hook stat calls triggered by code inside the app bundle (filter by caller) | 30min |
+| The app still detects frida-server after it starts | The app checked port 27042 and the string "frida" | Rename `frida-server` + change the default port (`-l 0.0.0.0:1234`), and connect with `-H ip:1234` on the client | 25min |
+| Still getting SSL errors after installing the mitmproxy certificate | On iOS 14+, a system certificate needs a second switch under "General → About → Certificate Trust Settings" | After installing the certificate, go into Trust Settings and enable it | 10min |
 
-## 工具链发现
+## Toolchain Findings
 
-- **objection** 是 iOS 安全测试的瑞士军刀，自带 jailbreak / sslpin / clipboard / keychain dump 等模块
-- **r2frida** 把 radare2 接到 frida 上，能在运行时反汇编 + 修改寄存器，比纯 frida 强得多
-- **Hopper / IDA** 反编译 iOS 二进制（iOS Mach-O 用 IDA 7+ 或 Ghidra 都行）
-- **dumpdecrypted** 已经过时，现在用 **frida-ios-dump** 脱壳
+- **objection** is the Swiss Army knife of iOS security testing, shipping jailbreak / sslpin / clipboard / keychain dump modules and more
+- **r2frida** wires radare2 into frida, letting you disassemble and modify registers at runtime, far more capable than plain frida
+- **Hopper / IDA** decompile iOS binaries (IDA 7+ or Ghidra both handle iOS Mach-O)
+- **dumpdecrypted** is obsolete, use **frida-ios-dump** for decryption now
 
-## 关键代码/命令
+## Key Code / Commands
 
-通用越狱检测 hook 模板：
+Generic jailbreak detection hook template:
 
 ```javascript
-// 拦截 NSFileManager fileExistsAtPath 检测越狱目录
+// Intercept NSFileManager fileExistsAtPath checks for jailbreak directories
 var NSFileManager = ObjC.classes.NSFileManager;
 Interceptor.attach(NSFileManager['- fileExistsAtPath:'].implementation, {
     onEnter: function (args) {
@@ -59,49 +59,49 @@ Interceptor.attach(NSFileManager['- fileExistsAtPath:'].implementation, {
     }
 });
 
-// 拦截 fork() —— 越狱机能 fork，非越狱机返回 -1
+// Intercept fork(): a jailbroken device can fork, a non-jailbroken one returns -1
 var fork = Module.findExportByName(null, 'fork');
 Interceptor.replace(fork, new NativeCallback(function () {
     return -1;
 }, 'int', []));
 ```
 
-一键脱壳（用于上传 jadx 等的反编译）：
+One-shot decryption (for feeding into decompilers such as jadx):
 
 ```bash
 frida-ios-dump -l com.target.app
-# 输出 Payload/TargetApp.app + 已脱壳 Mach-O
+# Outputs Payload/TargetApp.app + the decrypted Mach-O
 ```
 
-## 对本包的改进建议
+## Improvement Suggestions for This Package
 
-- 新增子 skill `ios-reverse/`（与 `apk-reverse/` 平行），覆盖：脱壳、越狱检测绕过、SSL Pin、Keychain dump、frida-ios-dump、`+load` 时机
-- 现有 `apk-reverse/` 不应承担 iOS 内容，避免混淆
+- Add a new sub-skill `ios-reverse/` (parallel to `apk-reverse/`) covering: app decryption, jailbreak detection bypass, SSL pinning, Keychain dump, frida-ios-dump, `+load` timing
+- The existing `apk-reverse/` should not carry iOS content, to avoid confusion
 
-## 可复用的模式/脚本片段
+## Reusable Patterns / Script Snippets
 
-**iOS 安全测试速查**：
+**iOS security testing quick reference**:
 
 ```text
-1. 越狱环境准备（Dopamine 16.x / palera1n 旧版）
-2. frida-ios-dump 脱壳
-3. otool / class-dump 看类层级
-4. objection 起 console
+1. Prepare the jailbreak environment (Dopamine 16.x / older palera1n)
+2. Decrypt with frida-ios-dump
+3. Inspect the class hierarchy with otool / class-dump
+4. Start an objection console
 5. ios jailbreak disable
 6. ios sslpinning disable
-7. mitmproxy 抓包（系统证书 + 信任设置双开）
-8. 关键逻辑找完后用 IDA / Hopper 静态深挖
+7. Capture traffic with mitmproxy (system certificate + Trust Settings, both enabled)
+8. Once the key logic is located, dig into it statically with IDA / Hopper
 ```
 
-## 进化动作
-- [ ] **建议新增 ios-reverse skill**（当前路由矩阵 iOS 走 reverse-engineering/platforms.md，不够细）
-- [ ] bootstrap manifest 增加 frida-ios-dump
-- [ ] 增加"iOS 安全测试 Checklist"到 references/
+## Evolution Actions
+- [ ] **Suggest adding an ios-reverse skill** (the current routing matrix sends iOS to reverse-engineering/platforms.md, which is not detailed enough)
+- [ ] Add frida-ios-dump to the bootstrap manifest
+- [ ] Add an "iOS security testing checklist" to references/
 
-## 环境信息
-- 越狱设备: iPhone X（iOS 16.5）+ Dopamine 1.1.7
-- 主机: macOS 13+ / Kali（mitmproxy + frida-tools）
+## Environment Information
+- Jailbroken device: iPhone X (iOS 16.5) + Dopamine 1.1.7
+- Host: macOS 13+ / Kali (mitmproxy + frida-tools)
 - frida-server-ios: 16.x
 
-## 脱敏要求
-本条目为种子数据，基于公开技术模式编写，不涉及真实目标。Bundle ID `com.target.app` 为占位符。
+## Redaction Requirements
+This entry is seed data, written from publicly known technical patterns, and does not involve any real target. The bundle ID `com.target.app` is a placeholder.

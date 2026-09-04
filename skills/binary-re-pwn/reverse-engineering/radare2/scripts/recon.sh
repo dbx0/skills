@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# recon.sh — radare2 快速侦察（二进制基本信息、节区、导入导出、字符串）
-# 等价于 Windows 版的 recon.ps1
+# recon.sh — radare2 quick recon (binary info, sections, imports/exports, strings)
+# equivalent to the Windows version, recon.ps1
 #
-# 用法:
+# Usage:
 #   bash recon.sh <target_file> [--strings-limit 40] [--imports-limit 80] [--analyze]
 
 set -euo pipefail
@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KALI_BOOTSTRAP="$(cd "$SCRIPT_DIR/../../../kali/scripts" 2>/dev/null && pwd)/bootstrap-reverse.sh"
 
-# ─── 参数 ──────────────────────────────────────────────────────────────────────────
+# ─── Arguments ──────────────────────────────────────────────────────────────────────────
 
 TARGET=""
 STRINGS_LIMIT=40
@@ -22,34 +22,34 @@ while [[ $# -gt 0 ]]; do
         --strings-limit) STRINGS_LIMIT="$2"; shift 2 ;;
         --imports-limit) IMPORTS_LIMIT="$2"; shift 2 ;;
         --analyze) RUN_ANALYSIS=true; shift ;;
-        -*) echo "未知选项: $1"; exit 1 ;;
+        -*) echo "Unknown option: $1"; exit 1 ;;
         *) TARGET="$1"; shift ;;
     esac
 done
 
 if [[ -z "$TARGET" ]]; then
-    echo "用法: $0 <target_file> [--strings-limit N] [--imports-limit N] [--analyze]"
+    echo "Usage: $0 <target_file> [--strings-limit N] [--imports-limit N] [--analyze]"
     exit 1
 fi
 
 if [[ ! -f "$TARGET" ]]; then
-    echo "ERR: 文件不存在: $TARGET"
+    echo "ERR: file does not exist: $TARGET"
     exit 1
 fi
 
-# ─── 工具检测 ──────────────────────────────────────────────────────────────────────
+# ─── Tool detection ──────────────────────────────────────────────────────────────────────
 
 ensure_tool() {
     local name="$1"
     if command -v "$name" &>/dev/null; then
         return 0
     fi
-    echo "INFO: $name 未找到，尝试安装..."
+    echo "INFO: $name not found, attempting install..."
     if [[ -x "$KALI_BOOTSTRAP" ]]; then
         bash "$KALI_BOOTSTRAP" r2 --skip-refresh 2>/dev/null || true
     fi
     if ! command -v "$name" &>/dev/null; then
-        echo "ERR: $name 不可用。安装: apt install radare2"
+        echo "ERR: $name unavailable. Install with: apt install radare2"
         exit 1
     fi
 }
@@ -57,35 +57,35 @@ ensure_tool() {
 ensure_tool "rabin2"
 [[ "$RUN_ANALYSIS" == "true" ]] && ensure_tool "r2"
 
-# ─── 绝对路径 ──────────────────────────────────────────────────────────────────────
+# ─── Absolute path ──────────────────────────────────────────────────────────────────────
 
 TARGET="$(realpath "$TARGET")"
-echo "目标文件: $TARGET"
+echo "Target file: $TARGET"
 
-# ─── 侦察 ─────────────────────────────────────────────────────────────────────────
+# ─── Recon ─────────────────────────────────────────────────────────────────────────
 
 echo ""
-echo "=== 基本信息 ==="
+echo "=== Basic info ==="
 rabin2 -I -- "$TARGET"
 
 echo ""
-echo "=== 节区 ==="
+echo "=== Sections ==="
 rabin2 -S -- "$TARGET"
 
 echo ""
-echo "=== 导入 ==="
+echo "=== Imports ==="
 rabin2 -i -- "$TARGET" | head -n "$IMPORTS_LIMIT"
 
 echo ""
-echo "=== 导出 ==="
+echo "=== Exports ==="
 rabin2 -E -- "$TARGET"
 
 echo ""
-echo "=== 字符串 ==="
+echo "=== Strings ==="
 rabin2 -zz -- "$TARGET" | head -n "$STRINGS_LIMIT"
 
 if [[ "$RUN_ANALYSIS" == "true" ]]; then
     echo ""
-    echo "=== 函数与入口分析 ==="
+    echo "=== Function and entry-point analysis ==="
     r2 -A -q -c 's entry0;afl;iz;ii;q' -- "$TARGET"
 fi

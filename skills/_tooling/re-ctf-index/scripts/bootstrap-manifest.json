@@ -46,9 +46,9 @@
       "canAutoInstall": true,
       "verifyCommand": "ida-pro-mcp",
       "postInstallSteps": [
-        "ida-pro-mcp --install (选择 Streamable HTTP + Global)",
-        "重启 IDA Pro 使插件生效",
-        "IDA 打开文件后 MCP 自动监听 127.0.0.1:13337"
+        "ida-pro-mcp --install (choose Streamable HTTP + Global)",
+        "Restart IDA Pro so the plugin takes effect",
+        "Once IDA opens a file, MCP listens automatically on 127.0.0.1:13337"
       ]
     },
     {
@@ -90,7 +90,7 @@
       "mcpUrl": "http://127.0.0.1:13337/mcp",
       "servicePort": 13337,
       "servicePortRange": [13337, 13350],
-      "portNote": "IDA 多实例时端口递增 (13337→13338→...)，检查 IDA Output 窗口的 [MCP] port=xxxxx 日志",
+      "portNote": "With multiple IDA instances the port increments (13337→13338→...); check the [MCP] port=xxxxx line in the IDA Output window",
       "startScript": "%SKILL_ROOT%\\ida-reverse\\scripts\\start.ps1",
       "docsUrl": "https://hex-rays.com/ida-pro/",
       "canAutoInstall": true,
@@ -146,9 +146,9 @@
       "canAutoInstall": true,
       "verifyCommand": "analyzeHeadless",
       "postInstallSteps": [
-        "下载 GhidraMCP 插件: https://github.com/LaurieWired/GhidraMCP/releases",
-        "将插件 zip 安装到 Ghidra: File → Install Extensions → 选择下载的 zip",
-        "MCP server 在 Ghidra 项目打开后自动监听 localhost:8765"
+        "Download the GhidraMCP plugin: https://github.com/LaurieWired/GhidraMCP/releases",
+        "Install the plugin zip into Ghidra: File → Install Extensions → select the downloaded zip",
+        "The MCP server listens on localhost:8765 once a Ghidra project is open"
       ],
       "mcpNames": ["ghidra"],
       "mcpUrl": "http://localhost:8765/mcp",
@@ -167,14 +167,14 @@
       "name": "proxycat",
       "bootstrapKind": "git-clone",
       "repo": "https://github.com/honmashironeko/ProxyCat.git",
-      "installDir": "&lt;工具根目录&gt;\\ProxyCat",
+      "installDir": "&lt;tools root&gt;\\ProxyCat",
       "docsUrl": "https://github.com/honmashironeko/ProxyCat",
       "canAutoInstall": true,
       "verifyCommand": "proxycat",
       "postInstallSteps": [
-        "git clone https://github.com/honmashironeko/ProxyCat.git &lt;工具根目录&gt;\\ProxyCat",
-        "pip install -r &lt;工具根目录&gt;\\ProxyCat\\requirements.txt",
-        "使用 &lt;工具根目录&gt;\\bin\\proxycat.bat 启动"
+        "git clone https://github.com/honmashironeko/ProxyCat.git &lt;tools root&gt;\\ProxyCat",
+        "pip install -r &lt;tools root&gt;\\ProxyCat\\requirements.txt",
+        "Start it with &lt;tools root&gt;\\bin\\proxycat.bat"
       ]
     },
     {
@@ -186,7 +186,7 @@
       "docsUrl": "https://portswigger.net/burp",
       "canAutoInstall": false,
       "verificationMode": "service-or-registration",
-      "manualInstallHint": "在 BurpSuite 扩展市场搜索 MCP 插件安装，启动后监听 localhost:9876"
+      "manualInstallHint": "Search the BurpSuite extension marketplace for the MCP plugin and install it; once started it listens on localhost:9876"
     },
     {
       "name": "nmap",
@@ -208,7 +208,7 @@
       "docsUrl": "https://github.com/Armur-Ai/Pentest-Swarm-AI",
       "canAutoInstall": true,
       "verifyCommand": "pentestswarm",
-      "note": "群体智能渗透框架。需要 Go 1.24+ 或 Docker。支持 MCP server 模式。需要 Claude/Ollama API key。"
+      "note": "A swarm-intelligence pentest framework. Requires Go 1.24+ or Docker. Supports MCP server mode. Requires a Claude or Ollama API key."
     }
   ]
 }

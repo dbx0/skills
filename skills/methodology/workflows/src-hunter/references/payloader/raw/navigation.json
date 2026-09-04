@@ -3,21 +3,21 @@
     {
       "id": "web",
       "name": {
-        "zh": "🌐 Web应用攻防",
+        "zh": "🌐 Web Application",
         "en": "🌐 Web Application"
       },
       "children": [
         {
           "id": "sqli",
           "name": {
-            "zh": "SQL/NoSQL注入",
+            "zh": "SQL/NoSQL Injection",
             "en": "SQL/NoSQL Injection"
           },
           "children": [
             {
               "id": "sqli-mysql",
               "name": {
-                "zh": "MySQL注入",
+                "zh": "MySQL Injection",
                 "en": "MySQL Injection"
               },
               "payloadId": "sqli-mysql-basic"
@@ -25,7 +25,7 @@
             {
               "id": "sqli-mysql-advanced",
               "name": {
-                "zh": "MySQL高级注入",
+                "zh": "MySQL Advanced Injection",
                 "en": "MySQL Advanced Injection"
               },
               "payloadId": "sqli-mysql-advanced"
@@ -33,7 +33,7 @@
             {
               "id": "sqli-mssql",
               "name": {
-                "zh": "MSSQL注入",
+                "zh": "MSSQL Injection",
                 "en": "MSSQL Injection"
               },
               "payloadId": "sqli-mssql-basic"
@@ -41,7 +41,7 @@
             {
               "id": "sqli-mssql-advanced",
               "name": {
-                "zh": "MSSQL高级注入",
+                "zh": "MSSQL Advanced Injection",
                 "en": "MSSQL Advanced Injection"
               },
               "payloadId": "sqli-mssql-advanced"
@@ -49,7 +49,7 @@
             {
               "id": "sqli-oracle",
               "name": {
-                "zh": "Oracle注入",
+                "zh": "Oracle Injection",
                 "en": "Oracle Injection"
               },
               "payloadId": "sqli-oracle-basic"
@@ -57,7 +57,7 @@
             {
               "id": "sqli-oracle-advanced",
               "name": {
-                "zh": "Oracle高级注入",
+                "zh": "Oracle Advanced Injection",
                 "en": "Oracle Advanced Injection"
               },
               "payloadId": "sqli-oracle-advanced"
@@ -65,7 +65,7 @@
             {
               "id": "sqli-postgres",
               "name": {
-                "zh": "PostgreSQL注入",
+                "zh": "PostgreSQL Injection",
                 "en": "PostgreSQL Injection"
               },
               "payloadId": "sqli-postgres-basic"
@@ -73,7 +73,7 @@
             {
               "id": "sqli-sqlite",
               "name": {
-                "zh": "SQLite注入",
+                "zh": "SQLite Injection",
                 "en": "SQLite Injection"
               },
               "payloadId": "sqli-sqlite-basic"
@@ -81,7 +81,7 @@
             {
               "id": "sqli-mongodb",
               "name": {
-                "zh": "MongoDB注入",
+                "zh": "MongoDB Injection",
                 "en": "MongoDB Injection"
               },
               "payloadId": "sqli-mongodb-basic"
@@ -89,7 +89,7 @@
             {
               "id": "sqli-redis",
               "name": {
-                "zh": "Redis注入",
+                "zh": "Redis Injection",
                 "en": "Redis Injection"
               },
               "payloadId": "sqli-redis"
@@ -97,7 +97,7 @@
             {
               "id": "sqli-blind",
               "name": {
-                "zh": "布尔盲注",
+                "zh": "Boolean Blind Injection",
                 "en": "Boolean Blind Injection"
               },
               "payloadId": "sqli-blind"
@@ -105,7 +105,7 @@
             {
               "id": "sqli-time",
               "name": {
-                "zh": "时间盲注",
+                "zh": "Time-based Blind Injection",
                 "en": "Time-based Blind Injection"
               },
               "payloadId": "sqli-time-based"
@@ -113,7 +113,7 @@
             {
               "id": "sqli-error",
               "name": {
-                "zh": "报错注入",
+                "zh": "Error-based Injection",
                 "en": "Error-based Injection"
               },
               "payloadId": "sqli-error-based"
@@ -121,7 +121,7 @@
             {
               "id": "sqli-second-order",
               "name": {
-                "zh": "二阶注入",
+                "zh": "Second-order Injection",
                 "en": "Second-order Injection"
               },
               "payloadId": "sqli-second-order"
@@ -129,7 +129,7 @@
             {
               "id": "sqli-union",
               "name": {
-                "zh": "联合查询注入",
+                "zh": "Union-based Injection",
                 "en": "Union-based Injection"
               },
               "payloadId": "sqli-union"
@@ -137,7 +137,7 @@
             {
               "id": "sqli-stacked",
               "name": {
-                "zh": "堆叠查询注入",
+                "zh": "Stacked Queries Injection",
                 "en": "Stacked Queries Injection"
               },
               "payloadId": "sqli-stacked"
@@ -145,7 +145,7 @@
             {
               "id": "sqli-waf-bypass",
               "name": {
-                "zh": "WAF绕过技术",
+                "zh": "WAF Bypass Techniques",
                 "en": "WAF Bypass Techniques"
               },
               "payloadId": "sqli-waf-bypass"
@@ -155,14 +155,14 @@
         {
           "id": "xss",
           "name": {
-            "zh": "XSS跨站脚本",
+            "zh": "XSS Cross-Site Scripting",
             "en": "XSS Cross-Site Scripting"
           },
           "children": [
             {
               "id": "xss-reflected",
               "name": {
-                "zh": "反射型XSS",
+                "zh": "Reflected XSS",
                 "en": "Reflected XSS"
               },
               "payloadId": "xss-reflected"
@@ -170,7 +170,7 @@
             {
               "id": "xss-stored",
               "name": {
-                "zh": "存储型XSS",
+                "zh": "Stored XSS",
                 "en": "Stored XSS"
               },
               "payloadId": "xss-stored"
@@ -178,7 +178,7 @@
             {
               "id": "xss-dom",
               "name": {
-                "zh": "DOM型XSS",
+                "zh": "DOM-based XSS",
                 "en": "DOM-based XSS"
               },
               "payloadId": "xss-dom"
@@ -186,7 +186,7 @@
             {
               "id": "xss-mxss",
               "name": {
-                "zh": "突变型XSS(mXSS)",
+                "zh": "Mutation XSS (mXSS)",
                 "en": "Mutation XSS (mXSS)"
               },
               "payloadId": "xss-mxss"
@@ -199,7 +199,7 @@
             {
               "id": "xss-csp-bypass",
               "name": {
-                "zh": "CSP绕过",
+                "zh": "CSP Bypass",
                 "en": "CSP Bypass"
               },
               "payloadId": "xss-csp-bypass"
@@ -207,7 +207,7 @@
             {
               "id": "xss-filter-bypass",
               "name": {
-                "zh": "过滤器绕过",
+                "zh": "Filter Bypass",
                 "en": "Filter Bypass"
               },
               "payloadId": "xss-filter-bypass"
@@ -215,7 +215,7 @@
             {
               "id": "xss-encoding",
               "name": {
-                "zh": "编码绕过",
+                "zh": "Encoding Bypass",
                 "en": "Encoding Bypass"
               },
               "payloadId": "xss-encoding"
@@ -228,7 +228,7 @@
             {
               "id": "xss-cookie-theft",
               "name": {
-                "zh": "Cookie窃取",
+                "zh": "Cookie Theft",
                 "en": "Cookie Theft"
               },
               "payloadId": "xss-cookie-theft"
@@ -236,7 +236,7 @@
             {
               "id": "xss-keylogger",
               "name": {
-                "zh": "键盘记录",
+                "zh": "Keylogger",
                 "en": "Keylogger"
               },
               "payloadId": "xss-keylogger"
@@ -244,7 +244,7 @@
             {
               "id": "xss-beef",
               "name": {
-                "zh": "BeEF利用",
+                "zh": "BeEF Exploitation",
                 "en": "BeEF Exploitation"
               },
               "payloadId": "xss-beef"
@@ -254,14 +254,14 @@
         {
           "id": "ssrf",
           "name": {
-            "zh": "SSRF服务端请求伪造",
+            "zh": "SSRF Server-Side Request Forgery",
             "en": "SSRF Server-Side Request Forgery"
           },
           "children": [
             {
               "id": "ssrf-basic",
               "name": {
-                "zh": "基础SSRF攻击",
+                "zh": "Basic SSRF Attack",
                 "en": "Basic SSRF Attack"
               },
               "payloadId": "ssrf-basic"
@@ -269,7 +269,7 @@
             {
               "id": "ssrf-cloud-aws",
               "name": {
-                "zh": "AWS元数据攻击",
+                "zh": "AWS Metadata Attack",
                 "en": "AWS Metadata Attack"
               },
               "payloadId": "ssrf-cloud-aws"
@@ -277,7 +277,7 @@
             {
               "id": "ssrf-cloud-gcp",
               "name": {
-                "zh": "GCP元数据攻击",
+                "zh": "GCP Metadata Attack",
                 "en": "GCP Metadata Attack"
               },
               "payloadId": "ssrf-cloud-gcp"
@@ -285,7 +285,7 @@
             {
               "id": "ssrf-cloud-azure",
               "name": {
-                "zh": "Azure元数据攻击",
+                "zh": "Azure Metadata Attack",
                 "en": "Azure Metadata Attack"
               },
               "payloadId": "ssrf-cloud-azure"
@@ -293,7 +293,7 @@
             {
               "id": "ssrf-protocol",
               "name": {
-                "zh": "协议利用",
+                "zh": "Protocol Exploitation",
                 "en": "Protocol Exploitation"
               },
               "payloadId": "ssrf-protocol"
@@ -301,7 +301,7 @@
             {
               "id": "ssrf-gopher",
               "name": {
-                "zh": "Gopher攻击",
+                "zh": "Gopher Attack",
                 "en": "Gopher Attack"
               },
               "payloadId": "ssrf-gopher"
@@ -309,7 +309,7 @@
             {
               "id": "ssrf-dict",
               "name": {
-                "zh": "Dict协议攻击",
+                "zh": "Dict Protocol Attack",
                 "en": "Dict Protocol Attack"
               },
               "payloadId": "ssrf-dict"
@@ -317,7 +317,7 @@
             {
               "id": "ssrf-file",
               "name": {
-                "zh": "File协议攻击",
+                "zh": "File Protocol Attack",
                 "en": "File Protocol Attack"
               },
               "payloadId": "ssrf-file"
@@ -325,7 +325,7 @@
             {
               "id": "ssrf-bypass",
               "name": {
-                "zh": "SSRF绕过技术",
+                "zh": "SSRF Bypass Techniques",
                 "en": "SSRF Bypass Techniques"
               },
               "payloadId": "ssrf-bypass"
@@ -333,7 +333,7 @@
             {
               "id": "ssrf-dns-rebinding",
               "name": {
-                "zh": "DNS重绑定",
+                "zh": "DNS Rebinding",
                 "en": "DNS Rebinding"
               },
               "payloadId": "ssrf-dns-rebinding"
@@ -341,7 +341,7 @@
             {
               "id": "ssrf-redis",
               "name": {
-                "zh": "SSRF攻击Redis",
+                "zh": "SSRF to Redis",
                 "en": "SSRF to Redis"
               },
               "payloadId": "ssrf-redis"
@@ -349,7 +349,7 @@
             {
               "id": "ssrf-mysql",
               "name": {
-                "zh": "SSRF攻击MySQL",
+                "zh": "SSRF to MySQL",
                 "en": "SSRF to MySQL"
               },
               "payloadId": "ssrf-mysql"
@@ -359,14 +359,14 @@
         {
           "id": "rce",
           "name": {
-            "zh": "RCE远程代码执行",
+            "zh": "RCE Remote Code Execution",
             "en": "RCE Remote Code Execution"
           },
           "children": [
             {
               "id": "rce-php",
               "name": {
-                "zh": "PHP代码执行",
+                "zh": "PHP Code Execution",
                 "en": "PHP Code Execution"
               },
               "payloadId": "rce-php"
@@ -374,7 +374,7 @@
             {
               "id": "rce-php-filter",
               "name": {
-                "zh": "PHP Filter链",
+                "zh": "PHP Filter Chain",
                 "en": "PHP Filter Chain"
               },
               "payloadId": "rce-php-filter"
@@ -382,7 +382,7 @@
             {
               "id": "rce-cmd",
               "name": {
-                "zh": "命令注入",
+                "zh": "Command Injection",
                 "en": "Command Injection"
               },
               "payloadId": "rce-command-injection"
@@ -390,7 +390,7 @@
             {
               "id": "rce-cmd-blind",
               "name": {
-                "zh": "盲命令注入",
+                "zh": "Blind Command Injection",
                 "en": "Blind Command Injection"
               },
               "payloadId": "rce-cmd-blind"
@@ -398,7 +398,7 @@
             {
               "id": "rce-deserialize",
               "name": {
-                "zh": "反序列化漏洞",
+                "zh": "Deserialization Vulnerability",
                 "en": "Deserialization Vulnerability"
               },
               "payloadId": "rce-deserialize"
@@ -406,7 +406,7 @@
             {
               "id": "rce-deserialize-php",
               "name": {
-                "zh": "PHP反序列化",
+                "zh": "PHP Deserialization",
                 "en": "PHP Deserialization"
               },
               "payloadId": "rce-deserialize-php"
@@ -414,7 +414,7 @@
             {
               "id": "rce-deserialize-java",
               "name": {
-                "zh": "Java反序列化",
+                "zh": "Java Deserialization",
                 "en": "Java Deserialization"
               },
               "payloadId": "rce-deserialize-java"
@@ -422,7 +422,7 @@
             {
               "id": "rce-upload",
               "name": {
-                "zh": "文件上传漏洞",
+                "zh": "File Upload Vulnerability",
                 "en": "File Upload Vulnerability"
               },
               "payloadId": "rce-file-upload"
@@ -430,7 +430,7 @@
             {
               "id": "rce-include",
               "name": {
-                "zh": "文件包含RCE",
+                "zh": "File Inclusion RCE",
                 "en": "File Inclusion RCE"
               },
               "payloadId": "rce-include"
@@ -438,7 +438,7 @@
             {
               "id": "rce-log-poison",
               "name": {
-                "zh": "日志投毒RCE",
+                "zh": "Log Poisoning RCE",
                 "en": "Log Poisoning RCE"
               },
               "payloadId": "rce-log-poison"
@@ -446,7 +446,7 @@
             {
               "id": "rce-image",
               "name": {
-                "zh": "图片马RCE",
+                "zh": "Image Webshell RCE",
                 "en": "Image Webshell RCE"
               },
               "payloadId": "rce-image"
@@ -454,7 +454,7 @@
             {
               "id": "rce-htaccess",
               "name": {
-                "zh": ".htaccess利用",
+                "zh": ".htaccess Exploitation",
                 "en": ".htaccess Exploitation"
               },
               "payloadId": "rce-htaccess"
@@ -464,14 +464,14 @@
         {
           "id": "xxe",
           "name": {
-            "zh": "XXE实体注入",
+            "zh": "XXE XML Entity Injection",
             "en": "XXE XML Entity Injection"
           },
           "children": [
             {
               "id": "xxe-basic",
               "name": {
-                "zh": "基础XXE攻击",
+                "zh": "Basic XXE Attack",
                 "en": "Basic XXE Attack"
               },
               "payloadId": "xxe-basic"
@@ -479,7 +479,7 @@
             {
               "id": "xxe-blind",
               "name": {
-                "zh": "盲注XXE",
+                "zh": "Blind XXE",
                 "en": "Blind XXE"
               },
               "payloadId": "xxe-blind"
@@ -487,7 +487,7 @@
             {
               "id": "xxe-oob",
               "name": {
-                "zh": "OOB外带攻击",
+                "zh": "OOB Out-of-Band Attack",
                 "en": "OOB Out-of-Band Attack"
               },
               "payloadId": "xxe-oob"
@@ -495,7 +495,7 @@
             {
               "id": "xxe-ssrf",
               "name": {
-                "zh": "XXE+SSRF组合",
+                "zh": "XXE + SSRF Combo",
                 "en": "XXE + SSRF Combo"
               },
               "payloadId": "xxe-ssrf"
@@ -503,7 +503,7 @@
             {
               "id": "xxe-rce",
               "name": {
-                "zh": "XXE到RCE",
+                "zh": "XXE to RCE",
                 "en": "XXE to RCE"
               },
               "payloadId": "xxe-rce"
@@ -511,7 +511,7 @@
             {
               "id": "xxe-file-read",
               "name": {
-                "zh": "文件读取",
+                "zh": "File Read",
                 "en": "File Read"
               },
               "payloadId": "xxe-file-read"
@@ -519,7 +519,7 @@
             {
               "id": "xxe-dtd",
               "name": {
-                "zh": "外部DTD利用",
+                "zh": "External DTD Exploitation",
                 "en": "External DTD Exploitation"
               },
               "payloadId": "xxe-dtd"
@@ -527,7 +527,7 @@
             {
               "id": "xxe-xlsx",
               "name": {
-                "zh": "XLSX文件XXE",
+                "zh": "XLSX File XXE",
                 "en": "XLSX File XXE"
               },
               "payloadId": "xxe-xlsx"
@@ -535,7 +535,7 @@
             {
               "id": "xxe-docx",
               "name": {
-                "zh": "DOCX文件XXE",
+                "zh": "DOCX File XXE",
                 "en": "DOCX File XXE"
               },
               "payloadId": "xxe-docx"
@@ -545,7 +545,7 @@
         {
           "id": "ssti",
           "name": {
-            "zh": "SSTI模板注入",
+            "zh": "SSTI Template Injection",
             "en": "SSTI Template Injection"
           },
           "children": [
@@ -604,14 +604,14 @@
         {
           "id": "lfi-rfi",
           "name": {
-            "zh": "LFI/RFI文件包含",
+            "zh": "LFI/RFI File Inclusion",
             "en": "LFI/RFI File Inclusion"
           },
           "children": [
             {
               "id": "lfi-basic",
               "name": {
-                "zh": "本地文件包含",
+                "zh": "Local File Inclusion",
                 "en": "Local File Inclusion"
               },
               "payloadId": "lfi-basic"
@@ -619,7 +619,7 @@
             {
               "id": "rfi-basic",
               "name": {
-                "zh": "远程文件包含",
+                "zh": "Remote File Inclusion",
                 "en": "Remote File Inclusion"
               },
               "payloadId": "rfi-basic"
@@ -627,7 +627,7 @@
             {
               "id": "lfi-log",
               "name": {
-                "zh": "日志投毒",
+                "zh": "Log Poisoning",
                 "en": "Log Poisoning"
               },
               "payloadId": "lfi-log-poison"
@@ -635,7 +635,7 @@
             {
               "id": "lfi-wrapper",
               "name": {
-                "zh": "伪协议利用",
+                "zh": "Wrapper Exploitation",
                 "en": "Wrapper Exploitation"
               },
               "payloadId": "lfi-wrapper"
@@ -643,7 +643,7 @@
             {
               "id": "lfi-traversal",
               "name": {
-                "zh": "目录遍历",
+                "zh": "Directory Traversal",
                 "en": "Directory Traversal"
               },
               "payloadId": "lfi-traversal"
@@ -671,7 +671,7 @@
             {
               "id": "lfi-phar",
               "name": {
-                "zh": "Phar反序列化",
+                "zh": "Phar Deserialization",
                 "en": "Phar Deserialization"
               },
               "payloadId": "lfi-phar"
@@ -679,7 +679,7 @@
             {
               "id": "lfi-session",
               "name": {
-                "zh": "Session文件包含",
+                "zh": "Session File Inclusion",
                 "en": "Session File Inclusion"
               },
               "payloadId": "lfi-session"
@@ -687,7 +687,7 @@
             {
               "id": "lfi-proc",
               "name": {
-                "zh": "Proc文件系统",
+                "zh": "Proc Filesystem",
                 "en": "Proc Filesystem"
               },
               "payloadId": "lfi-proc"
@@ -697,14 +697,14 @@
         {
           "id": "csrf",
           "name": {
-            "zh": "CSRF跨站请求伪造",
+            "zh": "CSRF Cross-Site Request Forgery",
             "en": "CSRF Cross-Site Request Forgery"
           },
           "children": [
             {
               "id": "csrf-basic",
               "name": {
-                "zh": "基础CSRF攻击",
+                "zh": "Basic CSRF Attack",
                 "en": "Basic CSRF Attack"
               },
               "payloadId": "csrf-basic"
@@ -717,7 +717,7 @@
             {
               "id": "csrf-bypass",
               "name": {
-                "zh": "绕过技术",
+                "zh": "Bypass Techniques",
                 "en": "Bypass Techniques"
               },
               "payloadId": "csrf-bypass"
@@ -725,7 +725,7 @@
             {
               "id": "csrf-samesite",
               "name": {
-                "zh": "SameSite绕过",
+                "zh": "SameSite Bypass",
                 "en": "SameSite Bypass"
               },
               "payloadId": "csrf-samesite"
@@ -733,7 +733,7 @@
             {
               "id": "csrf-token-bypass",
               "name": {
-                "zh": "Token绕过",
+                "zh": "Token Bypass",
                 "en": "Token Bypass"
               },
               "payloadId": "csrf-token-bypass"
@@ -741,7 +741,7 @@
             {
               "id": "csrf-referer-bypass",
               "name": {
-                "zh": "Referer绕过",
+                "zh": "Referer Bypass",
                 "en": "Referer Bypass"
               },
               "payloadId": "csrf-referer-bypass"
@@ -749,7 +749,7 @@
             {
               "id": "csrf-cors",
               "name": {
-                "zh": "CORS配置错误",
+                "zh": "CORS Misconfiguration",
                 "en": "CORS Misconfiguration"
               },
               "payloadId": "csrf-cors"
@@ -759,14 +759,14 @@
         {
           "id": "api-security",
           "name": {
-            "zh": "API安全",
+            "zh": "API Security",
             "en": "API Security"
           },
           "children": [
             {
               "id": "graphql",
               "name": {
-                "zh": "GraphQL安全",
+                "zh": "GraphQL Security",
                 "en": "GraphQL Security"
               },
               "payloadId": "graphql-injection"
@@ -774,7 +774,7 @@
             {
               "id": "graphql-introspection",
               "name": {
-                "zh": "GraphQL内省",
+                "zh": "GraphQL Introspection",
                 "en": "GraphQL Introspection"
               },
               "payloadId": "graphql-introspection"
@@ -782,7 +782,7 @@
             {
               "id": "graphql-batching",
               "name": {
-                "zh": "GraphQL批量查询",
+                "zh": "GraphQL Batching",
                 "en": "GraphQL Batching"
               },
               "payloadId": "graphql-batching"
@@ -790,7 +790,7 @@
             {
               "id": "rest-api",
               "name": {
-                "zh": "REST API安全",
+                "zh": "REST API Security",
                 "en": "REST API Security"
               },
               "payloadId": "rest-api-security"
@@ -798,7 +798,7 @@
             {
               "id": "jwt",
               "name": {
-                "zh": "JWT安全",
+                "zh": "JWT Security",
                 "en": "JWT Security"
               },
               "payloadId": "jwt-security"
@@ -806,7 +806,7 @@
             {
               "id": "jwt-none-alg",
               "name": {
-                "zh": "JWT None算法",
+                "zh": "JWT None Algorithm",
                 "en": "JWT None Algorithm"
               },
               "payloadId": "jwt-none-alg"
@@ -814,7 +814,7 @@
             {
               "id": "jwt-key-confusion",
               "name": {
-                "zh": "JWT密钥混淆",
+                "zh": "JWT Key Confusion",
                 "en": "JWT Key Confusion"
               },
               "payloadId": "jwt-key-confusion"
@@ -822,7 +822,7 @@
             {
               "id": "api-idor",
               "name": {
-                "zh": "IDOR漏洞",
+                "zh": "IDOR Vulnerability",
                 "en": "IDOR Vulnerability"
               },
               "payloadId": "api-idor"
@@ -830,7 +830,7 @@
             {
               "id": "api-rate-limit",
               "name": {
-                "zh": "速率限制绕过",
+                "zh": "Rate Limit Bypass",
                 "en": "Rate Limit Bypass"
               },
               "payloadId": "api-rate-limit"
@@ -838,7 +838,7 @@
             {
               "id": "api-mass-assignment",
               "name": {
-                "zh": "批量赋值",
+                "zh": "Mass Assignment",
                 "en": "Mass Assignment"
               },
               "payloadId": "api-mass-assignment"
@@ -846,7 +846,7 @@
             {
               "id": "api-bola",
               "name": {
-                "zh": "BOLA漏洞",
+                "zh": "BOLA Vulnerability",
                 "en": "BOLA Vulnerability"
               },
               "payloadId": "api-bola"
@@ -854,7 +854,7 @@
             {
               "id": "api-injection",
               "name": {
-                "zh": "API注入",
+                "zh": "API Injection",
                 "en": "API Injection"
               },
               "payloadId": "api-injection"
@@ -864,7 +864,7 @@
         {
           "id": "framework-vulns",
           "name": {
-            "zh": "框架漏洞",
+            "zh": "Framework Vulnerabilities",
             "en": "Framework Vulnerabilities"
           },
           "children": [
@@ -876,7 +876,7 @@
             {
               "id": "spring-spel",
               "name": {
-                "zh": "Spring SpEL注入",
+                "zh": "Spring SpEL Injection",
                 "en": "Spring SpEL Injection"
               },
               "payloadId": "spring-spel"
@@ -904,7 +904,7 @@
             {
               "id": "weblogic-t3",
               "name": {
-                "zh": "WebLogic T3协议",
+                "zh": "WebLogic T3 Protocol",
                 "en": "WebLogic T3 Protocol"
               },
               "payloadId": "weblogic-t3"
@@ -947,7 +947,7 @@
             {
               "id": "jboss",
               "name": {
-                "zh": "JBoss漏洞",
+                "zh": "JBoss Vulnerability",
                 "en": "JBoss Vulnerability"
               },
               "payloadId": "jboss-vuln"
@@ -955,7 +955,7 @@
             {
               "id": "tomcat",
               "name": {
-                "zh": "Tomcat漏洞",
+                "zh": "Tomcat Vulnerability",
                 "en": "Tomcat Vulnerability"
               },
               "payloadId": "tomcat-vuln"
@@ -963,7 +963,7 @@
             {
               "id": "django",
               "name": {
-                "zh": "Django漏洞",
+                "zh": "Django Vulnerability",
                 "en": "Django Vulnerability"
               },
               "payloadId": "django-vuln"
@@ -971,7 +971,7 @@
             {
               "id": "flask",
               "name": {
-                "zh": "Flask漏洞",
+                "zh": "Flask Vulnerability",
                 "en": "Flask Vulnerability"
               },
               "payloadId": "flask-vuln"
@@ -981,14 +981,14 @@
         {
           "id": "auth-vulns",
           "name": {
-            "zh": "认证漏洞",
+            "zh": "Authentication Vulnerabilities",
             "en": "Authentication Vulnerabilities"
           },
           "children": [
             {
               "id": "auth-bypass",
               "name": {
-                "zh": "认证绕过",
+                "zh": "Auth Bypass",
                 "en": "Auth Bypass"
               },
               "payloadId": "auth-bypass"
@@ -996,7 +996,7 @@
             {
               "id": "auth-brute",
               "name": {
-                "zh": "暴力破解",
+                "zh": "Brute Force",
                 "en": "Brute Force"
               },
               "payloadId": "auth-brute"
@@ -1004,7 +1004,7 @@
             {
               "id": "auth-session",
               "name": {
-                "zh": "会话劫持",
+                "zh": "Session Hijacking",
                 "en": "Session Hijacking"
               },
               "payloadId": "auth-session"
@@ -1012,7 +1012,7 @@
             {
               "id": "auth-password",
               "name": {
-                "zh": "密码重置漏洞",
+                "zh": "Password Reset Vulnerability",
                 "en": "Password Reset Vulnerability"
               },
               "payloadId": "auth-password-reset"
@@ -1020,7 +1020,7 @@
             {
               "id": "auth-oauth",
               "name": {
-                "zh": "OAuth漏洞",
+                "zh": "OAuth Vulnerability",
                 "en": "OAuth Vulnerability"
               },
               "payloadId": "auth-oauth"
@@ -1028,7 +1028,7 @@
             {
               "id": "auth-saml",
               "name": {
-                "zh": "SAML漏洞",
+                "zh": "SAML Vulnerability",
                 "en": "SAML Vulnerability"
               },
               "payloadId": "auth-saml"
@@ -1036,7 +1036,7 @@
             {
               "id": "auth-2fa",
               "name": {
-                "zh": "2FA绕过",
+                "zh": "2FA Bypass",
                 "en": "2FA Bypass"
               },
               "payloadId": "auth-2fa"
@@ -1044,7 +1044,7 @@
             {
               "id": "auth-captcha",
               "name": {
-                "zh": "验证码绕过",
+                "zh": "CAPTCHA Bypass",
                 "en": "CAPTCHA Bypass"
               },
               "payloadId": "auth-captcha"
@@ -1052,7 +1052,7 @@
             {
               "id": "auth-remember-me",
               "name": {
-                "zh": "记住我漏洞",
+                "zh": "Remember-Me Vulnerability",
                 "en": "Remember-Me Vulnerability"
               },
               "payloadId": "auth-remember-me"
@@ -1060,7 +1060,7 @@
             {
               "id": "auth-jwt",
               "name": {
-                "zh": "JWT认证漏洞",
+                "zh": "JWT Auth Vulnerability",
                 "en": "JWT Auth Vulnerability"
               },
               "payloadId": "auth-jwt"
@@ -1070,14 +1070,14 @@
         {
           "id": "file-vulns",
           "name": {
-            "zh": "文件漏洞",
+            "zh": "File Vulnerabilities",
             "en": "File Vulnerabilities"
           },
           "children": [
             {
               "id": "file-upload",
               "name": {
-                "zh": "文件上传基础",
+                "zh": "File Upload Basics",
                 "en": "File Upload Basics"
               },
               "payloadId": "file-upload-bypass"
@@ -1085,7 +1085,7 @@
             {
               "id": "file-upload-bypass",
               "name": {
-                "zh": "上传绕过技术",
+                "zh": "Upload Bypass Techniques",
                 "en": "Upload Bypass Techniques"
               },
               "payloadId": "file-upload-bypass"
@@ -1093,7 +1093,7 @@
             {
               "id": "file-download",
               "name": {
-                "zh": "任意文件下载",
+                "zh": "Arbitrary File Download",
                 "en": "Arbitrary File Download"
               },
               "payloadId": "file-download"
@@ -1101,7 +1101,7 @@
             {
               "id": "file-competition",
               "name": {
-                "zh": "条件竞争",
+                "zh": "Race Condition",
                 "en": "Race Condition"
               },
               "payloadId": "file-competition"
@@ -1109,7 +1109,7 @@
             {
               "id": "file-traversal",
               "name": {
-                "zh": "路径遍历",
+                "zh": "Path Traversal",
                 "en": "Path Traversal"
               },
               "payloadId": "file-traversal"
@@ -1122,7 +1122,7 @@
             {
               "id": "file-mime",
               "name": {
-                "zh": "MIME类型绕过",
+                "zh": "MIME Type Bypass",
                 "en": "MIME Type Bypass"
               },
               "payloadId": "file-mime"
@@ -1130,7 +1130,7 @@
             {
               "id": "file-null-byte",
               "name": {
-                "zh": "空字节截断",
+                "zh": "Null Byte Truncation",
                 "en": "Null Byte Truncation"
               },
               "payloadId": "file-null-byte"
@@ -1140,14 +1140,14 @@
         {
           "id": "web-cache",
           "name": {
-            "zh": "缓存与CDN安全",
+            "zh": "Cache & CDN Security",
             "en": "Cache & CDN Security"
           },
           "children": [
             {
               "id": "cache-poisoning",
               "name": {
-                "zh": "缓存投毒",
+                "zh": "Cache Poisoning",
                 "en": "Cache Poisoning"
               },
               "payloadId": "cache-poisoning"
@@ -1155,7 +1155,7 @@
             {
               "id": "cache-deception",
               "name": {
-                "zh": "缓存欺骗",
+                "zh": "Cache Deception",
                 "en": "Cache Deception"
               },
               "payloadId": "cache-deception"
@@ -1163,7 +1163,7 @@
             {
               "id": "cdn-bypass",
               "name": {
-                "zh": "CDN绕过",
+                "zh": "CDN Bypass",
                 "en": "CDN Bypass"
               },
               "payloadId": "cdn-bypass"
@@ -1173,14 +1173,14 @@
         {
           "id": "web-smuggling",
           "name": {
-            "zh": "请求走私",
+            "zh": "HTTP Request Smuggling",
             "en": "HTTP Request Smuggling"
           },
           "children": [
             {
               "id": "smuggling-cl-cl",
               "name": {
-                "zh": "CL-CL走私",
+                "zh": "CL-CL Smuggling",
                 "en": "CL-CL Smuggling"
               },
               "payloadId": "smuggling-cl-cl"
@@ -1188,7 +1188,7 @@
             {
               "id": "smuggling-cl-te",
               "name": {
-                "zh": "CL-TE走私",
+                "zh": "CL-TE Smuggling",
                 "en": "CL-TE Smuggling"
               },
               "payloadId": "smuggling-cl-te"
@@ -1196,7 +1196,7 @@
             {
               "id": "smuggling-te-cl",
               "name": {
-                "zh": "TE-CL走私",
+                "zh": "TE-CL Smuggling",
                 "en": "TE-CL Smuggling"
               },
               "payloadId": "smuggling-te-cl"
@@ -1204,7 +1204,7 @@
             {
               "id": "smuggling-te-te",
               "name": {
-                "zh": "TE-TE走私",
+                "zh": "TE-TE Smuggling",
                 "en": "TE-TE Smuggling"
               },
               "payloadId": "smuggling-te-te"
@@ -1214,14 +1214,14 @@
         {
           "id": "web-redirect",
           "name": {
-            "zh": "开放重定向",
+            "zh": "Open Redirect",
             "en": "Open Redirect"
           },
           "children": [
             {
               "id": "redirect-basic",
               "name": {
-                "zh": "基础重定向",
+                "zh": "Basic Redirect",
                 "en": "Basic Redirect"
               },
               "payloadId": "redirect-basic"
@@ -1229,7 +1229,7 @@
             {
               "id": "redirect-bypass",
               "name": {
-                "zh": "重定向绕过",
+                "zh": "Redirect Bypass",
                 "en": "Redirect Bypass"
               },
               "payloadId": "redirect-bypass"
@@ -1237,7 +1237,7 @@
             {
               "id": "redirect-ssrf",
               "name": {
-                "zh": "重定向到SSRF",
+                "zh": "Redirect to SSRF",
                 "en": "Redirect to SSRF"
               },
               "payloadId": "redirect-ssrf"
@@ -1247,14 +1247,14 @@
         {
           "id": "clickjacking",
           "name": {
-            "zh": "点击劫持",
+            "zh": "Clickjacking",
             "en": "Clickjacking"
           },
           "children": [
             {
               "id": "clickjacking-basic",
               "name": {
-                "zh": "基础点击劫持",
+                "zh": "Basic Clickjacking",
                 "en": "Basic Clickjacking"
               },
               "payloadId": "clickjacking-basic"
@@ -1262,7 +1262,7 @@
             {
               "id": "clickjacking-xss",
               "name": {
-                "zh": "点击劫持+XSS",
+                "zh": "Clickjacking + XSS",
                 "en": "Clickjacking + XSS"
               },
               "payloadId": "clickjacking-xss"
@@ -1272,14 +1272,14 @@
         {
           "id": "biz-logic",
           "name": {
-            "zh": "业务逻辑漏洞",
+            "zh": "Business Logic Vulnerabilities",
             "en": "Business Logic Vulnerabilities"
           },
           "children": [
             {
               "id": "biz-idor-nav",
               "name": {
-                "zh": "IDOR越权遍历",
+                "zh": "IDOR Enumeration",
                 "en": "IDOR Enumeration"
               },
               "payloadId": "biz-idor"
@@ -1287,7 +1287,7 @@
             {
               "id": "biz-race-condition-nav",
               "name": {
-                "zh": "竞态条件攻击",
+                "zh": "Race Condition Attack",
                 "en": "Race Condition Attack"
               },
               "payloadId": "biz-race-condition"
@@ -1295,7 +1295,7 @@
             {
               "id": "biz-price-tamper-nav",
               "name": {
-                "zh": "价格篡改",
+                "zh": "Price Tampering",
                 "en": "Price Tampering"
               },
               "payloadId": "biz-price-tamper"
@@ -1303,7 +1303,7 @@
             {
               "id": "biz-flow-bypass-nav",
               "name": {
-                "zh": "流程绕过",
+                "zh": "Flow Bypass",
                 "en": "Flow Bypass"
               },
               "payloadId": "biz-flow-bypass"
@@ -1311,7 +1311,7 @@
             {
               "id": "biz-coupon-abuse-nav",
               "name": {
-                "zh": "优惠券滥用",
+                "zh": "Coupon Abuse",
                 "en": "Coupon Abuse"
               },
               "payloadId": "biz-coupon-abuse"
@@ -1321,14 +1321,14 @@
         {
           "id": "jwt-security",
           "name": {
-            "zh": "JWT安全",
+            "zh": "JWT Security",
             "en": "JWT Security"
           },
           "children": [
             {
               "id": "jwt-none-algo-nav",
               "name": {
-                "zh": "None算法攻击",
+                "zh": "None Algorithm Attack",
                 "en": "None Algorithm Attack"
               },
               "payloadId": "jwt-none-algo"
@@ -1336,7 +1336,7 @@
             {
               "id": "jwt-weak-secret-nav",
               "name": {
-                "zh": "弱密钥爆破",
+                "zh": "Weak Secret Brute Force",
                 "en": "Weak Secret Brute Force"
               },
               "payloadId": "jwt-weak-secret"
@@ -1344,7 +1344,7 @@
             {
               "id": "jwt-kid-injection-nav",
               "name": {
-                "zh": "KID注入攻击",
+                "zh": "KID Injection Attack",
                 "en": "KID Injection Attack"
               },
               "payloadId": "jwt-kid-injection"
@@ -1352,7 +1352,7 @@
             {
               "id": "jwt-jku-spoofing-nav",
               "name": {
-                "zh": "JKU欺骗攻击",
+                "zh": "JKU Spoofing Attack",
                 "en": "JKU Spoofing Attack"
               },
               "payloadId": "jwt-jku-spoofing"
@@ -1362,14 +1362,14 @@
         {
           "id": "supply-chain",
           "name": {
-            "zh": "供应链攻击",
+            "zh": "Supply Chain Attacks",
             "en": "Supply Chain Attacks"
           },
           "children": [
             {
               "id": "supply-typosquat-nav",
               "name": {
-                "zh": "拼写抢注攻击",
+                "zh": "Typosquatting Attack",
                 "en": "Typosquatting Attack"
               },
               "payloadId": "supply-typosquat"
@@ -1377,7 +1377,7 @@
             {
               "id": "supply-ci-poison-nav",
               "name": {
-                "zh": "CI/CD投毒",
+                "zh": "CI/CD Poisoning",
                 "en": "CI/CD Poisoning"
               },
               "payloadId": "supply-ci-poison"
@@ -1385,7 +1385,7 @@
             {
               "id": "supply-dep-confusion-nav",
               "name": {
-                "zh": "依赖混淆攻击",
+                "zh": "Dependency Confusion",
                 "en": "Dependency Confusion"
               },
               "payloadId": "supply-dependency-confusion"
@@ -1395,14 +1395,14 @@
         {
           "id": "prototype-pollution",
           "name": {
-            "zh": "原型链污染",
+            "zh": "Prototype Pollution",
             "en": "Prototype Pollution"
           },
           "children": [
             {
               "id": "proto-server-rce-nav",
               "name": {
-                "zh": "服务端RCE",
+                "zh": "Server-side RCE",
                 "en": "Server-side RCE"
               },
               "payloadId": "proto-server-rce"
@@ -1410,7 +1410,7 @@
             {
               "id": "proto-client-xss-nav",
               "name": {
-                "zh": "客户端XSS",
+                "zh": "Client-side XSS",
                 "en": "Client-side XSS"
               },
               "payloadId": "proto-client-xss"
@@ -1418,7 +1418,7 @@
             {
               "id": "proto-nosql-injection-nav",
               "name": {
-                "zh": "NoSQL注入",
+                "zh": "NoSQL Injection",
                 "en": "NoSQL Injection"
               },
               "payloadId": "proto-nosql-injection"
@@ -1428,14 +1428,14 @@
         {
           "id": "cloud-security",
           "name": {
-            "zh": "云安全漏洞",
+            "zh": "Cloud Security Vulnerabilities",
             "en": "Cloud Security Vulnerabilities"
           },
           "children": [
             {
               "id": "cloud-ssrf-metadata-nav",
               "name": {
-                "zh": "SSRF元数据攻击",
+                "zh": "SSRF Metadata Attack",
                 "en": "SSRF Metadata Attack"
               },
               "payloadId": "cloud-ssrf-metadata"
@@ -1443,7 +1443,7 @@
             {
               "id": "cloud-s3-misconfig-nav",
               "name": {
-                "zh": "S3存储桶错配",
+                "zh": "S3 Bucket Misconfiguration",
                 "en": "S3 Bucket Misconfiguration"
               },
               "payloadId": "cloud-s3-misconfig"
@@ -1451,7 +1451,7 @@
             {
               "id": "cloud-iam-escalation-nav",
               "name": {
-                "zh": "IAM权限提升",
+                "zh": "IAM Privilege Escalation",
                 "en": "IAM Privilege Escalation"
               },
               "payloadId": "cloud-iam-escalation"
@@ -1459,7 +1459,7 @@
             {
               "id": "cloud-k8s-escape-nav",
               "name": {
-                "zh": "K8s容器逃逸",
+                "zh": "K8s Container Escape",
                 "en": "K8s Container Escape"
               },
               "payloadId": "cloud-k8s-escape"
@@ -1469,14 +1469,14 @@
         {
           "id": "websocket-security",
           "name": {
-            "zh": "WebSocket安全",
+            "zh": "WebSocket Security",
             "en": "WebSocket Security"
           },
           "children": [
             {
               "id": "ws-hijack-nav",
               "name": {
-                "zh": "WebSocket劫持",
+                "zh": "WebSocket Hijacking",
                 "en": "WebSocket Hijacking"
               },
               "payloadId": "ws-hijack"
@@ -1484,7 +1484,7 @@
             {
               "id": "ws-smuggling-nav",
               "name": {
-                "zh": "WebSocket走私",
+                "zh": "WebSocket Smuggling",
                 "en": "WebSocket Smuggling"
               },
               "payloadId": "ws-smuggling"
@@ -1492,7 +1492,7 @@
             {
               "id": "ws-auth-bypass-nav",
               "name": {
-                "zh": "认证绕过",
+                "zh": "Auth Bypass",
                 "en": "Auth Bypass"
               },
               "payloadId": "ws-auth-bypass"
@@ -1502,14 +1502,14 @@
         {
           "id": "ai-security",
           "name": {
-            "zh": "AI安全",
+            "zh": "AI Security",
             "en": "AI Security"
           },
           "children": [
             {
               "id": "ai-prompt-injection-nav",
               "name": {
-                "zh": "Prompt注入",
+                "zh": "Prompt Injection",
                 "en": "Prompt Injection"
               },
               "payloadId": "ai-prompt-injection"
@@ -1517,7 +1517,7 @@
             {
               "id": "ai-model-extraction-nav",
               "name": {
-                "zh": "模型窃取",
+                "zh": "Model Extraction",
                 "en": "Model Extraction"
               },
               "payloadId": "ai-model-extraction"
@@ -1525,7 +1525,7 @@
             {
               "id": "ai-adversarial-nav",
               "name": {
-                "zh": "对抗样本攻击",
+                "zh": "Adversarial Attack",
                 "en": "Adversarial Attack"
               },
               "payloadId": "ai-adversarial"
@@ -1533,7 +1533,7 @@
             {
               "id": "ai-rag-poisoning-nav",
               "name": {
-                "zh": "RAG投毒攻击",
+                "zh": "RAG Poisoning Attack",
                 "en": "RAG Poisoning Attack"
               },
               "payloadId": "ai-rag-poisoning"
@@ -1545,21 +1545,21 @@
     {
       "id": "intranet",
       "name": {
-        "zh": "🏢 内网渗透与横向移动",
+        "zh": "🏢 Internal Network & Lateral Movement",
         "en": "🏢 Internal Network & Lateral Movement"
       },
       "children": [
         {
           "id": "recon",
           "name": {
-            "zh": "信息收集",
+            "zh": "Reconnaissance",
             "en": "Reconnaissance"
           },
           "children": [
             {
               "id": "bloodhound",
               "name": {
-                "zh": "BloodHound域分析",
+                "zh": "BloodHound Domain Analysis",
                 "en": "BloodHound Domain Analysis"
               },
               "payloadId": "bloodhound-enumeration"
@@ -1567,7 +1567,7 @@
             {
               "id": "spn-scan",
               "name": {
-                "zh": "SPN扫描",
+                "zh": "SPN Scanning",
                 "en": "SPN Scanning"
               },
               "payloadId": "spn-scan"
@@ -1575,7 +1575,7 @@
             {
               "id": "port-scan",
               "name": {
-                "zh": "端口扫描",
+                "zh": "Port Scanning",
                 "en": "Port Scanning"
               },
               "payloadId": "port-scan"
@@ -1583,7 +1583,7 @@
             {
               "id": "domain-recon",
               "name": {
-                "zh": "域信息收集",
+                "zh": "Domain Reconnaissance",
                 "en": "Domain Reconnaissance"
               },
               "payloadId": "domain-recon"
@@ -1591,7 +1591,7 @@
             {
               "id": "network-recon",
               "name": {
-                "zh": "网络信息收集",
+                "zh": "Network Reconnaissance",
                 "en": "Network Reconnaissance"
               },
               "payloadId": "network-recon"
@@ -1599,7 +1599,7 @@
             {
               "id": "share-enum",
               "name": {
-                "zh": "共享枚举",
+                "zh": "Share Enumeration",
                 "en": "Share Enumeration"
               },
               "payloadId": "share-enum"
@@ -1607,7 +1607,7 @@
             {
               "id": "user-enum",
               "name": {
-                "zh": "用户枚举",
+                "zh": "User Enumeration",
                 "en": "User Enumeration"
               },
               "payloadId": "user-enum"
@@ -1615,7 +1615,7 @@
             {
               "id": "group-enum",
               "name": {
-                "zh": "组枚举",
+                "zh": "Group Enumeration",
                 "en": "Group Enumeration"
               },
               "payloadId": "group-enum"
@@ -1623,7 +1623,7 @@
             {
               "id": "gpo-enum",
               "name": {
-                "zh": "GPO枚举",
+                "zh": "GPO Enumeration",
                 "en": "GPO Enumeration"
               },
               "payloadId": "gpo-enum"
@@ -1631,7 +1631,7 @@
             {
               "id": "acl-enum",
               "name": {
-                "zh": "ACL枚举",
+                "zh": "ACL Enumeration",
                 "en": "ACL Enumeration"
               },
               "payloadId": "acl-enum"
@@ -1639,7 +1639,7 @@
             {
               "id": "trust-enum",
               "name": {
-                "zh": "信任关系枚举",
+                "zh": "Trust Relationship Enumeration",
                 "en": "Trust Relationship Enumeration"
               },
               "payloadId": "trust-enum"
@@ -1647,7 +1647,7 @@
             {
               "id": "computer-enum",
               "name": {
-                "zh": "计算机枚举",
+                "zh": "Computer Enumeration",
                 "en": "Computer Enumeration"
               },
               "payloadId": "computer-enum"
@@ -1657,14 +1657,14 @@
         {
           "id": "credential-theft",
           "name": {
-            "zh": "凭证窃取",
+            "zh": "Credential Theft",
             "en": "Credential Theft"
           },
           "children": [
             {
               "id": "mimikatz",
               "name": {
-                "zh": "Mimikatz凭证抓取",
+                "zh": "Mimikatz Credential Dumping",
                 "en": "Mimikatz Credential Dumping"
               },
               "payloadId": "mimikatz-creds"
@@ -1672,7 +1672,7 @@
             {
               "id": "mimikatz-advanced",
               "name": {
-                "zh": "Mimikatz高级技巧",
+                "zh": "Mimikatz Advanced Techniques",
                 "en": "Mimikatz Advanced Techniques"
               },
               "payloadId": "mimikatz-advanced"
@@ -1695,7 +1695,7 @@
             {
               "id": "browser-dump",
               "name": {
-                "zh": "浏览器凭证",
+                "zh": "Browser Credentials",
                 "en": "Browser Credentials"
               },
               "payloadId": "browser-creds"
@@ -1703,7 +1703,7 @@
             {
               "id": "sam-dump",
               "name": {
-                "zh": "SAM数据库导出",
+                "zh": "SAM Database Dump",
                 "en": "SAM Database Dump"
               },
               "payloadId": "sam-dump"
@@ -1711,7 +1711,7 @@
             {
               "id": "ntds-dump",
               "name": {
-                "zh": "NTDS.dit导出",
+                "zh": "NTDS.dit Dump",
                 "en": "NTDS.dit Dump"
               },
               "payloadId": "ntds-dump"
@@ -1719,7 +1719,7 @@
             {
               "id": "dpapi-creds",
               "name": {
-                "zh": "DPAPI凭证",
+                "zh": "DPAPI Credentials",
                 "en": "DPAPI Credentials"
               },
               "payloadId": "dpapi-creds"
@@ -1727,7 +1727,7 @@
             {
               "id": "rdp-creds",
               "name": {
-                "zh": "RDP凭证",
+                "zh": "RDP Credentials",
                 "en": "RDP Credentials"
               },
               "payloadId": "rdp-creds"
@@ -1735,7 +1735,7 @@
             {
               "id": "wifi-creds",
               "name": {
-                "zh": "WiFi凭证",
+                "zh": "WiFi Credentials",
                 "en": "WiFi Credentials"
               },
               "payloadId": "wifi-creds"
@@ -1748,7 +1748,7 @@
             {
               "id": "keepass-dump",
               "name": {
-                "zh": "KeePass凭证",
+                "zh": "KeePass Credentials",
                 "en": "KeePass Credentials"
               },
               "payloadId": "keepass-dump"
@@ -1756,7 +1756,7 @@
             {
               "id": "gpp-password",
               "name": {
-                "zh": "GPP密码",
+                "zh": "GPP Password",
                 "en": "GPP Password"
               },
               "payloadId": "gpp-password"
@@ -1769,7 +1769,7 @@
             {
               "id": "cached-creds",
               "name": {
-                "zh": "缓存凭证",
+                "zh": "Cached Credentials",
                 "en": "Cached Credentials"
               },
               "payloadId": "cached-creds"
@@ -1779,7 +1779,7 @@
         {
           "id": "lateral-movement",
           "name": {
-            "zh": "横向移动",
+            "zh": "Lateral Movement",
             "en": "Lateral Movement"
           },
           "children": [
@@ -1816,7 +1816,7 @@
             {
               "id": "lateral-ssh-tunnel",
               "name": {
-                "zh": "SSH隧道",
+                "zh": "SSH Tunnel",
                 "en": "SSH Tunnel"
               },
               "payloadId": "lateral-ssh"
@@ -1824,7 +1824,7 @@
             {
               "id": "rdp-hijack",
               "name": {
-                "zh": "RDP劫持",
+                "zh": "RDP Hijacking",
                 "en": "RDP Hijacking"
               },
               "payloadId": "rdp-hijack"
@@ -1874,14 +1874,14 @@
         {
           "id": "privilege-escalation",
           "name": {
-            "zh": "权限提升",
+            "zh": "Privilege Escalation",
             "en": "Privilege Escalation"
           },
           "children": [
             {
               "id": "token-manipulation",
               "name": {
-                "zh": "令牌窃取与模拟",
+                "zh": "Token Theft & Impersonation",
                 "en": "Token Theft & Impersonation"
               },
               "payloadId": "privilege-token"
@@ -1889,7 +1889,7 @@
             {
               "id": "windows-privesc",
               "name": {
-                "zh": "Windows提权",
+                "zh": "Windows Privilege Escalation",
                 "en": "Windows Privilege Escalation"
               },
               "payloadId": "windows-privesc"
@@ -1897,7 +1897,7 @@
             {
               "id": "linux-privesc",
               "name": {
-                "zh": "Linux提权",
+                "zh": "Linux Privilege Escalation",
                 "en": "Linux Privilege Escalation"
               },
               "payloadId": "linux-privesc"
@@ -1905,7 +1905,7 @@
             {
               "id": "uac-bypass",
               "name": {
-                "zh": "UAC绕过",
+                "zh": "UAC Bypass",
                 "en": "UAC Bypass"
               },
               "payloadId": "uac-bypass"
@@ -1913,7 +1913,7 @@
             {
               "id": "dll-hijack",
               "name": {
-                "zh": "DLL劫持",
+                "zh": "DLL Hijacking",
                 "en": "DLL Hijacking"
               },
               "payloadId": "dll-hijack"
@@ -1921,7 +1921,7 @@
             {
               "id": "service-exploit",
               "name": {
-                "zh": "服务提权",
+                "zh": "Service Exploitation",
                 "en": "Service Exploitation"
               },
               "payloadId": "service-exploit"
@@ -1934,7 +1934,7 @@
             {
               "id": "unattended",
               "name": {
-                "zh": "无人值守安装",
+                "zh": "Unattended Install",
                 "en": "Unattended Install"
               },
               "payloadId": "unattended-creds"
@@ -1942,7 +1942,7 @@
             {
               "id": "potato",
               "name": {
-                "zh": "Potato攻击",
+                "zh": "Potato Attack",
                 "en": "Potato Attack"
               },
               "payloadId": "potato-attack"
@@ -1965,7 +1965,7 @@
             {
               "id": "suid-exploit",
               "name": {
-                "zh": "SUID提权",
+                "zh": "SUID Privilege Escalation",
                 "en": "SUID Privilege Escalation"
               },
               "payloadId": "suid-exploit"
@@ -1973,7 +1973,7 @@
             {
               "id": "sudo-exploit",
               "name": {
-                "zh": "Sudo提权",
+                "zh": "Sudo Privilege Escalation",
                 "en": "Sudo Privilege Escalation"
               },
               "payloadId": "sudo-exploit"
@@ -1981,7 +1981,7 @@
             {
               "id": "cron-exploit",
               "name": {
-                "zh": "Cron提权",
+                "zh": "Cron Privilege Escalation",
                 "en": "Cron Privilege Escalation"
               },
               "payloadId": "cron-exploit"
@@ -1989,7 +1989,7 @@
             {
               "id": "kernel-exploit",
               "name": {
-                "zh": "内核漏洞提权",
+                "zh": "Kernel Exploit Escalation",
                 "en": "Kernel Exploit Escalation"
               },
               "payloadId": "kernel-exploit"
@@ -1999,14 +1999,14 @@
         {
           "id": "persistence",
           "name": {
-            "zh": "权限维持",
+            "zh": "Persistence",
             "en": "Persistence"
           },
           "children": [
             {
               "id": "registry-persistence",
               "name": {
-                "zh": "注册表持久化",
+                "zh": "Registry Persistence",
                 "en": "Registry Persistence"
               },
               "payloadId": "persistence-registry"
@@ -2014,7 +2014,7 @@
             {
               "id": "scheduled-task",
               "name": {
-                "zh": "计划任务",
+                "zh": "Scheduled Task",
                 "en": "Scheduled Task"
               },
               "payloadId": "persistence-scheduled"
@@ -2022,7 +2022,7 @@
             {
               "id": "wmi-event",
               "name": {
-                "zh": "WMI事件订阅",
+                "zh": "WMI Event Subscription",
                 "en": "WMI Event Subscription"
               },
               "payloadId": "persistence-wmi"
@@ -2030,7 +2030,7 @@
             {
               "id": "golden-ticket",
               "name": {
-                "zh": "黄金票据",
+                "zh": "Golden Ticket",
                 "en": "Golden Ticket"
               },
               "payloadId": "golden-ticket"
@@ -2038,7 +2038,7 @@
             {
               "id": "silver-ticket",
               "name": {
-                "zh": "白银票据",
+                "zh": "Silver Ticket",
                 "en": "Silver Ticket"
               },
               "payloadId": "silver-ticket"
@@ -2051,7 +2051,7 @@
             {
               "id": "dsrm-backdoor",
               "name": {
-                "zh": "DSRM后门",
+                "zh": "DSRM Backdoor",
                 "en": "DSRM Backdoor"
               },
               "payloadId": "dsrm-backdoor"
@@ -2064,7 +2064,7 @@
             {
               "id": "startup-folder",
               "name": {
-                "zh": "启动文件夹",
+                "zh": "Startup Folder",
                 "en": "Startup Folder"
               },
               "payloadId": "persistence-startup"
@@ -2072,7 +2072,7 @@
             {
               "id": "service-persistence",
               "name": {
-                "zh": "服务持久化",
+                "zh": "Service Persistence",
                 "en": "Service Persistence"
               },
               "payloadId": "persistence-service"
@@ -2080,7 +2080,7 @@
             {
               "id": "dll-injection",
               "name": {
-                "zh": "DLL注入",
+                "zh": "DLL Injection",
                 "en": "DLL Injection"
               },
               "payloadId": "persistence-dll-injection"
@@ -2088,7 +2088,7 @@
             {
               "id": "process-hollowing",
               "name": {
-                "zh": "进程镂空",
+                "zh": "Process Hollowing",
                 "en": "Process Hollowing"
               },
               "payloadId": "persistence-process-hollowing"
@@ -2096,7 +2096,7 @@
             {
               "id": "backdoor-user",
               "name": {
-                "zh": "后门用户",
+                "zh": "Backdoor User",
                 "en": "Backdoor User"
               },
               "payloadId": "persistence-backdoor-user"
@@ -2104,7 +2104,7 @@
             {
               "id": "hidden-user",
               "name": {
-                "zh": "隐藏用户",
+                "zh": "Hidden User",
                 "en": "Hidden User"
               },
               "payloadId": "persistence-hidden-user"
@@ -2114,14 +2114,14 @@
         {
           "id": "tunnel-proxy",
           "name": {
-            "zh": "隧道代理",
+            "zh": "Tunneling & Proxy",
             "en": "Tunneling & Proxy"
           },
           "children": [
             {
               "id": "frp",
               "name": {
-                "zh": "FRP内网穿透",
+                "zh": "FRP Intranet Tunneling",
                 "en": "FRP Intranet Tunneling"
               },
               "payloadId": "tunnel-frp"
@@ -2139,7 +2139,7 @@
             {
               "id": "ssh-tunnel-proxy",
               "name": {
-                "zh": "SSH本地/远程转发",
+                "zh": "SSH Local/Remote Forwarding",
                 "en": "SSH Local/Remote Forwarding"
               },
               "payloadId": "tunnel-ssh-local"
@@ -2147,7 +2147,7 @@
             {
               "id": "ssh-remote",
               "name": {
-                "zh": "SSH远程转发",
+                "zh": "SSH Remote Forwarding",
                 "en": "SSH Remote Forwarding"
               },
               "payloadId": "tunnel-ssh-remote"
@@ -2155,7 +2155,7 @@
             {
               "id": "ssh-dynamic",
               "name": {
-                "zh": "SSH动态转发",
+                "zh": "SSH Dynamic Forwarding",
                 "en": "SSH Dynamic Forwarding"
               },
               "payloadId": "tunnel-ssh-dynamic"
@@ -2163,7 +2163,7 @@
             {
               "id": "dns-tunnel",
               "name": {
-                "zh": "DNS隧道",
+                "zh": "DNS Tunnel",
                 "en": "DNS Tunnel"
               },
               "payloadId": "tunnel-dns"
@@ -2171,7 +2171,7 @@
             {
               "id": "icmp-tunnel",
               "name": {
-                "zh": "ICMP隧道",
+                "zh": "ICMP Tunnel",
                 "en": "ICMP Tunnel"
               },
               "payloadId": "tunnel-icmp"
@@ -2179,7 +2179,7 @@
             {
               "id": "socks-proxy",
               "name": {
-                "zh": "SOCKS代理",
+                "zh": "SOCKS Proxy",
                 "en": "SOCKS Proxy"
               },
               "payloadId": "socks-proxy"
@@ -2197,7 +2197,7 @@
             {
               "id": "ew-tunnel",
               "name": {
-                "zh": "EW隧道",
+                "zh": "EW Tunnel",
                 "en": "EW Tunnel"
               },
               "payloadId": "tunnel-ew"
@@ -2212,7 +2212,7 @@
         {
           "id": "ad-attack",
           "name": {
-            "zh": "域渗透攻击",
+            "zh": "Active Directory Attacks",
             "en": "Active Directory Attacks"
           },
           "children": [
@@ -2239,7 +2239,7 @@
             {
               "id": "adcs-abuse",
               "name": {
-                "zh": "ADCS滥用",
+                "zh": "ADCS Abuse",
                 "en": "ADCS Abuse"
               },
               "payloadId": "adcs-abuse"
@@ -2277,7 +2277,7 @@
             {
               "id": "constrained-delegation",
               "name": {
-                "zh": "约束委派",
+                "zh": "Constrained Delegation",
                 "en": "Constrained Delegation"
               },
               "payloadId": "constrained-delegation"
@@ -2285,7 +2285,7 @@
             {
               "id": "resource-delegation",
               "name": {
-                "zh": "基于资源的约束委派",
+                "zh": "Resource-based Constrained Delegation",
                 "en": "Resource-based Constrained Delegation"
               },
               "payloadId": "resource-delegation"
@@ -2293,7 +2293,7 @@
             {
               "id": "dcsync",
               "name": {
-                "zh": "DCSync攻击",
+                "zh": "DCSync Attack",
                 "en": "DCSync Attack"
               },
               "payloadId": "dcsync-attack"
@@ -2301,7 +2301,7 @@
             {
               "id": "dcshadow",
               "name": {
-                "zh": "DCShadow攻击",
+                "zh": "DCShadow Attack",
                 "en": "DCShadow Attack"
               },
               "payloadId": "dcshadow-attack"
@@ -2314,7 +2314,7 @@
             {
               "id": "noauth",
               "name": {
-                "zh": "NoAuth攻击",
+                "zh": "NoAuth Attack",
                 "en": "NoAuth Attack"
               },
               "payloadId": "noauth"
@@ -2322,7 +2322,7 @@
             {
               "id": "group-policy",
               "name": {
-                "zh": "组策略滥用",
+                "zh": "Group Policy Abuse",
                 "en": "Group Policy Abuse"
               },
               "payloadId": "group-policy-abuse"
@@ -2330,7 +2330,7 @@
             {
               "id": "domain-priv-esc",
               "name": {
-                "zh": "域内权限提升",
+                "zh": "Domain Privilege Escalation",
                 "en": "Domain Privilege Escalation"
               },
               "payloadId": "domain-privilege-escalation"
@@ -2338,7 +2338,7 @@
             {
               "id": "domain-cross-trust-nav",
               "name": {
-                "zh": "跨域信任攻击",
+                "zh": "Cross-Domain Trust Attack",
                 "en": "Cross-Domain Trust Attack"
               },
               "payloadId": "domain-cross-trust"
@@ -2348,14 +2348,14 @@
         {
           "id": "evasion",
           "name": {
-            "zh": "免杀与规避",
+            "zh": "Evasion & AV Bypass",
             "en": "Evasion & AV Bypass"
           },
           "children": [
             {
               "id": "amsi-bypass",
               "name": {
-                "zh": "AMSI绕过",
+                "zh": "AMSI Bypass",
                 "en": "AMSI Bypass"
               },
               "payloadId": "amsi-bypass"
@@ -2378,7 +2378,7 @@
             {
               "id": "shellcode-encrypt",
               "name": {
-                "zh": "Shellcode加密",
+                "zh": "Shellcode Encryption",
                 "en": "Shellcode Encryption"
               },
               "payloadId": "evasion-shellcode-encrypt"
@@ -2386,7 +2386,7 @@
             {
               "id": "process-masq",
               "name": {
-                "zh": "进程伪装",
+                "zh": "Process Masquerading",
                 "en": "Process Masquerading"
               },
               "payloadId": "evasion-process-masq"
@@ -2394,7 +2394,7 @@
             {
               "id": "ppid-spoofing",
               "name": {
-                "zh": "PPID欺骗",
+                "zh": "PPID Spoofing",
                 "en": "PPID Spoofing"
               },
               "payloadId": "evasion-ppid-spoof"
@@ -2402,7 +2402,7 @@
             {
               "id": "dll-side-loading",
               "name": {
-                "zh": "DLL侧加载",
+                "zh": "DLL Side-Loading",
                 "en": "DLL Side-Loading"
               },
               "payloadId": "evasion-dll-sideloading"
@@ -2410,7 +2410,7 @@
             {
               "id": "process-injection",
               "name": {
-                "zh": "进程注入",
+                "zh": "Process Injection",
                 "en": "Process Injection"
               },
               "payloadId": "process-injection"
@@ -2418,7 +2418,7 @@
             {
               "id": "argument-spoof",
               "name": {
-                "zh": "参数欺骗",
+                "zh": "Argument Spoofing",
                 "en": "Argument Spoofing"
               },
               "payloadId": "evasion-arg-spoofing"
@@ -2426,7 +2426,7 @@
             {
               "id": "signed-binary",
               "name": {
-                "zh": "签名二进制利用",
+                "zh": "Signed Binary Abuse",
                 "en": "Signed Binary Abuse"
               },
               "payloadId": "evasion-signed-binary"
@@ -2434,7 +2434,7 @@
             {
               "id": "clr-injection",
               "name": {
-                "zh": "CLR注入",
+                "zh": "CLR Injection",
                 "en": "CLR Injection"
               },
               "payloadId": "evasion-clr-injection"
@@ -2442,7 +2442,7 @@
             {
               "id": "applocker-bypass",
               "name": {
-                "zh": "AppLocker绕过",
+                "zh": "AppLocker Bypass",
                 "en": "AppLocker Bypass"
               },
               "payloadId": "applocker-bypass"
@@ -2450,7 +2450,7 @@
             {
               "id": "evasion-powershell-nav",
               "name": {
-                "zh": "PowerShell免杀",
+                "zh": "PowerShell Evasion",
                 "en": "PowerShell Evasion"
               },
               "payloadId": "evasion-powershell"
@@ -2460,7 +2460,7 @@
         {
           "id": "exchange-attack",
           "name": {
-            "zh": "Exchange攻击",
+            "zh": "Exchange Attacks",
             "en": "Exchange Attacks"
           },
           "children": [
@@ -2482,7 +2482,7 @@
             {
               "id": "exchange-enum",
               "name": {
-                "zh": "Exchange枚举",
+                "zh": "Exchange Enumeration",
                 "en": "Exchange Enumeration"
               },
               "payloadId": "exchange-enum"
@@ -2490,7 +2490,7 @@
             {
               "id": "exchange-mailbox",
               "name": {
-                "zh": "邮箱访问",
+                "zh": "Mailbox Access",
                 "en": "Mailbox Access"
               },
               "payloadId": "exchange-mailbox-access"
@@ -2500,14 +2500,14 @@
         {
           "id": "sharepoint-attack",
           "name": {
-            "zh": "SharePoint攻击",
+            "zh": "SharePoint Attacks",
             "en": "SharePoint Attacks"
           },
           "children": [
             {
               "id": "sharepoint-enum",
               "name": {
-                "zh": "SharePoint枚举",
+                "zh": "SharePoint Enumeration",
                 "en": "SharePoint Enumeration"
               },
               "payloadId": "sharepoint-enum"
@@ -2515,7 +2515,7 @@
             {
               "id": "sharepoint-file",
               "name": {
-                "zh": "文件访问",
+                "zh": "File Access",
                 "en": "File Access"
               },
               "payloadId": "sharepoint-file-access"
@@ -2529,21 +2529,21 @@
     {
       "id": "web",
       "name": {
-        "zh": "🌐 Web应用攻防",
+        "zh": "🌐 Web Application",
         "en": "🌐 Web Application"
       },
       "children": [
         {
           "id": "sqli",
           "name": {
-            "zh": "SQL/NoSQL注入",
+            "zh": "SQL/NoSQL Injection",
             "en": "SQL/NoSQL Injection"
           },
           "children": [
             {
               "id": "sqli-mysql",
               "name": {
-                "zh": "MySQL注入",
+                "zh": "MySQL Injection",
                 "en": "MySQL Injection"
               },
               "payloadId": "sqli-mysql-basic"
@@ -2551,7 +2551,7 @@
             {
               "id": "sqli-mysql-advanced",
               "name": {
-                "zh": "MySQL高级注入",
+                "zh": "MySQL Advanced Injection",
                 "en": "MySQL Advanced Injection"
               },
               "payloadId": "sqli-mysql-advanced"
@@ -2559,7 +2559,7 @@
             {
               "id": "sqli-mssql",
               "name": {
-                "zh": "MSSQL注入",
+                "zh": "MSSQL Injection",
                 "en": "MSSQL Injection"
               },
               "payloadId": "sqli-mssql-basic"
@@ -2567,7 +2567,7 @@
             {
               "id": "sqli-mssql-advanced",
               "name": {
-                "zh": "MSSQL高级注入",
+                "zh": "MSSQL Advanced Injection",
                 "en": "MSSQL Advanced Injection"
               },
               "payloadId": "sqli-mssql-advanced"
@@ -2575,7 +2575,7 @@
             {
               "id": "sqli-oracle",
               "name": {
-                "zh": "Oracle注入",
+                "zh": "Oracle Injection",
                 "en": "Oracle Injection"
               },
               "payloadId": "sqli-oracle-basic"
@@ -2583,7 +2583,7 @@
             {
               "id": "sqli-oracle-advanced",
               "name": {
-                "zh": "Oracle高级注入",
+                "zh": "Oracle Advanced Injection",
                 "en": "Oracle Advanced Injection"
               },
               "payloadId": "sqli-oracle-advanced"
@@ -2591,7 +2591,7 @@
             {
               "id": "sqli-postgres",
               "name": {
-                "zh": "PostgreSQL注入",
+                "zh": "PostgreSQL Injection",
                 "en": "PostgreSQL Injection"
               },
               "payloadId": "sqli-postgres-basic"
@@ -2599,7 +2599,7 @@
             {
               "id": "sqli-sqlite",
               "name": {
-                "zh": "SQLite注入",
+                "zh": "SQLite Injection",
                 "en": "SQLite Injection"
               },
               "payloadId": "sqli-sqlite-basic"
@@ -2607,7 +2607,7 @@
             {
               "id": "sqli-mongodb",
               "name": {
-                "zh": "MongoDB注入",
+                "zh": "MongoDB Injection",
                 "en": "MongoDB Injection"
               },
               "payloadId": "sqli-mongodb-basic"
@@ -2615,7 +2615,7 @@
             {
               "id": "sqli-redis",
               "name": {
-                "zh": "Redis注入",
+                "zh": "Redis Injection",
                 "en": "Redis Injection"
               },
               "payloadId": "sqli-redis"
@@ -2623,7 +2623,7 @@
             {
               "id": "sqli-blind",
               "name": {
-                "zh": "布尔盲注",
+                "zh": "Boolean Blind Injection",
                 "en": "Boolean Blind Injection"
               },
               "payloadId": "sqli-blind"
@@ -2631,7 +2631,7 @@
             {
               "id": "sqli-time",
               "name": {
-                "zh": "时间盲注",
+                "zh": "Time-based Blind Injection",
                 "en": "Time-based Blind Injection"
               },
               "payloadId": "sqli-time-based"
@@ -2639,7 +2639,7 @@
             {
               "id": "sqli-error",
               "name": {
-                "zh": "报错注入",
+                "zh": "Error-based Injection",
                 "en": "Error-based Injection"
               },
               "payloadId": "sqli-error-based"
@@ -2647,7 +2647,7 @@
             {
               "id": "sqli-second-order",
               "name": {
-                "zh": "二阶注入",
+                "zh": "Second-order Injection",
                 "en": "Second-order Injection"
               },
               "payloadId": "sqli-second-order"
@@ -2655,7 +2655,7 @@
             {
               "id": "sqli-union",
               "name": {
-                "zh": "联合查询注入",
+                "zh": "Union-based Injection",
                 "en": "Union-based Injection"
               },
               "payloadId": "sqli-union"
@@ -2663,7 +2663,7 @@
             {
               "id": "sqli-stacked",
               "name": {
-                "zh": "堆叠查询注入",
+                "zh": "Stacked Queries Injection",
                 "en": "Stacked Queries Injection"
               },
               "payloadId": "sqli-stacked"
@@ -2671,7 +2671,7 @@
             {
               "id": "sqli-waf-bypass",
               "name": {
-                "zh": "WAF绕过技术",
+                "zh": "WAF Bypass Techniques",
                 "en": "WAF Bypass Techniques"
               },
               "payloadId": "sqli-waf-bypass"
@@ -2681,14 +2681,14 @@
         {
           "id": "xss",
           "name": {
-            "zh": "XSS跨站脚本",
+            "zh": "XSS Cross-Site Scripting",
             "en": "XSS Cross-Site Scripting"
           },
           "children": [
             {
               "id": "xss-reflected",
               "name": {
-                "zh": "反射型XSS",
+                "zh": "Reflected XSS",
                 "en": "Reflected XSS"
               },
               "payloadId": "xss-reflected"
@@ -2696,7 +2696,7 @@
             {
               "id": "xss-stored",
               "name": {
-                "zh": "存储型XSS",
+                "zh": "Stored XSS",
                 "en": "Stored XSS"
               },
               "payloadId": "xss-stored"
@@ -2704,7 +2704,7 @@
             {
               "id": "xss-dom",
               "name": {
-                "zh": "DOM型XSS",
+                "zh": "DOM-based XSS",
                 "en": "DOM-based XSS"
               },
               "payloadId": "xss-dom"
@@ -2712,7 +2712,7 @@
             {
               "id": "xss-mxss",
               "name": {
-                "zh": "突变型XSS(mXSS)",
+                "zh": "Mutation XSS (mXSS)",
                 "en": "Mutation XSS (mXSS)"
               },
               "payloadId": "xss-mxss"
@@ -2725,7 +2725,7 @@
             {
               "id": "xss-csp-bypass",
               "name": {
-                "zh": "CSP绕过",
+                "zh": "CSP Bypass",
                 "en": "CSP Bypass"
               },
               "payloadId": "xss-csp-bypass"
@@ -2733,7 +2733,7 @@
             {
               "id": "xss-filter-bypass",
               "name": {
-                "zh": "过滤器绕过",
+                "zh": "Filter Bypass",
                 "en": "Filter Bypass"
               },
               "payloadId": "xss-filter-bypass"
@@ -2741,7 +2741,7 @@
             {
               "id": "xss-encoding",
               "name": {
-                "zh": "编码绕过",
+                "zh": "Encoding Bypass",
                 "en": "Encoding Bypass"
               },
               "payloadId": "xss-encoding"
@@ -2754,7 +2754,7 @@
             {
               "id": "xss-cookie-theft",
               "name": {
-                "zh": "Cookie窃取",
+                "zh": "Cookie Theft",
                 "en": "Cookie Theft"
               },
               "payloadId": "xss-cookie-theft"
@@ -2762,7 +2762,7 @@
             {
               "id": "xss-keylogger",
               "name": {
-                "zh": "键盘记录",
+                "zh": "Keylogger",
                 "en": "Keylogger"
               },
               "payloadId": "xss-keylogger"
@@ -2770,7 +2770,7 @@
             {
               "id": "xss-beef",
               "name": {
-                "zh": "BeEF利用",
+                "zh": "BeEF Exploitation",
                 "en": "BeEF Exploitation"
               },
               "payloadId": "xss-beef"
@@ -2780,14 +2780,14 @@
         {
           "id": "ssrf",
           "name": {
-            "zh": "SSRF服务端请求伪造",
+            "zh": "SSRF Server-Side Request Forgery",
             "en": "SSRF Server-Side Request Forgery"
           },
           "children": [
             {
               "id": "ssrf-basic",
               "name": {
-                "zh": "基础SSRF攻击",
+                "zh": "Basic SSRF Attack",
                 "en": "Basic SSRF Attack"
               },
               "payloadId": "ssrf-basic"
@@ -2795,7 +2795,7 @@
             {
               "id": "ssrf-cloud-aws",
               "name": {
-                "zh": "AWS元数据攻击",
+                "zh": "AWS Metadata Attack",
                 "en": "AWS Metadata Attack"
               },
               "payloadId": "ssrf-cloud-aws"
@@ -2803,7 +2803,7 @@
             {
               "id": "ssrf-cloud-gcp",
               "name": {
-                "zh": "GCP元数据攻击",
+                "zh": "GCP Metadata Attack",
                 "en": "GCP Metadata Attack"
               },
               "payloadId": "ssrf-cloud-gcp"
@@ -2811,7 +2811,7 @@
             {
               "id": "ssrf-cloud-azure",
               "name": {
-                "zh": "Azure元数据攻击",
+                "zh": "Azure Metadata Attack",
                 "en": "Azure Metadata Attack"
               },
               "payloadId": "ssrf-cloud-azure"
@@ -2819,7 +2819,7 @@
             {
               "id": "ssrf-protocol",
               "name": {
-                "zh": "协议利用",
+                "zh": "Protocol Exploitation",
                 "en": "Protocol Exploitation"
               },
               "payloadId": "ssrf-protocol"
@@ -2827,7 +2827,7 @@
             {
               "id": "ssrf-gopher",
               "name": {
-                "zh": "Gopher攻击",
+                "zh": "Gopher Attack",
                 "en": "Gopher Attack"
               },
               "payloadId": "ssrf-gopher"
@@ -2835,7 +2835,7 @@
             {
               "id": "ssrf-dict",
               "name": {
-                "zh": "Dict协议攻击",
+                "zh": "Dict Protocol Attack",
                 "en": "Dict Protocol Attack"
               },
               "payloadId": "ssrf-dict"
@@ -2843,7 +2843,7 @@
             {
               "id": "ssrf-file",
               "name": {
-                "zh": "File协议攻击",
+                "zh": "File Protocol Attack",
                 "en": "File Protocol Attack"
               },
               "payloadId": "ssrf-file"
@@ -2851,7 +2851,7 @@
             {
               "id": "ssrf-bypass",
               "name": {
-                "zh": "SSRF绕过技术",
+                "zh": "SSRF Bypass Techniques",
                 "en": "SSRF Bypass Techniques"
               },
               "payloadId": "ssrf-bypass"
@@ -2859,7 +2859,7 @@
             {
               "id": "ssrf-dns-rebinding",
               "name": {
-                "zh": "DNS重绑定",
+                "zh": "DNS Rebinding",
                 "en": "DNS Rebinding"
               },
               "payloadId": "ssrf-dns-rebinding"
@@ -2867,7 +2867,7 @@
             {
               "id": "ssrf-redis",
               "name": {
-                "zh": "SSRF攻击Redis",
+                "zh": "SSRF to Redis",
                 "en": "SSRF to Redis"
               },
               "payloadId": "ssrf-redis"
@@ -2875,7 +2875,7 @@
             {
               "id": "ssrf-mysql",
               "name": {
-                "zh": "SSRF攻击MySQL",
+                "zh": "SSRF to MySQL",
                 "en": "SSRF to MySQL"
               },
               "payloadId": "ssrf-mysql"
@@ -2885,14 +2885,14 @@
         {
           "id": "rce",
           "name": {
-            "zh": "RCE远程代码执行",
+            "zh": "RCE Remote Code Execution",
             "en": "RCE Remote Code Execution"
           },
           "children": [
             {
               "id": "rce-php",
               "name": {
-                "zh": "PHP代码执行",
+                "zh": "PHP Code Execution",
                 "en": "PHP Code Execution"
               },
               "payloadId": "rce-php"
@@ -2900,7 +2900,7 @@
             {
               "id": "rce-php-filter",
               "name": {
-                "zh": "PHP Filter链",
+                "zh": "PHP Filter Chain",
                 "en": "PHP Filter Chain"
               },
               "payloadId": "rce-php-filter"
@@ -2908,7 +2908,7 @@
             {
               "id": "rce-cmd",
               "name": {
-                "zh": "命令注入",
+                "zh": "Command Injection",
                 "en": "Command Injection"
               },
               "payloadId": "rce-command-injection"
@@ -2916,7 +2916,7 @@
             {
               "id": "rce-cmd-blind",
               "name": {
-                "zh": "盲命令注入",
+                "zh": "Blind Command Injection",
                 "en": "Blind Command Injection"
               },
               "payloadId": "rce-cmd-blind"
@@ -2924,7 +2924,7 @@
             {
               "id": "rce-deserialize",
               "name": {
-                "zh": "反序列化漏洞",
+                "zh": "Deserialization Vulnerability",
                 "en": "Deserialization Vulnerability"
               },
               "payloadId": "rce-deserialize"
@@ -2932,7 +2932,7 @@
             {
               "id": "rce-deserialize-php",
               "name": {
-                "zh": "PHP反序列化",
+                "zh": "PHP Deserialization",
                 "en": "PHP Deserialization"
               },
               "payloadId": "rce-deserialize-php"
@@ -2940,7 +2940,7 @@
             {
               "id": "rce-deserialize-java",
               "name": {
-                "zh": "Java反序列化",
+                "zh": "Java Deserialization",
                 "en": "Java Deserialization"
               },
               "payloadId": "rce-deserialize-java"
@@ -2948,7 +2948,7 @@
             {
               "id": "rce-upload",
               "name": {
-                "zh": "文件上传漏洞",
+                "zh": "File Upload Vulnerability",
                 "en": "File Upload Vulnerability"
               },
               "payloadId": "rce-file-upload"
@@ -2956,7 +2956,7 @@
             {
               "id": "rce-include",
               "name": {
-                "zh": "文件包含RCE",
+                "zh": "File Inclusion RCE",
                 "en": "File Inclusion RCE"
               },
               "payloadId": "rce-include"
@@ -2964,7 +2964,7 @@
             {
               "id": "rce-log-poison",
               "name": {
-                "zh": "日志投毒RCE",
+                "zh": "Log Poisoning RCE",
                 "en": "Log Poisoning RCE"
               },
               "payloadId": "rce-log-poison"
@@ -2972,7 +2972,7 @@
             {
               "id": "rce-image",
               "name": {
-                "zh": "图片马RCE",
+                "zh": "Image Webshell RCE",
                 "en": "Image Webshell RCE"
               },
               "payloadId": "rce-image"
@@ -2980,7 +2980,7 @@
             {
               "id": "rce-htaccess",
               "name": {
-                "zh": ".htaccess利用",
+                "zh": ".htaccess Exploitation",
                 "en": ".htaccess Exploitation"
               },
               "payloadId": "rce-htaccess"
@@ -2990,14 +2990,14 @@
         {
           "id": "xxe",
           "name": {
-            "zh": "XXE实体注入",
+            "zh": "XXE XML Entity Injection",
             "en": "XXE XML Entity Injection"
           },
           "children": [
             {
               "id": "xxe-basic",
               "name": {
-                "zh": "基础XXE攻击",
+                "zh": "Basic XXE Attack",
                 "en": "Basic XXE Attack"
               },
               "payloadId": "xxe-basic"
@@ -3005,7 +3005,7 @@
             {
               "id": "xxe-blind",
               "name": {
-                "zh": "盲注XXE",
+                "zh": "Blind XXE",
                 "en": "Blind XXE"
               },
               "payloadId": "xxe-blind"
@@ -3013,7 +3013,7 @@
             {
               "id": "xxe-oob",
               "name": {
-                "zh": "OOB外带攻击",
+                "zh": "OOB Out-of-Band Attack",
                 "en": "OOB Out-of-Band Attack"
               },
               "payloadId": "xxe-oob"
@@ -3021,7 +3021,7 @@
             {
               "id": "xxe-ssrf",
               "name": {
-                "zh": "XXE+SSRF组合",
+                "zh": "XXE + SSRF Combo",
                 "en": "XXE + SSRF Combo"
               },
               "payloadId": "xxe-ssrf"
@@ -3029,7 +3029,7 @@
             {
               "id": "xxe-rce",
               "name": {
-                "zh": "XXE到RCE",
+                "zh": "XXE to RCE",
                 "en": "XXE to RCE"
               },
               "payloadId": "xxe-rce"
@@ -3037,7 +3037,7 @@
             {
               "id": "xxe-file-read",
               "name": {
-                "zh": "文件读取",
+                "zh": "File Read",
                 "en": "File Read"
               },
               "payloadId": "xxe-file-read"
@@ -3045,7 +3045,7 @@
             {
               "id": "xxe-dtd",
               "name": {
-                "zh": "外部DTD利用",
+                "zh": "External DTD Exploitation",
                 "en": "External DTD Exploitation"
               },
               "payloadId": "xxe-dtd"
@@ -3053,7 +3053,7 @@
             {
               "id": "xxe-xlsx",
               "name": {
-                "zh": "XLSX文件XXE",
+                "zh": "XLSX File XXE",
                 "en": "XLSX File XXE"
               },
               "payloadId": "xxe-xlsx"
@@ -3061,7 +3061,7 @@
             {
               "id": "xxe-docx",
               "name": {
-                "zh": "DOCX文件XXE",
+                "zh": "DOCX File XXE",
                 "en": "DOCX File XXE"
               },
               "payloadId": "xxe-docx"
@@ -3071,7 +3071,7 @@
         {
           "id": "ssti",
           "name": {
-            "zh": "SSTI模板注入",
+            "zh": "SSTI Template Injection",
             "en": "SSTI Template Injection"
           },
           "children": [
@@ -3130,14 +3130,14 @@
         {
           "id": "lfi-rfi",
           "name": {
-            "zh": "LFI/RFI文件包含",
+            "zh": "LFI/RFI File Inclusion",
             "en": "LFI/RFI File Inclusion"
           },
           "children": [
             {
               "id": "lfi-basic",
               "name": {
-                "zh": "本地文件包含",
+                "zh": "Local File Inclusion",
                 "en": "Local File Inclusion"
               },
               "payloadId": "lfi-basic"
@@ -3145,7 +3145,7 @@
             {
               "id": "rfi-basic",
               "name": {
-                "zh": "远程文件包含",
+                "zh": "Remote File Inclusion",
                 "en": "Remote File Inclusion"
               },
               "payloadId": "rfi-basic"
@@ -3153,7 +3153,7 @@
             {
               "id": "lfi-log",
               "name": {
-                "zh": "日志投毒",
+                "zh": "Log Poisoning",
                 "en": "Log Poisoning"
               },
               "payloadId": "lfi-log-poison"
@@ -3161,7 +3161,7 @@
             {
               "id": "lfi-wrapper",
               "name": {
-                "zh": "伪协议利用",
+                "zh": "Wrapper Exploitation",
                 "en": "Wrapper Exploitation"
               },
               "payloadId": "lfi-wrapper"
@@ -3169,7 +3169,7 @@
             {
               "id": "lfi-traversal",
               "name": {
-                "zh": "目录遍历",
+                "zh": "Directory Traversal",
                 "en": "Directory Traversal"
               },
               "payloadId": "lfi-traversal"
@@ -3197,7 +3197,7 @@
             {
               "id": "lfi-phar",
               "name": {
-                "zh": "Phar反序列化",
+                "zh": "Phar Deserialization",
                 "en": "Phar Deserialization"
               },
               "payloadId": "lfi-phar"
@@ -3205,7 +3205,7 @@
             {
               "id": "lfi-session",
               "name": {
-                "zh": "Session文件包含",
+                "zh": "Session File Inclusion",
                 "en": "Session File Inclusion"
               },
               "payloadId": "lfi-session"
@@ -3213,7 +3213,7 @@
             {
               "id": "lfi-proc",
               "name": {
-                "zh": "Proc文件系统",
+                "zh": "Proc Filesystem",
                 "en": "Proc Filesystem"
               },
               "payloadId": "lfi-proc"
@@ -3223,14 +3223,14 @@
         {
           "id": "csrf",
           "name": {
-            "zh": "CSRF跨站请求伪造",
+            "zh": "CSRF Cross-Site Request Forgery",
             "en": "CSRF Cross-Site Request Forgery"
           },
           "children": [
             {
               "id": "csrf-basic",
               "name": {
-                "zh": "基础CSRF攻击",
+                "zh": "Basic CSRF Attack",
                 "en": "Basic CSRF Attack"
               },
               "payloadId": "csrf-basic"
@@ -3243,7 +3243,7 @@
             {
               "id": "csrf-bypass",
               "name": {
-                "zh": "绕过技术",
+                "zh": "Bypass Techniques",
                 "en": "Bypass Techniques"
               },
               "payloadId": "csrf-bypass"
@@ -3251,7 +3251,7 @@
             {
               "id": "csrf-samesite",
               "name": {
-                "zh": "SameSite绕过",
+                "zh": "SameSite Bypass",
                 "en": "SameSite Bypass"
               },
               "payloadId": "csrf-samesite"
@@ -3259,7 +3259,7 @@
             {
               "id": "csrf-token-bypass",
               "name": {
-                "zh": "Token绕过",
+                "zh": "Token Bypass",
                 "en": "Token Bypass"
               },
               "payloadId": "csrf-token-bypass"
@@ -3267,7 +3267,7 @@
             {
               "id": "csrf-referer-bypass",
               "name": {
-                "zh": "Referer绕过",
+                "zh": "Referer Bypass",
                 "en": "Referer Bypass"
               },
               "payloadId": "csrf-referer-bypass"
@@ -3275,7 +3275,7 @@
             {
               "id": "csrf-cors",
               "name": {
-                "zh": "CORS配置错误",
+                "zh": "CORS Misconfiguration",
                 "en": "CORS Misconfiguration"
               },
               "payloadId": "csrf-cors"
@@ -3285,14 +3285,14 @@
         {
           "id": "api-security",
           "name": {
-            "zh": "API安全",
+            "zh": "API Security",
             "en": "API Security"
           },
           "children": [
             {
               "id": "graphql",
               "name": {
-                "zh": "GraphQL安全",
+                "zh": "GraphQL Security",
                 "en": "GraphQL Security"
               },
               "payloadId": "graphql-injection"
@@ -3300,7 +3300,7 @@
             {
               "id": "graphql-introspection",
               "name": {
-                "zh": "GraphQL内省",
+                "zh": "GraphQL Introspection",
                 "en": "GraphQL Introspection"
               },
               "payloadId": "graphql-introspection"
@@ -3308,7 +3308,7 @@
             {
               "id": "graphql-batching",
               "name": {
-                "zh": "GraphQL批量查询",
+                "zh": "GraphQL Batching",
                 "en": "GraphQL Batching"
               },
               "payloadId": "graphql-batching"
@@ -3316,7 +3316,7 @@
             {
               "id": "rest-api",
               "name": {
-                "zh": "REST API安全",
+                "zh": "REST API Security",
                 "en": "REST API Security"
               },
               "payloadId": "rest-api-security"
@@ -3324,7 +3324,7 @@
             {
               "id": "jwt",
               "name": {
-                "zh": "JWT安全",
+                "zh": "JWT Security",
                 "en": "JWT Security"
               },
               "payloadId": "jwt-security"
@@ -3332,7 +3332,7 @@
             {
               "id": "jwt-none-alg",
               "name": {
-                "zh": "JWT None算法",
+                "zh": "JWT None Algorithm",
                 "en": "JWT None Algorithm"
               },
               "payloadId": "jwt-none-alg"
@@ -3340,7 +3340,7 @@
             {
               "id": "jwt-key-confusion",
               "name": {
-                "zh": "JWT密钥混淆",
+                "zh": "JWT Key Confusion",
                 "en": "JWT Key Confusion"
               },
               "payloadId": "jwt-key-confusion"
@@ -3348,7 +3348,7 @@
             {
               "id": "api-idor",
               "name": {
-                "zh": "IDOR漏洞",
+                "zh": "IDOR Vulnerability",
                 "en": "IDOR Vulnerability"
               },
               "payloadId": "api-idor"
@@ -3356,7 +3356,7 @@
             {
               "id": "api-rate-limit",
               "name": {
-                "zh": "速率限制绕过",
+                "zh": "Rate Limit Bypass",
                 "en": "Rate Limit Bypass"
               },
               "payloadId": "api-rate-limit"
@@ -3364,7 +3364,7 @@
             {
               "id": "api-mass-assignment",
               "name": {
-                "zh": "批量赋值",
+                "zh": "Mass Assignment",
                 "en": "Mass Assignment"
               },
               "payloadId": "api-mass-assignment"
@@ -3372,7 +3372,7 @@
             {
               "id": "api-bola",
               "name": {
-                "zh": "BOLA漏洞",
+                "zh": "BOLA Vulnerability",
                 "en": "BOLA Vulnerability"
               },
               "payloadId": "api-bola"
@@ -3380,7 +3380,7 @@
             {
               "id": "api-injection",
               "name": {
-                "zh": "API注入",
+                "zh": "API Injection",
                 "en": "API Injection"
               },
               "payloadId": "api-injection"
@@ -3390,7 +3390,7 @@
         {
           "id": "framework-vulns",
           "name": {
-            "zh": "框架漏洞",
+            "zh": "Framework Vulnerabilities",
             "en": "Framework Vulnerabilities"
           },
           "children": [
@@ -3402,7 +3402,7 @@
             {
               "id": "spring-spel",
               "name": {
-                "zh": "Spring SpEL注入",
+                "zh": "Spring SpEL Injection",
                 "en": "Spring SpEL Injection"
               },
               "payloadId": "spring-spel"
@@ -3430,7 +3430,7 @@
             {
               "id": "weblogic-t3",
               "name": {
-                "zh": "WebLogic T3协议",
+                "zh": "WebLogic T3 Protocol",
                 "en": "WebLogic T3 Protocol"
               },
               "payloadId": "weblogic-t3"
@@ -3473,7 +3473,7 @@
             {
               "id": "jboss",
               "name": {
-                "zh": "JBoss漏洞",
+                "zh": "JBoss Vulnerability",
                 "en": "JBoss Vulnerability"
               },
               "payloadId": "jboss-vuln"
@@ -3481,7 +3481,7 @@
             {
               "id": "tomcat",
               "name": {
-                "zh": "Tomcat漏洞",
+                "zh": "Tomcat Vulnerability",
                 "en": "Tomcat Vulnerability"
               },
               "payloadId": "tomcat-vuln"
@@ -3489,7 +3489,7 @@
             {
               "id": "django",
               "name": {
-                "zh": "Django漏洞",
+                "zh": "Django Vulnerability",
                 "en": "Django Vulnerability"
               },
               "payloadId": "django-vuln"
@@ -3497,7 +3497,7 @@
             {
               "id": "flask",
               "name": {
-                "zh": "Flask漏洞",
+                "zh": "Flask Vulnerability",
                 "en": "Flask Vulnerability"
               },
               "payloadId": "flask-vuln"
@@ -3507,14 +3507,14 @@
         {
           "id": "auth-vulns",
           "name": {
-            "zh": "认证漏洞",
+            "zh": "Authentication Vulnerabilities",
             "en": "Authentication Vulnerabilities"
           },
           "children": [
             {
               "id": "auth-bypass",
               "name": {
-                "zh": "认证绕过",
+                "zh": "Auth Bypass",
                 "en": "Auth Bypass"
               },
               "payloadId": "auth-bypass"
@@ -3522,7 +3522,7 @@
             {
               "id": "auth-brute",
               "name": {
-                "zh": "暴力破解",
+                "zh": "Brute Force",
                 "en": "Brute Force"
               },
               "payloadId": "auth-brute"
@@ -3530,7 +3530,7 @@
             {
               "id": "auth-session",
               "name": {
-                "zh": "会话劫持",
+                "zh": "Session Hijacking",
                 "en": "Session Hijacking"
               },
               "payloadId": "auth-session"
@@ -3538,7 +3538,7 @@
             {
               "id": "auth-password",
               "name": {
-                "zh": "密码重置漏洞",
+                "zh": "Password Reset Vulnerability",
                 "en": "Password Reset Vulnerability"
               },
               "payloadId": "auth-password-reset"
@@ -3546,7 +3546,7 @@
             {
               "id": "auth-oauth",
               "name": {
-                "zh": "OAuth漏洞",
+                "zh": "OAuth Vulnerability",
                 "en": "OAuth Vulnerability"
               },
               "payloadId": "auth-oauth"
@@ -3554,7 +3554,7 @@
             {
               "id": "auth-saml",
               "name": {
-                "zh": "SAML漏洞",
+                "zh": "SAML Vulnerability",
                 "en": "SAML Vulnerability"
               },
               "payloadId": "auth-saml"
@@ -3562,7 +3562,7 @@
             {
               "id": "auth-2fa",
               "name": {
-                "zh": "2FA绕过",
+                "zh": "2FA Bypass",
                 "en": "2FA Bypass"
               },
               "payloadId": "auth-2fa"
@@ -3570,7 +3570,7 @@
             {
               "id": "auth-captcha",
               "name": {
-                "zh": "验证码绕过",
+                "zh": "CAPTCHA Bypass",
                 "en": "CAPTCHA Bypass"
               },
               "payloadId": "auth-captcha"
@@ -3578,7 +3578,7 @@
             {
               "id": "auth-remember-me",
               "name": {
-                "zh": "记住我漏洞",
+                "zh": "Remember-Me Vulnerability",
                 "en": "Remember-Me Vulnerability"
               },
               "payloadId": "auth-remember-me"
@@ -3586,7 +3586,7 @@
             {
               "id": "auth-jwt",
               "name": {
-                "zh": "JWT认证漏洞",
+                "zh": "JWT Auth Vulnerability",
                 "en": "JWT Auth Vulnerability"
               },
               "payloadId": "auth-jwt"
@@ -3596,14 +3596,14 @@
         {
           "id": "file-vulns",
           "name": {
-            "zh": "文件漏洞",
+            "zh": "File Vulnerabilities",
             "en": "File Vulnerabilities"
           },
           "children": [
             {
               "id": "file-upload",
               "name": {
-                "zh": "文件上传基础",
+                "zh": "File Upload Basics",
                 "en": "File Upload Basics"
               },
               "payloadId": "file-upload-bypass"
@@ -3611,7 +3611,7 @@
             {
               "id": "file-upload-bypass",
               "name": {
-                "zh": "上传绕过技术",
+                "zh": "Upload Bypass Techniques",
                 "en": "Upload Bypass Techniques"
               },
               "payloadId": "file-upload-bypass"
@@ -3619,7 +3619,7 @@
             {
               "id": "file-download",
               "name": {
-                "zh": "任意文件下载",
+                "zh": "Arbitrary File Download",
                 "en": "Arbitrary File Download"
               },
               "payloadId": "file-download"
@@ -3627,7 +3627,7 @@
             {
               "id": "file-competition",
               "name": {
-                "zh": "条件竞争",
+                "zh": "Race Condition",
                 "en": "Race Condition"
               },
               "payloadId": "file-competition"
@@ -3635,7 +3635,7 @@
             {
               "id": "file-traversal",
               "name": {
-                "zh": "路径遍历",
+                "zh": "Path Traversal",
                 "en": "Path Traversal"
               },
               "payloadId": "file-traversal"
@@ -3648,7 +3648,7 @@
             {
               "id": "file-mime",
               "name": {
-                "zh": "MIME类型绕过",
+                "zh": "MIME Type Bypass",
                 "en": "MIME Type Bypass"
               },
               "payloadId": "file-mime"
@@ -3656,7 +3656,7 @@
             {
               "id": "file-null-byte",
               "name": {
-                "zh": "空字节截断",
+                "zh": "Null Byte Truncation",
                 "en": "Null Byte Truncation"
               },
               "payloadId": "file-null-byte"
@@ -3666,14 +3666,14 @@
         {
           "id": "web-cache",
           "name": {
-            "zh": "缓存与CDN安全",
+            "zh": "Cache & CDN Security",
             "en": "Cache & CDN Security"
           },
           "children": [
             {
               "id": "cache-poisoning",
               "name": {
-                "zh": "缓存投毒",
+                "zh": "Cache Poisoning",
                 "en": "Cache Poisoning"
               },
               "payloadId": "cache-poisoning"
@@ -3681,7 +3681,7 @@
             {
               "id": "cache-deception",
               "name": {
-                "zh": "缓存欺骗",
+                "zh": "Cache Deception",
                 "en": "Cache Deception"
               },
               "payloadId": "cache-deception"
@@ -3689,7 +3689,7 @@
             {
               "id": "cdn-bypass",
               "name": {
-                "zh": "CDN绕过",
+                "zh": "CDN Bypass",
                 "en": "CDN Bypass"
               },
               "payloadId": "cdn-bypass"
@@ -3699,14 +3699,14 @@
         {
           "id": "web-smuggling",
           "name": {
-            "zh": "请求走私",
+            "zh": "HTTP Request Smuggling",
             "en": "HTTP Request Smuggling"
           },
           "children": [
             {
               "id": "smuggling-cl-cl",
               "name": {
-                "zh": "CL-CL走私",
+                "zh": "CL-CL Smuggling",
                 "en": "CL-CL Smuggling"
               },
               "payloadId": "smuggling-cl-cl"
@@ -3714,7 +3714,7 @@
             {
               "id": "smuggling-cl-te",
               "name": {
-                "zh": "CL-TE走私",
+                "zh": "CL-TE Smuggling",
                 "en": "CL-TE Smuggling"
               },
               "payloadId": "smuggling-cl-te"
@@ -3722,7 +3722,7 @@
             {
               "id": "smuggling-te-cl",
               "name": {
-                "zh": "TE-CL走私",
+                "zh": "TE-CL Smuggling",
                 "en": "TE-CL Smuggling"
               },
               "payloadId": "smuggling-te-cl"
@@ -3730,7 +3730,7 @@
             {
               "id": "smuggling-te-te",
               "name": {
-                "zh": "TE-TE走私",
+                "zh": "TE-TE Smuggling",
                 "en": "TE-TE Smuggling"
               },
               "payloadId": "smuggling-te-te"
@@ -3740,14 +3740,14 @@
         {
           "id": "web-redirect",
           "name": {
-            "zh": "开放重定向",
+            "zh": "Open Redirect",
             "en": "Open Redirect"
           },
           "children": [
             {
               "id": "redirect-basic",
               "name": {
-                "zh": "基础重定向",
+                "zh": "Basic Redirect",
                 "en": "Basic Redirect"
               },
               "payloadId": "redirect-basic"
@@ -3755,7 +3755,7 @@
             {
               "id": "redirect-bypass",
               "name": {
-                "zh": "重定向绕过",
+                "zh": "Redirect Bypass",
                 "en": "Redirect Bypass"
               },
               "payloadId": "redirect-bypass"
@@ -3763,7 +3763,7 @@
             {
               "id": "redirect-ssrf",
               "name": {
-                "zh": "重定向到SSRF",
+                "zh": "Redirect to SSRF",
                 "en": "Redirect to SSRF"
               },
               "payloadId": "redirect-ssrf"
@@ -3773,14 +3773,14 @@
         {
           "id": "clickjacking",
           "name": {
-            "zh": "点击劫持",
+            "zh": "Clickjacking",
             "en": "Clickjacking"
           },
           "children": [
             {
               "id": "clickjacking-basic",
               "name": {
-                "zh": "基础点击劫持",
+                "zh": "Basic Clickjacking",
                 "en": "Basic Clickjacking"
               },
               "payloadId": "clickjacking-basic"
@@ -3788,7 +3788,7 @@
             {
               "id": "clickjacking-xss",
               "name": {
-                "zh": "点击劫持+XSS",
+                "zh": "Clickjacking + XSS",
                 "en": "Clickjacking + XSS"
               },
               "payloadId": "clickjacking-xss"
@@ -3798,14 +3798,14 @@
         {
           "id": "biz-logic",
           "name": {
-            "zh": "业务逻辑漏洞",
+            "zh": "Business Logic Vulnerabilities",
             "en": "Business Logic Vulnerabilities"
           },
           "children": [
             {
               "id": "biz-idor-nav",
               "name": {
-                "zh": "IDOR越权遍历",
+                "zh": "IDOR Enumeration",
                 "en": "IDOR Enumeration"
               },
               "payloadId": "biz-idor"
@@ -3813,7 +3813,7 @@
             {
               "id": "biz-race-condition-nav",
               "name": {
-                "zh": "竞态条件攻击",
+                "zh": "Race Condition Attack",
                 "en": "Race Condition Attack"
               },
               "payloadId": "biz-race-condition"
@@ -3821,7 +3821,7 @@
             {
               "id": "biz-price-tamper-nav",
               "name": {
-                "zh": "价格篡改",
+                "zh": "Price Tampering",
                 "en": "Price Tampering"
               },
               "payloadId": "biz-price-tamper"
@@ -3829,7 +3829,7 @@
             {
               "id": "biz-flow-bypass-nav",
               "name": {
-                "zh": "流程绕过",
+                "zh": "Flow Bypass",
                 "en": "Flow Bypass"
               },
               "payloadId": "biz-flow-bypass"
@@ -3837,7 +3837,7 @@
             {
               "id": "biz-coupon-abuse-nav",
               "name": {
-                "zh": "优惠券滥用",
+                "zh": "Coupon Abuse",
                 "en": "Coupon Abuse"
               },
               "payloadId": "biz-coupon-abuse"
@@ -3847,14 +3847,14 @@
         {
           "id": "jwt-security",
           "name": {
-            "zh": "JWT安全",
+            "zh": "JWT Security",
             "en": "JWT Security"
           },
           "children": [
             {
               "id": "jwt-none-algo-nav",
               "name": {
-                "zh": "None算法攻击",
+                "zh": "None Algorithm Attack",
                 "en": "None Algorithm Attack"
               },
               "payloadId": "jwt-none-algo"
@@ -3862,7 +3862,7 @@
             {
               "id": "jwt-weak-secret-nav",
               "name": {
-                "zh": "弱密钥爆破",
+                "zh": "Weak Secret Brute Force",
                 "en": "Weak Secret Brute Force"
               },
               "payloadId": "jwt-weak-secret"
@@ -3870,7 +3870,7 @@
             {
               "id": "jwt-kid-injection-nav",
               "name": {
-                "zh": "KID注入攻击",
+                "zh": "KID Injection Attack",
                 "en": "KID Injection Attack"
               },
               "payloadId": "jwt-kid-injection"
@@ -3878,7 +3878,7 @@
             {
               "id": "jwt-jku-spoofing-nav",
               "name": {
-                "zh": "JKU欺骗攻击",
+                "zh": "JKU Spoofing Attack",
                 "en": "JKU Spoofing Attack"
               },
               "payloadId": "jwt-jku-spoofing"
@@ -3888,14 +3888,14 @@
         {
           "id": "supply-chain",
           "name": {
-            "zh": "供应链攻击",
+            "zh": "Supply Chain Attacks",
             "en": "Supply Chain Attacks"
           },
           "children": [
             {
               "id": "supply-typosquat-nav",
               "name": {
-                "zh": "拼写抢注攻击",
+                "zh": "Typosquatting Attack",
                 "en": "Typosquatting Attack"
               },
               "payloadId": "supply-typosquat"
@@ -3903,7 +3903,7 @@
             {
               "id": "supply-ci-poison-nav",
               "name": {
-                "zh": "CI/CD投毒",
+                "zh": "CI/CD Poisoning",
                 "en": "CI/CD Poisoning"
               },
               "payloadId": "supply-ci-poison"
@@ -3911,7 +3911,7 @@
             {
               "id": "supply-dep-confusion-nav",
               "name": {
-                "zh": "依赖混淆攻击",
+                "zh": "Dependency Confusion",
                 "en": "Dependency Confusion"
               },
               "payloadId": "supply-dependency-confusion"
@@ -3921,14 +3921,14 @@
         {
           "id": "prototype-pollution",
           "name": {
-            "zh": "原型链污染",
+            "zh": "Prototype Pollution",
             "en": "Prototype Pollution"
           },
           "children": [
             {
               "id": "proto-server-rce-nav",
               "name": {
-                "zh": "服务端RCE",
+                "zh": "Server-side RCE",
                 "en": "Server-side RCE"
               },
               "payloadId": "proto-server-rce"
@@ -3936,7 +3936,7 @@
             {
               "id": "proto-client-xss-nav",
               "name": {
-                "zh": "客户端XSS",
+                "zh": "Client-side XSS",
                 "en": "Client-side XSS"
               },
               "payloadId": "proto-client-xss"
@@ -3944,7 +3944,7 @@
             {
               "id": "proto-nosql-injection-nav",
               "name": {
-                "zh": "NoSQL注入",
+                "zh": "NoSQL Injection",
                 "en": "NoSQL Injection"
               },
               "payloadId": "proto-nosql-injection"
@@ -3954,14 +3954,14 @@
         {
           "id": "cloud-security",
           "name": {
-            "zh": "云安全漏洞",
+            "zh": "Cloud Security Vulnerabilities",
             "en": "Cloud Security Vulnerabilities"
           },
           "children": [
             {
               "id": "cloud-ssrf-metadata-nav",
               "name": {
-                "zh": "SSRF元数据攻击",
+                "zh": "SSRF Metadata Attack",
                 "en": "SSRF Metadata Attack"
               },
               "payloadId": "cloud-ssrf-metadata"
@@ -3969,7 +3969,7 @@
             {
               "id": "cloud-s3-misconfig-nav",
               "name": {
-                "zh": "S3存储桶错配",
+                "zh": "S3 Bucket Misconfiguration",
                 "en": "S3 Bucket Misconfiguration"
               },
               "payloadId": "cloud-s3-misconfig"
@@ -3977,7 +3977,7 @@
             {
               "id": "cloud-iam-escalation-nav",
               "name": {
-                "zh": "IAM权限提升",
+                "zh": "IAM Privilege Escalation",
                 "en": "IAM Privilege Escalation"
               },
               "payloadId": "cloud-iam-escalation"
@@ -3985,7 +3985,7 @@
             {
               "id": "cloud-k8s-escape-nav",
               "name": {
-                "zh": "K8s容器逃逸",
+                "zh": "K8s Container Escape",
                 "en": "K8s Container Escape"
               },
               "payloadId": "cloud-k8s-escape"
@@ -3995,14 +3995,14 @@
         {
           "id": "websocket-security",
           "name": {
-            "zh": "WebSocket安全",
+            "zh": "WebSocket Security",
             "en": "WebSocket Security"
           },
           "children": [
             {
               "id": "ws-hijack-nav",
               "name": {
-                "zh": "WebSocket劫持",
+                "zh": "WebSocket Hijacking",
                 "en": "WebSocket Hijacking"
               },
               "payloadId": "ws-hijack"
@@ -4010,7 +4010,7 @@
             {
               "id": "ws-smuggling-nav",
               "name": {
-                "zh": "WebSocket走私",
+                "zh": "WebSocket Smuggling",
                 "en": "WebSocket Smuggling"
               },
               "payloadId": "ws-smuggling"
@@ -4018,7 +4018,7 @@
             {
               "id": "ws-auth-bypass-nav",
               "name": {
-                "zh": "认证绕过",
+                "zh": "Auth Bypass",
                 "en": "Auth Bypass"
               },
               "payloadId": "ws-auth-bypass"
@@ -4028,14 +4028,14 @@
         {
           "id": "ai-security",
           "name": {
-            "zh": "AI安全",
+            "zh": "AI Security",
             "en": "AI Security"
           },
           "children": [
             {
               "id": "ai-prompt-injection-nav",
               "name": {
-                "zh": "Prompt注入",
+                "zh": "Prompt Injection",
                 "en": "Prompt Injection"
               },
               "payloadId": "ai-prompt-injection"
@@ -4043,7 +4043,7 @@
             {
               "id": "ai-model-extraction-nav",
               "name": {
-                "zh": "模型窃取",
+                "zh": "Model Extraction",
                 "en": "Model Extraction"
               },
               "payloadId": "ai-model-extraction"
@@ -4051,7 +4051,7 @@
             {
               "id": "ai-adversarial-nav",
               "name": {
-                "zh": "对抗样本攻击",
+                "zh": "Adversarial Attack",
                 "en": "Adversarial Attack"
               },
               "payloadId": "ai-adversarial"
@@ -4059,7 +4059,7 @@
             {
               "id": "ai-rag-poisoning-nav",
               "name": {
-                "zh": "RAG投毒攻击",
+                "zh": "RAG Poisoning Attack",
                 "en": "RAG Poisoning Attack"
               },
               "payloadId": "ai-rag-poisoning"
@@ -4071,21 +4071,21 @@
     {
       "id": "intranet",
       "name": {
-        "zh": "🏢 内网渗透与横向移动",
+        "zh": "🏢 Internal Network & Lateral Movement",
         "en": "🏢 Internal Network & Lateral Movement"
       },
       "children": [
         {
           "id": "recon",
           "name": {
-            "zh": "信息收集",
+            "zh": "Reconnaissance",
             "en": "Reconnaissance"
           },
           "children": [
             {
               "id": "bloodhound",
               "name": {
-                "zh": "BloodHound域分析",
+                "zh": "BloodHound Domain Analysis",
                 "en": "BloodHound Domain Analysis"
               },
               "payloadId": "bloodhound-enumeration"
@@ -4093,7 +4093,7 @@
             {
               "id": "spn-scan",
               "name": {
-                "zh": "SPN扫描",
+                "zh": "SPN Scanning",
                 "en": "SPN Scanning"
               },
               "payloadId": "spn-scan"
@@ -4101,7 +4101,7 @@
             {
               "id": "port-scan",
               "name": {
-                "zh": "端口扫描",
+                "zh": "Port Scanning",
                 "en": "Port Scanning"
               },
               "payloadId": "port-scan"
@@ -4109,7 +4109,7 @@
             {
               "id": "domain-recon",
               "name": {
-                "zh": "域信息收集",
+                "zh": "Domain Reconnaissance",
                 "en": "Domain Reconnaissance"
               },
               "payloadId": "domain-recon"
@@ -4117,7 +4117,7 @@
             {
               "id": "network-recon",
               "name": {
-                "zh": "网络信息收集",
+                "zh": "Network Reconnaissance",
                 "en": "Network Reconnaissance"
               },
               "payloadId": "network-recon"
@@ -4125,7 +4125,7 @@
             {
               "id": "share-enum",
               "name": {
-                "zh": "共享枚举",
+                "zh": "Share Enumeration",
                 "en": "Share Enumeration"
               },
               "payloadId": "share-enum"
@@ -4133,7 +4133,7 @@
             {
               "id": "user-enum",
               "name": {
-                "zh": "用户枚举",
+                "zh": "User Enumeration",
                 "en": "User Enumeration"
               },
               "payloadId": "user-enum"
@@ -4141,7 +4141,7 @@
             {
               "id": "group-enum",
               "name": {
-                "zh": "组枚举",
+                "zh": "Group Enumeration",
                 "en": "Group Enumeration"
               },
               "payloadId": "group-enum"
@@ -4149,7 +4149,7 @@
             {
               "id": "gpo-enum",
               "name": {
-                "zh": "GPO枚举",
+                "zh": "GPO Enumeration",
                 "en": "GPO Enumeration"
               },
               "payloadId": "gpo-enum"
@@ -4157,7 +4157,7 @@
             {
               "id": "acl-enum",
               "name": {
-                "zh": "ACL枚举",
+                "zh": "ACL Enumeration",
                 "en": "ACL Enumeration"
               },
               "payloadId": "acl-enum"
@@ -4165,7 +4165,7 @@
             {
               "id": "trust-enum",
               "name": {
-                "zh": "信任关系枚举",
+                "zh": "Trust Relationship Enumeration",
                 "en": "Trust Relationship Enumeration"
               },
               "payloadId": "trust-enum"
@@ -4173,7 +4173,7 @@
             {
               "id": "computer-enum",
               "name": {
-                "zh": "计算机枚举",
+                "zh": "Computer Enumeration",
                 "en": "Computer Enumeration"
               },
               "payloadId": "computer-enum"
@@ -4183,14 +4183,14 @@
         {
           "id": "credential-theft",
           "name": {
-            "zh": "凭证窃取",
+            "zh": "Credential Theft",
             "en": "Credential Theft"
           },
           "children": [
             {
               "id": "mimikatz",
               "name": {
-                "zh": "Mimikatz凭证抓取",
+                "zh": "Mimikatz Credential Dumping",
                 "en": "Mimikatz Credential Dumping"
               },
               "payloadId": "mimikatz-creds"
@@ -4198,7 +4198,7 @@
             {
               "id": "mimikatz-advanced",
               "name": {
-                "zh": "Mimikatz高级技巧",
+                "zh": "Mimikatz Advanced Techniques",
                 "en": "Mimikatz Advanced Techniques"
               },
               "payloadId": "mimikatz-advanced"
@@ -4221,7 +4221,7 @@
             {
               "id": "browser-dump",
               "name": {
-                "zh": "浏览器凭证",
+                "zh": "Browser Credentials",
                 "en": "Browser Credentials"
               },
               "payloadId": "browser-creds"
@@ -4229,7 +4229,7 @@
             {
               "id": "sam-dump",
               "name": {
-                "zh": "SAM数据库导出",
+                "zh": "SAM Database Dump",
                 "en": "SAM Database Dump"
               },
               "payloadId": "sam-dump"
@@ -4237,7 +4237,7 @@
             {
               "id": "ntds-dump",
               "name": {
-                "zh": "NTDS.dit导出",
+                "zh": "NTDS.dit Dump",
                 "en": "NTDS.dit Dump"
               },
               "payloadId": "ntds-dump"
@@ -4245,7 +4245,7 @@
             {
               "id": "dpapi-creds",
               "name": {
-                "zh": "DPAPI凭证",
+                "zh": "DPAPI Credentials",
                 "en": "DPAPI Credentials"
               },
               "payloadId": "dpapi-creds"
@@ -4253,7 +4253,7 @@
             {
               "id": "rdp-creds",
               "name": {
-                "zh": "RDP凭证",
+                "zh": "RDP Credentials",
                 "en": "RDP Credentials"
               },
               "payloadId": "rdp-creds"
@@ -4261,7 +4261,7 @@
             {
               "id": "wifi-creds",
               "name": {
-                "zh": "WiFi凭证",
+                "zh": "WiFi Credentials",
                 "en": "WiFi Credentials"
               },
               "payloadId": "wifi-creds"
@@ -4274,7 +4274,7 @@
             {
               "id": "keepass-dump",
               "name": {
-                "zh": "KeePass凭证",
+                "zh": "KeePass Credentials",
                 "en": "KeePass Credentials"
               },
               "payloadId": "keepass-dump"
@@ -4282,7 +4282,7 @@
             {
               "id": "gpp-password",
               "name": {
-                "zh": "GPP密码",
+                "zh": "GPP Password",
                 "en": "GPP Password"
               },
               "payloadId": "gpp-password"
@@ -4295,7 +4295,7 @@
             {
               "id": "cached-creds",
               "name": {
-                "zh": "缓存凭证",
+                "zh": "Cached Credentials",
                 "en": "Cached Credentials"
               },
               "payloadId": "cached-creds"
@@ -4305,7 +4305,7 @@
         {
           "id": "lateral-movement",
           "name": {
-            "zh": "横向移动",
+            "zh": "Lateral Movement",
             "en": "Lateral Movement"
           },
           "children": [
@@ -4342,7 +4342,7 @@
             {
               "id": "lateral-ssh-tunnel",
               "name": {
-                "zh": "SSH隧道",
+                "zh": "SSH Tunnel",
                 "en": "SSH Tunnel"
               },
               "payloadId": "lateral-ssh"
@@ -4350,7 +4350,7 @@
             {
               "id": "rdp-hijack",
               "name": {
-                "zh": "RDP劫持",
+                "zh": "RDP Hijacking",
                 "en": "RDP Hijacking"
               },
               "payloadId": "rdp-hijack"
@@ -4400,14 +4400,14 @@
         {
           "id": "privilege-escalation",
           "name": {
-            "zh": "权限提升",
+            "zh": "Privilege Escalation",
             "en": "Privilege Escalation"
           },
           "children": [
             {
               "id": "token-manipulation",
               "name": {
-                "zh": "令牌窃取与模拟",
+                "zh": "Token Theft & Impersonation",
                 "en": "Token Theft & Impersonation"
               },
               "payloadId": "privilege-token"
@@ -4415,7 +4415,7 @@
             {
               "id": "windows-privesc",
               "name": {
-                "zh": "Windows提权",
+                "zh": "Windows Privilege Escalation",
                 "en": "Windows Privilege Escalation"
               },
               "payloadId": "windows-privesc"
@@ -4423,7 +4423,7 @@
             {
               "id": "linux-privesc",
               "name": {
-                "zh": "Linux提权",
+                "zh": "Linux Privilege Escalation",
                 "en": "Linux Privilege Escalation"
               },
               "payloadId": "linux-privesc"
@@ -4431,7 +4431,7 @@
             {
               "id": "uac-bypass",
               "name": {
-                "zh": "UAC绕过",
+                "zh": "UAC Bypass",
                 "en": "UAC Bypass"
               },
               "payloadId": "uac-bypass"
@@ -4439,7 +4439,7 @@
             {
               "id": "dll-hijack",
               "name": {
-                "zh": "DLL劫持",
+                "zh": "DLL Hijacking",
                 "en": "DLL Hijacking"
               },
               "payloadId": "dll-hijack"
@@ -4447,7 +4447,7 @@
             {
               "id": "service-exploit",
               "name": {
-                "zh": "服务提权",
+                "zh": "Service Exploitation",
                 "en": "Service Exploitation"
               },
               "payloadId": "service-exploit"
@@ -4460,7 +4460,7 @@
             {
               "id": "unattended",
               "name": {
-                "zh": "无人值守安装",
+                "zh": "Unattended Install",
                 "en": "Unattended Install"
               },
               "payloadId": "unattended-creds"
@@ -4468,7 +4468,7 @@
             {
               "id": "potato",
               "name": {
-                "zh": "Potato攻击",
+                "zh": "Potato Attack",
                 "en": "Potato Attack"
               },
               "payloadId": "potato-attack"
@@ -4491,7 +4491,7 @@
             {
               "id": "suid-exploit",
               "name": {
-                "zh": "SUID提权",
+                "zh": "SUID Privilege Escalation",
                 "en": "SUID Privilege Escalation"
               },
               "payloadId": "suid-exploit"
@@ -4499,7 +4499,7 @@
             {
               "id": "sudo-exploit",
               "name": {
-                "zh": "Sudo提权",
+                "zh": "Sudo Privilege Escalation",
                 "en": "Sudo Privilege Escalation"
               },
               "payloadId": "sudo-exploit"
@@ -4507,7 +4507,7 @@
             {
               "id": "cron-exploit",
               "name": {
-                "zh": "Cron提权",
+                "zh": "Cron Privilege Escalation",
                 "en": "Cron Privilege Escalation"
               },
               "payloadId": "cron-exploit"
@@ -4515,7 +4515,7 @@
             {
               "id": "kernel-exploit",
               "name": {
-                "zh": "内核漏洞提权",
+                "zh": "Kernel Exploit Escalation",
                 "en": "Kernel Exploit Escalation"
               },
               "payloadId": "kernel-exploit"
@@ -4525,14 +4525,14 @@
         {
           "id": "persistence",
           "name": {
-            "zh": "权限维持",
+            "zh": "Persistence",
             "en": "Persistence"
           },
           "children": [
             {
               "id": "registry-persistence",
               "name": {
-                "zh": "注册表持久化",
+                "zh": "Registry Persistence",
                 "en": "Registry Persistence"
               },
               "payloadId": "persistence-registry"
@@ -4540,7 +4540,7 @@
             {
               "id": "scheduled-task",
               "name": {
-                "zh": "计划任务",
+                "zh": "Scheduled Task",
                 "en": "Scheduled Task"
               },
               "payloadId": "persistence-scheduled"
@@ -4548,7 +4548,7 @@
             {
               "id": "wmi-event",
               "name": {
-                "zh": "WMI事件订阅",
+                "zh": "WMI Event Subscription",
                 "en": "WMI Event Subscription"
               },
               "payloadId": "persistence-wmi"
@@ -4556,7 +4556,7 @@
             {
               "id": "golden-ticket",
               "name": {
-                "zh": "黄金票据",
+                "zh": "Golden Ticket",
                 "en": "Golden Ticket"
               },
               "payloadId": "golden-ticket"
@@ -4564,7 +4564,7 @@
             {
               "id": "silver-ticket",
               "name": {
-                "zh": "白银票据",
+                "zh": "Silver Ticket",
                 "en": "Silver Ticket"
               },
               "payloadId": "silver-ticket"
@@ -4577,7 +4577,7 @@
             {
               "id": "dsrm-backdoor",
               "name": {
-                "zh": "DSRM后门",
+                "zh": "DSRM Backdoor",
                 "en": "DSRM Backdoor"
               },
               "payloadId": "dsrm-backdoor"
@@ -4590,7 +4590,7 @@
             {
               "id": "startup-folder",
               "name": {
-                "zh": "启动文件夹",
+                "zh": "Startup Folder",
                 "en": "Startup Folder"
               },
               "payloadId": "persistence-startup"
@@ -4598,7 +4598,7 @@
             {
               "id": "service-persistence",
               "name": {
-                "zh": "服务持久化",
+                "zh": "Service Persistence",
                 "en": "Service Persistence"
               },
               "payloadId": "persistence-service"
@@ -4606,7 +4606,7 @@
             {
               "id": "dll-injection",
               "name": {
-                "zh": "DLL注入",
+                "zh": "DLL Injection",
                 "en": "DLL Injection"
               },
               "payloadId": "persistence-dll-injection"
@@ -4614,7 +4614,7 @@
             {
               "id": "process-hollowing",
               "name": {
-                "zh": "进程镂空",
+                "zh": "Process Hollowing",
                 "en": "Process Hollowing"
               },
               "payloadId": "persistence-process-hollowing"
@@ -4622,7 +4622,7 @@
             {
               "id": "backdoor-user",
               "name": {
-                "zh": "后门用户",
+                "zh": "Backdoor User",
                 "en": "Backdoor User"
               },
               "payloadId": "persistence-backdoor-user"
@@ -4630,7 +4630,7 @@
             {
               "id": "hidden-user",
               "name": {
-                "zh": "隐藏用户",
+                "zh": "Hidden User",
                 "en": "Hidden User"
               },
               "payloadId": "persistence-hidden-user"
@@ -4640,14 +4640,14 @@
         {
           "id": "tunnel-proxy",
           "name": {
-            "zh": "隧道代理",
+            "zh": "Tunneling & Proxy",
             "en": "Tunneling & Proxy"
           },
           "children": [
             {
               "id": "frp",
               "name": {
-                "zh": "FRP内网穿透",
+                "zh": "FRP Intranet Tunneling",
                 "en": "FRP Intranet Tunneling"
               },
               "payloadId": "tunnel-frp"
@@ -4665,7 +4665,7 @@
             {
               "id": "ssh-tunnel-proxy",
               "name": {
-                "zh": "SSH本地/远程转发",
+                "zh": "SSH Local/Remote Forwarding",
                 "en": "SSH Local/Remote Forwarding"
               },
               "payloadId": "tunnel-ssh-local"
@@ -4673,7 +4673,7 @@
             {
               "id": "ssh-remote",
               "name": {
-                "zh": "SSH远程转发",
+                "zh": "SSH Remote Forwarding",
                 "en": "SSH Remote Forwarding"
               },
               "payloadId": "tunnel-ssh-remote"
@@ -4681,7 +4681,7 @@
             {
               "id": "ssh-dynamic",
               "name": {
-                "zh": "SSH动态转发",
+                "zh": "SSH Dynamic Forwarding",
                 "en": "SSH Dynamic Forwarding"
               },
               "payloadId": "tunnel-ssh-dynamic"
@@ -4689,7 +4689,7 @@
             {
               "id": "dns-tunnel",
               "name": {
-                "zh": "DNS隧道",
+                "zh": "DNS Tunnel",
                 "en": "DNS Tunnel"
               },
               "payloadId": "tunnel-dns"
@@ -4697,7 +4697,7 @@
             {
               "id": "icmp-tunnel",
               "name": {
-                "zh": "ICMP隧道",
+                "zh": "ICMP Tunnel",
                 "en": "ICMP Tunnel"
               },
               "payloadId": "tunnel-icmp"
@@ -4705,7 +4705,7 @@
             {
               "id": "socks-proxy",
               "name": {
-                "zh": "SOCKS代理",
+                "zh": "SOCKS Proxy",
                 "en": "SOCKS Proxy"
               },
               "payloadId": "socks-proxy"
@@ -4723,7 +4723,7 @@
             {
               "id": "ew-tunnel",
               "name": {
-                "zh": "EW隧道",
+                "zh": "EW Tunnel",
                 "en": "EW Tunnel"
               },
               "payloadId": "tunnel-ew"
@@ -4738,7 +4738,7 @@
         {
           "id": "ad-attack",
           "name": {
-            "zh": "域渗透攻击",
+            "zh": "Active Directory Attacks",
             "en": "Active Directory Attacks"
           },
           "children": [
@@ -4765,7 +4765,7 @@
             {
               "id": "adcs-abuse",
               "name": {
-                "zh": "ADCS滥用",
+                "zh": "ADCS Abuse",
                 "en": "ADCS Abuse"
               },
               "payloadId": "adcs-abuse"
@@ -4803,7 +4803,7 @@
             {
               "id": "constrained-delegation",
               "name": {
-                "zh": "约束委派",
+                "zh": "Constrained Delegation",
                 "en": "Constrained Delegation"
               },
               "payloadId": "constrained-delegation"
@@ -4811,7 +4811,7 @@
             {
               "id": "resource-delegation",
               "name": {
-                "zh": "基于资源的约束委派",
+                "zh": "Resource-based Constrained Delegation",
                 "en": "Resource-based Constrained Delegation"
               },
               "payloadId": "resource-delegation"
@@ -4819,7 +4819,7 @@
             {
               "id": "dcsync",
               "name": {
-                "zh": "DCSync攻击",
+                "zh": "DCSync Attack",
                 "en": "DCSync Attack"
               },
               "payloadId": "dcsync-attack"
@@ -4827,7 +4827,7 @@
             {
               "id": "dcshadow",
               "name": {
-                "zh": "DCShadow攻击",
+                "zh": "DCShadow Attack",
                 "en": "DCShadow Attack"
               },
               "payloadId": "dcshadow-attack"
@@ -4840,7 +4840,7 @@
             {
               "id": "noauth",
               "name": {
-                "zh": "NoAuth攻击",
+                "zh": "NoAuth Attack",
                 "en": "NoAuth Attack"
               },
               "payloadId": "noauth"
@@ -4848,7 +4848,7 @@
             {
               "id": "group-policy",
               "name": {
-                "zh": "组策略滥用",
+                "zh": "Group Policy Abuse",
                 "en": "Group Policy Abuse"
               },
               "payloadId": "group-policy-abuse"
@@ -4856,7 +4856,7 @@
             {
               "id": "domain-priv-esc",
               "name": {
-                "zh": "域内权限提升",
+                "zh": "Domain Privilege Escalation",
                 "en": "Domain Privilege Escalation"
               },
               "payloadId": "domain-privilege-escalation"
@@ -4864,7 +4864,7 @@
             {
               "id": "domain-cross-trust-nav",
               "name": {
-                "zh": "跨域信任攻击",
+                "zh": "Cross-Domain Trust Attack",
                 "en": "Cross-Domain Trust Attack"
               },
               "payloadId": "domain-cross-trust"
@@ -4874,14 +4874,14 @@
         {
           "id": "evasion",
           "name": {
-            "zh": "免杀与规避",
+            "zh": "Evasion & AV Bypass",
             "en": "Evasion & AV Bypass"
           },
           "children": [
             {
               "id": "amsi-bypass",
               "name": {
-                "zh": "AMSI绕过",
+                "zh": "AMSI Bypass",
                 "en": "AMSI Bypass"
               },
               "payloadId": "amsi-bypass"
@@ -4904,7 +4904,7 @@
             {
               "id": "shellcode-encrypt",
               "name": {
-                "zh": "Shellcode加密",
+                "zh": "Shellcode Encryption",
                 "en": "Shellcode Encryption"
               },
               "payloadId": "evasion-shellcode-encrypt"
@@ -4912,7 +4912,7 @@
             {
               "id": "process-masq",
               "name": {
-                "zh": "进程伪装",
+                "zh": "Process Masquerading",
                 "en": "Process Masquerading"
               },
               "payloadId": "evasion-process-masq"
@@ -4920,7 +4920,7 @@
             {
               "id": "ppid-spoofing",
               "name": {
-                "zh": "PPID欺骗",
+                "zh": "PPID Spoofing",
                 "en": "PPID Spoofing"
               },
               "payloadId": "evasion-ppid-spoof"
@@ -4928,7 +4928,7 @@
             {
               "id": "dll-side-loading",
               "name": {
-                "zh": "DLL侧加载",
+                "zh": "DLL Side-Loading",
                 "en": "DLL Side-Loading"
               },
               "payloadId": "evasion-dll-sideloading"
@@ -4936,7 +4936,7 @@
             {
               "id": "process-injection",
               "name": {
-                "zh": "进程注入",
+                "zh": "Process Injection",
                 "en": "Process Injection"
               },
               "payloadId": "process-injection"
@@ -4944,7 +4944,7 @@
             {
               "id": "argument-spoof",
               "name": {
-                "zh": "参数欺骗",
+                "zh": "Argument Spoofing",
                 "en": "Argument Spoofing"
               },
               "payloadId": "evasion-arg-spoofing"
@@ -4952,7 +4952,7 @@
             {
               "id": "signed-binary",
               "name": {
-                "zh": "签名二进制利用",
+                "zh": "Signed Binary Abuse",
                 "en": "Signed Binary Abuse"
               },
               "payloadId": "evasion-signed-binary"
@@ -4960,7 +4960,7 @@
             {
               "id": "clr-injection",
               "name": {
-                "zh": "CLR注入",
+                "zh": "CLR Injection",
                 "en": "CLR Injection"
               },
               "payloadId": "evasion-clr-injection"
@@ -4968,7 +4968,7 @@
             {
               "id": "applocker-bypass",
               "name": {
-                "zh": "AppLocker绕过",
+                "zh": "AppLocker Bypass",
                 "en": "AppLocker Bypass"
               },
               "payloadId": "applocker-bypass"
@@ -4976,7 +4976,7 @@
             {
               "id": "evasion-powershell-nav",
               "name": {
-                "zh": "PowerShell免杀",
+                "zh": "PowerShell Evasion",
                 "en": "PowerShell Evasion"
               },
               "payloadId": "evasion-powershell"
@@ -4986,7 +4986,7 @@
         {
           "id": "exchange-attack",
           "name": {
-            "zh": "Exchange攻击",
+            "zh": "Exchange Attacks",
             "en": "Exchange Attacks"
           },
           "children": [
@@ -5008,7 +5008,7 @@
             {
               "id": "exchange-enum",
               "name": {
-                "zh": "Exchange枚举",
+                "zh": "Exchange Enumeration",
                 "en": "Exchange Enumeration"
               },
               "payloadId": "exchange-enum"
@@ -5016,7 +5016,7 @@
             {
               "id": "exchange-mailbox",
               "name": {
-                "zh": "邮箱访问",
+                "zh": "Mailbox Access",
                 "en": "Mailbox Access"
               },
               "payloadId": "exchange-mailbox-access"
@@ -5026,14 +5026,14 @@
         {
           "id": "sharepoint-attack",
           "name": {
-            "zh": "SharePoint攻击",
+            "zh": "SharePoint Attacks",
             "en": "SharePoint Attacks"
           },
           "children": [
             {
               "id": "sharepoint-enum",
               "name": {
-                "zh": "SharePoint枚举",
+                "zh": "SharePoint Enumeration",
                 "en": "SharePoint Enumeration"
               },
               "payloadId": "sharepoint-enum"
@@ -5041,7 +5041,7 @@
             {
               "id": "sharepoint-file",
               "name": {
-                "zh": "文件访问",
+                "zh": "File Access",
                 "en": "File Access"
               },
               "payloadId": "sharepoint-file-access"
@@ -5055,7 +5055,7 @@
     {
       "id": "recon-tools",
       "name": {
-        "zh": "🔍 信息收集工具",
+        "zh": "🔍 Recon Tools",
         "en": "🔍 Recon Tools"
       },
       "children": [
@@ -5144,7 +5144,7 @@
     {
       "id": "web-tools",
       "name": {
-        "zh": "🌐 Web渗透工具",
+        "zh": "🌐 Web Pentest Tools",
         "en": "🌐 Web Pentest Tools"
       },
       "children": [
@@ -5223,7 +5223,7 @@
     {
       "id": "exploit-tools",
       "name": {
-        "zh": "💥 漏洞利用工具",
+        "zh": "💥 Exploitation Tools",
         "en": "💥 Exploitation Tools"
       },
       "children": [
@@ -5287,7 +5287,7 @@
     {
       "id": "password-tools",
       "name": {
-        "zh": "🔐 密码攻击工具",
+        "zh": "🔐 Password Attack Tools",
         "en": "🔐 Password Attack Tools"
       },
       "children": [
@@ -5334,7 +5334,7 @@
         {
           "id": "seclists",
           "name": {
-            "zh": "SecLists字典",
+            "zh": "SecLists Wordlist",
             "en": "SecLists Wordlist"
           },
           "toolId": "seclists"
@@ -5342,7 +5342,7 @@
         {
           "id": "rockyou",
           "name": {
-            "zh": "RockYou字典",
+            "zh": "RockYou Wordlist",
             "en": "RockYou Wordlist"
           },
           "toolId": "rockyou"
@@ -5352,7 +5352,7 @@
     {
       "id": "intranet-tools",
       "name": {
-        "zh": "🏢 内网渗透工具",
+        "zh": "🏢 Internal Pentest Tools",
         "en": "🏢 Internal Pentest Tools"
       },
       "children": [
@@ -5446,14 +5446,14 @@
     {
       "id": "os-tools",
       "name": {
-        "zh": "💻 系统命令",
+        "zh": "💻 System Commands",
         "en": "💻 System Commands"
       },
       "children": [
         {
           "id": "powershell-pentest",
           "name": {
-            "zh": "PowerShell渗透命令",
+            "zh": "PowerShell Pentest Commands",
             "en": "PowerShell Pentest Commands"
           },
           "toolId": "powershell-pentest"
@@ -5461,7 +5461,7 @@
         {
           "id": "powershell-amsi",
           "name": {
-            "zh": "PowerShell AMSI绕过",
+            "zh": "PowerShell AMSI Bypass",
             "en": "PowerShell AMSI Bypass"
           },
           "toolId": "powershell-amsi"
@@ -5469,7 +5469,7 @@
         {
           "id": "linux-privilege",
           "name": {
-            "zh": "Linux提权命令",
+            "zh": "Linux Privilege Escalation Commands",
             "en": "Linux Privilege Escalation Commands"
           },
           "toolId": "linux-privilege"
@@ -5477,7 +5477,7 @@
         {
           "id": "windows-cmd",
           "name": {
-            "zh": "Windows CMD命令",
+            "zh": "Windows CMD Commands",
             "en": "Windows CMD Commands"
           },
           "toolId": "windows-cmd"
@@ -5485,7 +5485,7 @@
         {
           "id": "wmic-cmd",
           "name": {
-            "zh": "WMIC命令",
+            "zh": "WMIC Commands",
             "en": "WMIC Commands"
           },
           "toolId": "wmic-cmd"
@@ -5493,7 +5493,7 @@
         {
           "id": "net-commands",
           "name": {
-            "zh": "NET命令",
+            "zh": "NET Commands",
             "en": "NET Commands"
           },
           "toolId": "net-commands"
@@ -5501,7 +5501,7 @@
         {
           "id": "dsquery",
           "name": {
-            "zh": "DSQuery命令",
+            "zh": "DSQuery Commands",
             "en": "DSQuery Commands"
           },
           "toolId": "dsquery"
@@ -5526,14 +5526,14 @@
     {
       "id": "reverse-shell",
       "name": {
-        "zh": "🐚 反弹Shell",
+        "zh": "🐚 Reverse Shell",
         "en": "🐚 Reverse Shell"
       },
       "children": [
         {
           "id": "bash-reverse",
           "name": {
-            "zh": "Bash反弹",
+            "zh": "Bash Reverse Shell",
             "en": "Bash Reverse Shell"
           },
           "toolId": "bash-reverse"
@@ -5541,7 +5541,7 @@
         {
           "id": "python-reverse",
           "name": {
-            "zh": "Python反弹",
+            "zh": "Python Reverse Shell",
             "en": "Python Reverse Shell"
           },
           "toolId": "python-reverse"
@@ -5549,7 +5549,7 @@
         {
           "id": "powershell-reverse",
           "name": {
-            "zh": "PowerShell反弹",
+            "zh": "PowerShell Reverse Shell",
             "en": "PowerShell Reverse Shell"
           },
           "toolId": "powershell-reverse"
@@ -5557,7 +5557,7 @@
         {
           "id": "nc-reverse",
           "name": {
-            "zh": "Netcat反弹",
+            "zh": "Netcat Reverse Shell",
             "en": "Netcat Reverse Shell"
           },
           "toolId": "nc-reverse"
@@ -5565,7 +5565,7 @@
         {
           "id": "php-reverse",
           "name": {
-            "zh": "PHP反弹",
+            "zh": "PHP Reverse Shell",
             "en": "PHP Reverse Shell"
           },
           "toolId": "php-reverse"
@@ -5573,7 +5573,7 @@
         {
           "id": "java-reverse",
           "name": {
-            "zh": "Java反弹",
+            "zh": "Java Reverse Shell",
             "en": "Java Reverse Shell"
           },
           "toolId": "java-reverse"
@@ -5581,7 +5581,7 @@
         {
           "id": "perl-reverse",
           "name": {
-            "zh": "Perl反弹",
+            "zh": "Perl Reverse Shell",
             "en": "Perl Reverse Shell"
           },
           "toolId": "perl-reverse"
@@ -5589,7 +5589,7 @@
         {
           "id": "ruby-reverse",
           "name": {
-            "zh": "Ruby反弹",
+            "zh": "Ruby Reverse Shell",
             "en": "Ruby Reverse Shell"
           },
           "toolId": "ruby-reverse"
@@ -5597,7 +5597,7 @@
         {
           "id": "nodejs-reverse",
           "name": {
-            "zh": "Node.js反弹",
+            "zh": "Node.js Reverse Shell",
             "en": "Node.js Reverse Shell"
           },
           "toolId": "nodejs-reverse"
@@ -5605,7 +5605,7 @@
         {
           "id": "groovy-reverse",
           "name": {
-            "zh": "Groovy反弹",
+            "zh": "Groovy Reverse Shell",
             "en": "Groovy Reverse Shell"
           },
           "toolId": "groovy-reverse"
@@ -5613,7 +5613,7 @@
         {
           "id": "lua-reverse",
           "name": {
-            "zh": "Lua反弹",
+            "zh": "Lua Reverse Shell",
             "en": "Lua Reverse Shell"
           },
           "toolId": "lua-reverse"
@@ -5621,7 +5621,7 @@
         {
           "id": "awk-reverse",
           "name": {
-            "zh": "AWK反弹",
+            "zh": "AWK Reverse Shell",
             "en": "AWK Reverse Shell"
           },
           "toolId": "awk-reverse"
@@ -5631,14 +5631,14 @@
     {
       "id": "encoding-tools",
       "name": {
-        "zh": "🔧 编码解码工具",
+        "zh": "🔧 Encoding/Decoding Tools",
         "en": "🔧 Encoding/Decoding Tools"
       },
       "children": [
         {
           "id": "base64-encode",
           "name": {
-            "zh": "Base64编码",
+            "zh": "Base64 Encoding",
             "en": "Base64 Encoding"
           },
           "toolId": "base64-encode"
@@ -5646,7 +5646,7 @@
         {
           "id": "url-encode",
           "name": {
-            "zh": "URL编码",
+            "zh": "URL Encoding",
             "en": "URL Encoding"
           },
           "toolId": "url-encode"
@@ -5654,7 +5654,7 @@
         {
           "id": "hex-encode",
           "name": {
-            "zh": "Hex编码",
+            "zh": "Hex Encoding",
             "en": "Hex Encoding"
           },
           "toolId": "hex-encode"
@@ -5662,7 +5662,7 @@
         {
           "id": "html-encode",
           "name": {
-            "zh": "HTML编码",
+            "zh": "HTML Encoding",
             "en": "HTML Encoding"
           },
           "toolId": "html-encode"
@@ -5670,7 +5670,7 @@
         {
           "id": "unicode-encode",
           "name": {
-            "zh": "Unicode编码",
+            "zh": "Unicode Encoding",
             "en": "Unicode Encoding"
           },
           "toolId": "unicode-encode"
@@ -5678,7 +5678,7 @@
         {
           "id": "jwt-decode",
           "name": {
-            "zh": "JWT解码",
+            "zh": "JWT Decoding",
             "en": "JWT Decoding"
           },
           "toolId": "jwt-decode"

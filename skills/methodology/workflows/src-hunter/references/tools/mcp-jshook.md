@@ -1,173 +1,173 @@
-# MCP 工具集成 — jshookmcp
+# MCP tool integration — jshookmcp
 
-> 本文档是 src-hunter skill 调用本地 MCP 服务器的工具地图。
+> This document is the tool map for the src-hunter skill to call the local MCP server.
 
-src-hunter 是黑盒漏洞挖掘 skill,默认假设你只有一个 URL,没有源码、没有内部信息。jshookmcp 把浏览器自动化、CDP 调试、网络拦截、JS hook、反混淆、Frida 内存取证、WASM 逆向、Source map 重构整合到一个 MCP server 中,直接服务于 hunt 阶段的"看代码 / 跑 payload / 拦数据 / 反调试 / 反混淆"五件事。
+src-hunter is a black-box vulnerability-hunting skill; it assumes by default that you have only a URL, no source code, and no internal information. jshookmcp bundles browser automation, CDP debugging, network interception, JS hooking, deobfuscation, Frida memory forensics, WASM reverse engineering, and source-map reconstruction into a single MCP server, directly serving the five things the hunt phase needs: "read the code / run the payload / intercept data / defeat anti-debug / deobfuscate".
 
-工具引用使用 `mcp__jshook__<tool>` 完整 MCP 协议命名。所有工具名以 `.omc/tool-manifest.json`(jshookmcp 0.3.0 实际 `search_tools` 返回值)为准,**不臆造**。
+Tool references use the full MCP-protocol name `mcp__jshook__<tool>`. All tool names come from `.omc/tool-manifest.json` (the actual `search_tools` return value in jshookmcp 0.3.0) — **do not invent names**.
 
-## 36 域索引
+## 36-domain index
 
-jshookmcp 把 134+ 工具分布在 36 个 capability domain 中。下表标注每域核心用途与代表工具(BARE 名,实际调用时加 `mcp__jshook__` 前缀)。
+jshookmcp distributes 134+ tools across 36 capability domains. The table below annotates each domain's core purpose and representative tools (BARE names; add the `mcp__jshook__` prefix when actually calling).
 
-| 域名 | 何时用 | 代表工具 |
+| Domain | When to use | Representative tools |
 |---|---|---|
-| `adb-bridge` | Android 设备 ADB 桥接 / APK 分析 / WebView 远调 | `adb_apk_analyze` / `adb_webview_attach` / `adb_webview_list` |
-| `antidebug` | 绕过 debugger / timing / headless 指纹检测 | `antidebug_bypass` |
-| `binary-instrument` | Frida 脚本生成 / Ghidra 反编译 / hook 模板导出 | `frida_run_script` / `generate_hooks` / `ghidra_decompile` / `frida_generate_script` |
-| `boringssl-inspector` | TLS 握手解析 / SSL pinning 绕过 / SSLKEYLOGFILE | `tls_cert_pin_bypass_frida` / `tls_keylog_enable` / `tls_probe_endpoint` |
-| `browser` | 浏览器自动化 / CDP 评估 / 反检测 stealth | `browser_evaluate_cdp_target` / `page_evaluate` / `stealth_inject` |
-| `canvas` | Canvas / WebGL 引擎指纹与对象拾取 | `canvas_engine_fingerprint` / `canvas_pick_object_at_point` |
-| `coordination` | 跨任务 handoff / 页面快照 / session insight | `save_page_snapshot` / `create_task_handoff` / `get_task_context` |
-| `core` | 代码采集 / 反混淆主管线 / hook 管理 / 加密检测 | `collect_code` / `deobfuscate` / `js_deobfuscate_pipeline` / `detect_crypto` |
-| `cross-domain` | 跨域证据图聚合 / 工作流建议 | `cross_domain_correlate_all` / `cross_domain_suggest_workflow` |
-| `debugger` | JS 断点 / 单步 / 表达式求值 / blackbox | `debugger_evaluate` / `debugger_pause` / `debugger_step` / `blackbox_add_common` |
-| `encoding` | base64 / protobuf / 二进制编解码 | `binary_encode` / `binary_decode` / `protobuf_decode_raw` |
-| `evidence` | 反向证据图查询 / 导出 / provenance 链 | `evidence_query` / `evidence_export` / `evidence_chain` |
-| `extension-registry` | webhook 端点管理(外部回调) | `webhook` |
-| `graphql` | GraphQL introspection / 查询提取 / 重放 | `graphql_introspect` / `graphql_extract_queries` / `graphql_replay` |
-| `hooks` | JS 运行时 hook preset(eval/atob/Reflect 等 20+) | `hook_preset` / `ai_hook` |
-| `instrumentation` | 仪表化 session 内的 hook / 网络重放 / artifact | `instrumentation_hook_preset` / `instrumentation_network_replay` |
-| `macro` | 录制 / 重放工具调用序列 | `run_macro` / `list_macros` |
-| `maintenance` | 环境健康检查 / bridge 端点诊断 | `doctor_environment` |
-| `memory` | 进程内存 patch 回滚(配合 Frida) | `memory_patch_undo` |
-| `mojo-ipc` | Chromium Mojo IPC 监听 / 解码 | `mojo_monitor` / `mojo_messages_get` / `mojo_decode_message` |
-| `network` | 请求拦截 / 重放 / HAR / HTTP2 / 性能指标 | `network_intercept` / `network_replay_request` / `http2_probe` / `network_extract_auth` |
-| `platform` | Electron / ASAR 应用分析 / fuse 状态 | `electron_inspect_app` / `electron_ipc_sniff` / `asar_search` |
-| `process` | 进程级 CDP 附加(Electron 等) | `electron_attach` |
-| `protocol-analysis` | 协议状态机推断 / ICMP / 模式可视化 | `proto_infer_state_machine` / `icmp_echo_build` / `proto_visualize_state` |
-| `proxy` | 本地代理启停 / CA 管理 / Android 接入 | `proxy_setup_adb_device` / `proxy_status` / `proxy_stop` |
-| `sandbox` | QuickJS WASM 沙箱内执行 JS | `execute_sandbox_script` |
-| `shared-state-board` | 多 agent 共享状态板(观察 + IO) | `state_board` / `state_board_watch` / `state_board_io` |
-| `skia-capture` | Skia 场景树提取 / 渲染器探测 / 节点关联 | `skia_extract_scene` / `skia_detect_renderer` |
-| `sourcemap` | source map 抓取 / 解析 / 源码树重建 | `sourcemap_fetch_and_parse` / `sourcemap_reconstruct_tree` / `sourcemap_parse_v4` |
-| `streaming` | WebSocket 连接与帧捕获 | `ws_monitor` / `ws_get_connections` |
-| `syscall-hook` | 进程级 syscall 监听(ETW / strace / dtrace) | `syscall_start_monitor` / `syscall_get_stats` |
-| `trace` | SQLite trace 录制 / 网络流追踪 / Chrome Trace 导出 | `trace_recording` / `trace_get_network_flow` / `export_trace` |
-| `transform` | AST 改写 / 加密函数提取 / 实现对比 | `ast_transform_apply` / `crypto_extract_standalone` / `crypto_compare` |
-| `v8-inspector` | V8 字节码提取 / 版本探测 | `v8_bytecode_extract` / `v8_version_detect` |
-| `wasm` | WebAssembly disasm / decompile / 内存 / 反混淆探测 | `wasm_disassemble` / `wasm_decompile` / `wasm_dump` / `wasm_detect_obfuscation` |
-| `workflow` | 扩展工作流 / API 批探测 / 远 bundle 搜索 | `js_bundle_search` / `api_probe_batch` / `run_extension_workflow` |
+| `adb-bridge` | Android device ADB bridging / APK analysis / WebView remote debug | `adb_apk_analyze` / `adb_webview_attach` / `adb_webview_list` |
+| `antidebug` | Bypass debugger / timing / headless fingerprint detection | `antidebug_bypass` |
+| `binary-instrument` | Frida script generation / Ghidra decompilation / hook template export | `frida_run_script` / `generate_hooks` / `ghidra_decompile` / `frida_generate_script` |
+| `boringssl-inspector` | TLS handshake parsing / SSL pinning bypass / SSLKEYLOGFILE | `tls_cert_pin_bypass_frida` / `tls_keylog_enable` / `tls_probe_endpoint` |
+| `browser` | Browser automation / CDP evaluation / anti-detection stealth | `browser_evaluate_cdp_target` / `page_evaluate` / `stealth_inject` |
+| `canvas` | Canvas / WebGL engine fingerprinting and object picking | `canvas_engine_fingerprint` / `canvas_pick_object_at_point` |
+| `coordination` | Cross-task handoff / page snapshot / session insight | `save_page_snapshot` / `create_task_handoff` / `get_task_context` |
+| `core` | Code collection / deobfuscation main pipeline / hook management / crypto detection | `collect_code` / `deobfuscate` / `js_deobfuscate_pipeline` / `detect_crypto` |
+| `cross-domain` | Cross-domain evidence-graph aggregation / workflow suggestions | `cross_domain_correlate_all` / `cross_domain_suggest_workflow` |
+| `debugger` | JS breakpoints / stepping / expression evaluation / blackbox | `debugger_evaluate` / `debugger_pause` / `debugger_step` / `blackbox_add_common` |
+| `encoding` | base64 / protobuf / binary encode-decode | `binary_encode` / `binary_decode` / `protobuf_decode_raw` |
+| `evidence` | Reverse evidence-graph query / export / provenance chain | `evidence_query` / `evidence_export` / `evidence_chain` |
+| `extension-registry` | Webhook endpoint management (external callbacks) | `webhook` |
+| `graphql` | GraphQL introspection / query extraction / replay | `graphql_introspect` / `graphql_extract_queries` / `graphql_replay` |
+| `hooks` | JS runtime hook presets (eval/atob/Reflect and 20+ more) | `hook_preset` / `ai_hook` |
+| `instrumentation` | Hooks within an instrumented session / network replay / artifacts | `instrumentation_hook_preset` / `instrumentation_network_replay` |
+| `macro` | Record / replay tool-call sequences | `run_macro` / `list_macros` |
+| `maintenance` | Environment health check / bridge endpoint diagnostics | `doctor_environment` |
+| `memory` | In-process memory patch rollback (with Frida) | `memory_patch_undo` |
+| `mojo-ipc` | Chromium Mojo IPC monitoring / decoding | `mojo_monitor` / `mojo_messages_get` / `mojo_decode_message` |
+| `network` | Request interception / replay / HAR / HTTP2 / performance metrics | `network_intercept` / `network_replay_request` / `http2_probe` / `network_extract_auth` |
+| `platform` | Electron / ASAR app analysis / fuse state | `electron_inspect_app` / `electron_ipc_sniff` / `asar_search` |
+| `process` | Process-level CDP attach (Electron, etc.) | `electron_attach` |
+| `protocol-analysis` | Protocol state-machine inference / ICMP / pattern visualization | `proto_infer_state_machine` / `icmp_echo_build` / `proto_visualize_state` |
+| `proxy` | Local proxy start/stop / CA management / Android hookup | `proxy_setup_adb_device` / `proxy_status` / `proxy_stop` |
+| `sandbox` | Execute JS inside a QuickJS WASM sandbox | `execute_sandbox_script` |
+| `shared-state-board` | Multi-agent shared state board (observe + IO) | `state_board` / `state_board_watch` / `state_board_io` |
+| `skia-capture` | Skia scene-tree extraction / renderer detection / node correlation | `skia_extract_scene` / `skia_detect_renderer` |
+| `sourcemap` | Source-map fetching / parsing / source-tree reconstruction | `sourcemap_fetch_and_parse` / `sourcemap_reconstruct_tree` / `sourcemap_parse_v4` |
+| `streaming` | WebSocket connections and frame capture | `ws_monitor` / `ws_get_connections` |
+| `syscall-hook` | Process-level syscall monitoring (ETW / strace / dtrace) | `syscall_start_monitor` / `syscall_get_stats` |
+| `trace` | SQLite trace recording / network-flow tracing / Chrome Trace export | `trace_recording` / `trace_get_network_flow` / `export_trace` |
+| `transform` | AST rewriting / crypto-function extraction / implementation comparison | `ast_transform_apply` / `crypto_extract_standalone` / `crypto_compare` |
+| `v8-inspector` | V8 bytecode extraction / version detection | `v8_bytecode_extract` / `v8_version_detect` |
+| `wasm` | WebAssembly disasm / decompile / memory / obfuscation detection | `wasm_disassemble` / `wasm_decompile` / `wasm_dump` / `wasm_detect_obfuscation` |
+| `workflow` | Extension workflows / batch API probing / remote bundle search | `js_bundle_search` / `api_probe_batch` / `run_extension_workflow` |
 
 ---
 
-## 场景 → 工具映射表
+## Scenario → tool mapping table
 
-这是本文档的核心。把 SRC hunt 阶段常见动作对应到 jshook 工具,标注关联 src-hunter playbook 与调用时机。
+This is the heart of the document. It maps common actions in the SRC hunt phase to jshook tools, annotated with the related src-hunter playbook and the call timing.
 
-| 场景 | 漏洞类型 | 推荐工具(`mcp__jshook__*`) | 关联 playbook | 调用时机 |
+| Scenario | Vulnerability type | Recommended tools (`mcp__jshook__*`) | Related playbook | Call timing |
 |---|---|---|---|---|
-| 拦截外发请求 / 观察 SSRF | SSRF | `mcp__jshook__network_intercept` + `mcp__jshook__network_get_requests` | ssrf-cache-host.md | 探测阶段被动观察 |
-| 构造 HTTP/2 帧探测内网 | SSRF | `mcp__jshook__http2_probe` + `mcp__jshook__http_request_build` | ssrf-cache-host.md | 主动绕过过滤 |
-| 重放修改 SSRF 请求 | SSRF | `mcp__jshook__network_replay_request` | ssrf-cache-host.md | 验证不同协议 / 主机头 |
-| 浏览器执行 XSS payload | XSS | `mcp__jshook__browser_evaluate_cdp_target` + `mcp__jshook__page_evaluate` | xss.md | 验证盲打 / DOM XSS |
-| XSS payload 注入页面 | XSS | `mcp__jshook__page_inject_script` | xss.md | 持久化注入 |
-| 反混淆混淆 JS / AST 改写 | XSS / RCE | `mcp__jshook__ast_transform_apply` + `mcp__jshook__deobfuscate` | xss.md / rce.md | 分析 obfuscated 业务代码 |
-| JSVMP / VM 保护 JS 反混淆 | XSS / RCE | `mcp__jshook__js_deobfuscate_jsvmp` + `mcp__jshook__js_deobfuscate_pipeline` | xss.md / rce.md | 高强度混淆站 |
-| Source map 还原原始源码 | 信息泄露 / XSS | `mcp__jshook__sourcemap_fetch_and_parse` + `mcp__jshook__sourcemap_reconstruct_tree` | xss.md | 找 sink / 找接口 |
-| Webpack bundle 模块枚举 | 信息泄露 | `mcp__jshook__webpack_enumerate` + `mcp__jshook__js_bundle_search` | xss.md | 找前端密钥 / 内部 API |
-| 加密算法识别 / 提取 | OAuth / XSS / API | `mcp__jshook__detect_crypto` + `mcp__jshook__crypto_extract_standalone` | oauth-saml-jwt.md / xss.md | 还原签名逻辑 |
-| eval / atob / Function preset hook | XSS / RCE | `mcp__jshook__hook_preset` | xss.md / rce.md | 找运行时反序列化 sink |
-| 设置 DOM 断点 / 单步追 sink | XSS | `mcp__jshook__debugger_pause` + `mcp__jshook__debugger_step` + `mcp__jshook__get_call_stack` | xss.md | DOM XSS 数据流追踪 |
-| WASM 模块抓取与反汇编 | RCE | `mcp__jshook__wasm_dump` + `mcp__jshook__wasm_disassemble` + `mcp__jshook__wasm_decompile` | rce.md | WASM 业务逻辑逆向 |
-| WASM 反混淆探测 / 转 C | RCE | `mcp__jshook__wasm_detect_obfuscation` + `mcp__jshook__wasm_to_c` | rce.md | 加密 / 风控核心 |
-| Frida 脚本生成与注入 | RCE | `mcp__jshook__generate_hooks` + `mcp__jshook__frida_run_script` | rce.md | 验证 RCE 落点 |
-| Frida hook 导出可运行脚本 | RCE | `mcp__jshook__export_hook_script` | rce.md | 离线复测 |
-| Ghidra 函数反编译 | RCE | `mcp__jshook__ghidra_decompile` | rce.md | 二进制反序列化场景 |
-| 反调试 / debugger 检测绕过 | XSS / RCE / Mobile | `mcp__jshook__antidebug_bypass` | xss.md / rce.md / mobile.md | 目标主动反调试 |
-| Android APK 信息提取 | Mobile | `mcp__jshook__adb_apk_analyze` | mobile.md | 静态分析前置 |
-| Android WebView 远调 | Mobile | `mcp__jshook__adb_webview_attach` + `mcp__jshook__adb_webview_list` | mobile.md | App 内嵌 H5 |
-| SSL pinning 绕过 (Frida) | Mobile | `mcp__jshook__tls_cert_pin_bypass_frida` + `mcp__jshook__tls_cert_pin_bypass` | mobile.md | APK 拦截前置 |
-| SSLKEYLOGFILE 抓密钥 | Mobile / API | `mcp__jshook__tls_keylog_enable` + `mcp__jshook__tls_keylog_parse` | mobile.md / oauth-saml-jwt.md | 对接 Wireshark 解密 |
-| 安卓代理接入 | Mobile | `mcp__jshook__proxy_setup_adb_device` + `mcp__jshook__proxy_status` | mobile.md | 流量观察前置 |
-| JWT / token 抽取 | OAuth/SAML/JWT | `mcp__jshook__network_extract_auth` | oauth-saml-jwt.md | 自动找 Authorization / cookie |
-| JWT base64 编解码 | OAuth/SAML/JWT | `mcp__jshook__binary_encode` + `mcp__jshook__binary_decode` | oauth-saml-jwt.md | 篡改 header / payload |
-| redirect_uri 链路调试 | OAuth | `mcp__jshook__debugger_evaluate` + `mcp__jshook__network_replay_request` | oauth-saml-jwt.md | 找 open redirect |
-| GraphQL introspection | API REST | `mcp__jshook__graphql_introspect` | api-rest.md | 资产展开 |
-| GraphQL 历史查询提取 | API REST | `mcp__jshook__graphql_extract_queries` + `mcp__jshook__graphql_replay` | api-rest.md | 重放业务请求 |
-| REST 批量接口探测 | API REST | `mcp__jshook__api_probe_batch` | api-rest.md | 批量 BOLA / mass-assignment |
-| WebSocket 帧捕获 | API REST | `mcp__jshook__ws_monitor` + `mcp__jshook__ws_get_connections` | api-rest.md | 实时业务 / 推送 |
-| 文件上传 polyglot 编码 | File Upload | `mcp__jshook__binary_encode` + `mcp__jshook__binary_decode` | file-upload.md | 构造图片+脚本混合 |
-| 文件上传 AST 改写绕过过滤 | File Upload | `mcp__jshook__ast_transform_apply` + `mcp__jshook__ast_transform_preview` | file-upload.md | 改 magic byte / 修复 polyglot |
-| 文件上传 multipart 边界改 | File Upload | `mcp__jshook__http_plain_request` + `mcp__jshook__network_replay_request` | file-upload.md | 绕过 MIME 校验 |
-| Protobuf 二进制盲解 | API REST / 信息泄露 | `mcp__jshook__protobuf_decode_raw` | api-rest.md | 无 schema 抓包分析 |
-| Electron 应用静态结构 | RCE / 信息泄露 | `mcp__jshook__electron_inspect_app` + `mcp__jshook__asar_search` | rce.md | 桌面端目标 |
-| Electron IPC 监听 | RCE | `mcp__jshook__electron_ipc_sniff` | rce.md | renderer ↔ main IPC 漏洞 |
-| Chromium Mojo IPC 监听 | RCE | `mcp__jshook__mojo_monitor` + `mcp__jshook__mojo_messages_get` | rce.md | 浏览器内核漏洞研究 |
-| 进程 syscall 监听 | RCE | `mcp__jshook__syscall_start_monitor` + `mcp__jshook__syscall_get_stats` | rce.md | 验证 RCE 后行为 |
-| 协议状态机推断 | API / 信息泄露 | `mcp__jshook__proto_infer_state_machine` + `mcp__jshook__proto_visualize_state` | api-rest.md | 自定义协议逆向 |
-| 全流量 trace 持久化 | 调查 / 报告 | `mcp__jshook__trace_recording` + `mcp__jshook__export_trace` | 所有 playbook | 留证 / 时间线复盘 |
-| 反检测 stealth 注入 | 长期挂测 | `mcp__jshook__stealth_inject` + `mcp__jshook__stealth_verify` | xss.md / api-rest.md | 风控站长期观察 |
-| 跨域证据聚合 | 调查 | `mcp__jshook__cross_domain_correlate_all` + `mcp__jshook__evidence_export` | 所有 playbook | 多源对齐 / 出报告 |
+| Intercept outbound requests / observe SSRF | SSRF | `mcp__jshook__network_intercept` + `mcp__jshook__network_get_requests` | ssrf-cache-host.md | passive observation during probing |
+| Craft HTTP/2 frames to probe internal | SSRF | `mcp__jshook__http2_probe` + `mcp__jshook__http_request_build` | ssrf-cache-host.md | active filter bypass |
+| Replay a modified SSRF request | SSRF | `mcp__jshook__network_replay_request` | ssrf-cache-host.md | verify different protocols / Host headers |
+| Run an XSS payload in the browser | XSS | `mcp__jshook__browser_evaluate_cdp_target` + `mcp__jshook__page_evaluate` | xss.md | verify blind / DOM XSS |
+| Inject an XSS payload into the page | XSS | `mcp__jshook__page_inject_script` | xss.md | persistent injection |
+| Deobfuscate obfuscated JS / AST rewrite | XSS / RCE | `mcp__jshook__ast_transform_apply` + `mcp__jshook__deobfuscate` | xss.md / rce.md | analyze obfuscated business code |
+| JSVMP / VM-protected JS deobfuscation | XSS / RCE | `mcp__jshook__js_deobfuscate_jsvmp` + `mcp__jshook__js_deobfuscate_pipeline` | xss.md / rce.md | heavily obfuscated sites |
+| Recover original source via source map | Info disclosure / XSS | `mcp__jshook__sourcemap_fetch_and_parse` + `mcp__jshook__sourcemap_reconstruct_tree` | xss.md | find sinks / find interfaces |
+| Enumerate Webpack bundle modules | Info disclosure | `mcp__jshook__webpack_enumerate` + `mcp__jshook__js_bundle_search` | xss.md | find frontend secrets / internal APIs |
+| Identify / extract crypto algorithms | OAuth / XSS / API | `mcp__jshook__detect_crypto` + `mcp__jshook__crypto_extract_standalone` | oauth-saml-jwt.md / xss.md | recover signing logic |
+| eval / atob / Function preset hooks | XSS / RCE | `mcp__jshook__hook_preset` | xss.md / rce.md | find runtime deserialization sinks |
+| Set DOM breakpoints / step to the sink | XSS | `mcp__jshook__debugger_pause` + `mcp__jshook__debugger_step` + `mcp__jshook__get_call_stack` | xss.md | DOM XSS dataflow tracing |
+| Capture and disassemble a WASM module | RCE | `mcp__jshook__wasm_dump` + `mcp__jshook__wasm_disassemble` + `mcp__jshook__wasm_decompile` | rce.md | reverse WASM business logic |
+| WASM obfuscation detection / to C | RCE | `mcp__jshook__wasm_detect_obfuscation` + `mcp__jshook__wasm_to_c` | rce.md | crypto / risk-control core |
+| Frida script generation and injection | RCE | `mcp__jshook__generate_hooks` + `mcp__jshook__frida_run_script` | rce.md | verify the RCE landing point |
+| Export a runnable Frida hook script | RCE | `mcp__jshook__export_hook_script` | rce.md | offline retest |
+| Ghidra function decompilation | RCE | `mcp__jshook__ghidra_decompile` | rce.md | binary deserialization scenarios |
+| Bypass anti-debug / debugger detection | XSS / RCE / Mobile | `mcp__jshook__antidebug_bypass` | xss.md / rce.md / mobile.md | target actively anti-debugs |
+| Extract Android APK info | Mobile | `mcp__jshook__adb_apk_analyze` | mobile.md | before static analysis |
+| Android WebView remote debug | Mobile | `mcp__jshook__adb_webview_attach` + `mcp__jshook__adb_webview_list` | mobile.md | in-app embedded H5 |
+| SSL pinning bypass (Frida) | Mobile | `mcp__jshook__tls_cert_pin_bypass_frida` + `mcp__jshook__tls_cert_pin_bypass` | mobile.md | before APK interception |
+| Capture keys via SSLKEYLOGFILE | Mobile / API | `mcp__jshook__tls_keylog_enable` + `mcp__jshook__tls_keylog_parse` | mobile.md / oauth-saml-jwt.md | for Wireshark decryption |
+| Android proxy hookup | Mobile | `mcp__jshook__proxy_setup_adb_device` + `mcp__jshook__proxy_status` | mobile.md | before traffic observation |
+| JWT / token extraction | OAuth/SAML/JWT | `mcp__jshook__network_extract_auth` | oauth-saml-jwt.md | auto-find Authorization / cookie |
+| JWT base64 encode-decode | OAuth/SAML/JWT | `mcp__jshook__binary_encode` + `mcp__jshook__binary_decode` | oauth-saml-jwt.md | tamper with header / payload |
+| redirect_uri chain debugging | OAuth | `mcp__jshook__debugger_evaluate` + `mcp__jshook__network_replay_request` | oauth-saml-jwt.md | find open redirect |
+| GraphQL introspection | API REST | `mcp__jshook__graphql_introspect` | api-rest.md | expand assets |
+| GraphQL historical query extraction | API REST | `mcp__jshook__graphql_extract_queries` + `mcp__jshook__graphql_replay` | api-rest.md | replay business requests |
+| REST batch endpoint probing | API REST | `mcp__jshook__api_probe_batch` | api-rest.md | batch BOLA / mass-assignment |
+| WebSocket frame capture | API REST | `mcp__jshook__ws_monitor` + `mcp__jshook__ws_get_connections` | api-rest.md | real-time business / push |
+| File-upload polyglot encoding | File Upload | `mcp__jshook__binary_encode` + `mcp__jshook__binary_decode` | file-upload.md | craft image+script blends |
+| File-upload AST rewrite to bypass filters | File Upload | `mcp__jshook__ast_transform_apply` + `mcp__jshook__ast_transform_preview` | file-upload.md | change magic bytes / fix polyglot |
+| File-upload multipart boundary change | File Upload | `mcp__jshook__http_plain_request` + `mcp__jshook__network_replay_request` | file-upload.md | bypass MIME checks |
+| Protobuf binary blind decode | API REST / info disclosure | `mcp__jshook__protobuf_decode_raw` | api-rest.md | analyze schema-less captures |
+| Electron app static structure | RCE / info disclosure | `mcp__jshook__electron_inspect_app` + `mcp__jshook__asar_search` | rce.md | desktop targets |
+| Electron IPC monitoring | RCE | `mcp__jshook__electron_ipc_sniff` | rce.md | renderer ↔ main IPC bugs |
+| Chromium Mojo IPC monitoring | RCE | `mcp__jshook__mojo_monitor` + `mcp__jshook__mojo_messages_get` | rce.md | browser-kernel vulnerability research |
+| Process syscall monitoring | RCE | `mcp__jshook__syscall_start_monitor` + `mcp__jshook__syscall_get_stats` | rce.md | verify post-RCE behavior |
+| Protocol state-machine inference | API / info disclosure | `mcp__jshook__proto_infer_state_machine` + `mcp__jshook__proto_visualize_state` | api-rest.md | reverse a custom protocol |
+| Full-traffic trace persistence | Investigation / report | `mcp__jshook__trace_recording` + `mcp__jshook__export_trace` | all playbooks | evidence retention / timeline review |
+| Anti-detection stealth injection | Long-running tests | `mcp__jshook__stealth_inject` + `mcp__jshook__stealth_verify` | xss.md / api-rest.md | long observation of risk-control sites |
+| Cross-domain evidence aggregation | Investigation | `mcp__jshook__cross_domain_correlate_all` + `mcp__jshook__evidence_export` | all playbooks | multi-source alignment / reporting |
 
 ---
 
-## 推荐 profile
+## Recommended profile
 
-jshookmcp 提供三档 profile,通过环境变量 `JSHOOK_BASE_PROFILE` 或工具调用切换。**默认 `search` 模式**,符合 src-hunter 上下文经济原则。
+jshookmcp offers three profiles, switched via the environment variable `JSHOOK_BASE_PROFILE` or a tool call. **`search` mode is the default**, in keeping with src-hunter's context-economy principle.
 
-| Profile | 上下文成本(token) | 适用场景 | 启用方式 |
+| Profile | Context cost (tokens) | Applies to | How to enable |
 |---|---|---|---|
-| `search` (**默认**) | ~3K | 按需激活,单点调用,常态 SRC hunt | `JSHOOK_BASE_PROFILE=search`(已是默认值) |
-| `workflow` | 中等 | 连续编排,跨域协作,1 个 session 多次复用同类工具 | 调 `mcp__jshook__boost_profile workflow`(若可用) |
-| `full` | 40K+ | 已知会用 50%+ 工具时,如大型批量任务 | 调 `mcp__jshook__boost_profile full` |
+| `search` (**default**) | ~3K | on-demand activation, single-point calls, normal SRC hunt | `JSHOOK_BASE_PROFILE=search` (already the default) |
+| `workflow` | medium | continuous orchestration, cross-domain collaboration, reusing the same tool family within one session | call `mcp__jshook__boost_profile workflow` (if available) |
+| `full` | 40K+ | when you know you'll use 50%+ of the tools, e.g. a large batch task | call `mcp__jshook__boost_profile full` |
 
-**默认推荐工作流**:
+**Default recommended workflow**:
 
-1. `mcp__jshook__search_tools <关键词>`(BM25 检索,按 hunt 关键词分桶)
-2. 取 top-3 结果,`mcp__jshook__activate_tools <工具名 list>` 激活
-3. 调用激活的工具
-4. 跨域协作时:`mcp__jshook__activate_domain <域名>` 批量激活整域
+1. `mcp__jshook__search_tools <keyword>` (BM25 retrieval, bucketed by hunt keyword)
+2. Take the top-3 results, `mcp__jshook__activate_tools <tool name list>` to activate
+3. Call the activated tools
+4. For cross-domain collaboration: `mcp__jshook__activate_domain <domain>` to activate a whole domain at once
 
-**反模式**:不要为单个工具直接 `boost_profile`,会一次性加载 40K+ token 严重浪费上下文。只在已知后续要密集复用某一族工具时升档。
+**Anti-pattern**: do not `boost_profile` for a single tool; it loads 40K+ tokens at once and severely wastes context. Only upgrade when you know you'll heavily reuse a whole tool family next.
 
 ---
 
-## 内置 Burp Suite Bridge
+## Built-in Burp Suite bridge
 
-⚠️ **本机实测说明**:`mcp__jshook__search_tools burp` 在 jshookmcp 0.3.0 本机版本上**未返回**任何 `burp_*` 原子工具,仅命中:
+⚠️ **Local test note**: on the local jshookmcp 0.3.0 build, `mcp__jshook__search_tools burp` **returns** no `burp_*` atomic tools, only:
 
-- `doctor_environment`(maintenance 域,描述中提到"bridge endpoints"健康检查)
-- 通用 `proxy_*` 工具(proxy 域,启停 / 状态 / CA 管理)
+- `doctor_environment` (maintenance domain; its description mentions a "bridge endpoints" health check)
+- generic `proxy_*` tools (proxy domain: start/stop / status / CA management)
 
-jshookmcp 上游 README 声明内置 Burp / Ghidra / IDA Pro bridges,但 0.3.0 当前版本未将 Burp 桥接拆为独立原子工具暴露。
+The upstream jshookmcp README claims built-in Burp / Ghidra / IDA Pro bridges, but the current 0.3.0 build does not expose the Burp bridge as separate atomic tools.
 
-**实用替代路径(R8 fallback)**:
+**Practical alternative path (R8 fallback)**:
 
-1. **激活 proxy + cross-domain 两域**:
+1. **Activate the proxy + cross-domain domains**:
    ```
    mcp__jshook__activate_domain proxy
    mcp__jshook__activate_domain cross-domain
    ```
-2. **用 `proxy_*` 启动本地代理 + CA**,把 Burp 配置为上游 proxy 链或反向接入。
-3. **用 `mcp__jshook__doctor_environment` 检查 bridge 端点状态**,若 jshook 后续版本暴露 Burp 桥接 API,会在此显现。
-4. **用 `network_*` + `instrumentation_network_replay` 替代 Burp Repeater 自动化**:`network_replay_request` 已能完成大多数 Repeater 场景的批量改包。
-5. **结合 `evidence_*` / `cross_domain_correlate_all`**:把 jshook 抓的请求与外部 Burp 数据通过 evidence 图人工合并(导出 JSON 后再聚合)。
+2. **Use `proxy_*` to start a local proxy + CA**, and configure Burp as an upstream proxy chain or reverse hookup.
+3. **Use `mcp__jshook__doctor_environment` to check the bridge endpoint status**; if a later jshook version exposes a Burp bridge API, it shows up here.
+4. **Use `network_*` + `instrumentation_network_replay` to replace Burp Repeater automation**: `network_replay_request` already handles the batch request-editing of most Repeater scenarios.
+5. **Combine `evidence_*` / `cross_domain_correlate_all`**: merge jshook-captured requests with external Burp data manually via the evidence graph (export JSON, then aggregate).
 
-**何时仍需独立 burp-mcp-server**:
+**When you still need a standalone burp-mcp-server**:
 
-- 需要 Burp Scanner 主动扫描结果直接进 LLM
-- 需要 Burp Extender 写的自定义 scan check 触发
-- Repeater 复杂 macro / session handling rule 联动
+- You need Burp Scanner active-scan results fed directly into the LLM
+- You need a custom scan check written as a Burp Extender to fire
+- Complex Repeater macro / session-handling-rule coordination
 
-如上述场景需要,可在 `~/.claude.json` 单独注册 burp 官方 MCP(out of scope of this doc),并在 `references/tools/mcp-burp.md`(未来)中文档化。
+If those scenarios apply, register the official Burp MCP separately in `~/.claude.json` (out of scope of this doc), and document it in `references/tools/mcp-burp.md` (future).
 
 ---
 
-## 相关 src-hunter playbook
+## Related src-hunter playbooks
 
-下表是本 MCP 在 src-hunter 19 个 playbook 中的角色分布。**本次主选 7 个高关联 playbook 加反向锚点**,其余 12 个本次不动(见 `.omc/plans/mcp-tools-integration.md` ADR Follow-ups,sqli / path-traversal / graphql 计划下次迭代加入)。
+The table below shows this MCP's role distribution across src-hunter's 19 playbooks. **This iteration primarily selects 7 highly-related playbooks plus reverse anchors**; the other 12 are untouched this time (see the ADR Follow-ups in `.omc/plans/mcp-tools-integration.md`; sqli / path-traversal / graphql are planned for the next iteration).
 
-| Playbook | jshook 主要域 | 本 MCP 角色 |
+| Playbook | Main jshook domains | This MCP's role |
 |---|---|---|
-| [xss.md](../playbooks/xss.md) | browser / debugger / transform / hooks / sourcemap / core | 浏览器执行 + AST 反混淆 + Sink 断点 + Source map 还原 |
-| [rce.md](../playbooks/rce.md) | wasm / antidebug / binary-instrument / memory / platform / mojo-ipc / syscall-hook | WASM 逆向 + Frida 内存验证 + 反调试 + Electron / Chromium IPC |
-| [ssrf-cache-host.md](../playbooks/ssrf-cache-host.md) | network / proxy / protocol-analysis | 网络拦截 + HTTP/2 构造 + 协议状态机推断 |
-| [mobile.md](../playbooks/mobile.md) | adb-bridge / boringssl-inspector / proxy / binary-instrument | SSL pinning 绕过 + APK 信息 + WebView 远调 + Frida hook |
-| [oauth-saml-jwt.md](../playbooks/oauth-saml-jwt.md) | network / encoding / debugger / core | JWT 篡改 + redirect_uri 调试 + 加密算法识别 |
-| [api-rest.md](../playbooks/api-rest.md) | graphql / network / workflow / streaming / protocol-analysis | introspection + 批量 API + WebSocket 帧 + 协议盲解 |
-| [file-upload.md](../playbooks/file-upload.md) | encoding / transform / network | polyglot 编码 + AST 改写 + multipart 改包 |
+| [xss.md](../playbooks/xss.md) | browser / debugger / transform / hooks / sourcemap / core | browser execution + AST deobfuscation + sink breakpoints + source-map recovery |
+| [rce.md](../playbooks/rce.md) | wasm / antidebug / binary-instrument / memory / platform / mojo-ipc / syscall-hook | WASM reversing + Frida memory verification + anti-debug + Electron / Chromium IPC |
+| [ssrf-cache-host.md](../playbooks/ssrf-cache-host.md) | network / proxy / protocol-analysis | network interception + HTTP/2 crafting + protocol state-machine inference |
+| [mobile.md](../playbooks/mobile.md) | adb-bridge / boringssl-inspector / proxy / binary-instrument | SSL pinning bypass + APK info + WebView remote debug + Frida hooks |
+| [oauth-saml-jwt.md](../playbooks/oauth-saml-jwt.md) | network / encoding / debugger / core | JWT tampering + redirect_uri debugging + crypto-algorithm identification |
+| [api-rest.md](../playbooks/api-rest.md) | graphql / network / workflow / streaming / protocol-analysis | introspection + batch API + WebSocket frames + protocol blind decode |
+| [file-upload.md](../playbooks/file-upload.md) | encoding / transform / network | polyglot encoding + AST rewriting + multipart request editing |
 
-**未覆盖 playbook**(下次迭代加入):sqli / path-traversal / graphql / arbitrary-x-authz / logic-flaws / unauth-access / info-disclosure / http-smuggling / race-conditions / dos / llm-prompt-injection / intranet-postexp。
+**Uncovered playbooks** (to be added next iteration): sqli / path-traversal / graphql / arbitrary-x-authz / logic-flaws / unauth-access / info-disclosure / http-smuggling / race-conditions / dos / llm-prompt-injection / intranet-postexp.
 
 ---

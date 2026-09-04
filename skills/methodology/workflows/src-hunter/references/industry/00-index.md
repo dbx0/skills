@@ -1,66 +1,66 @@
-# 行业垂直 playbook 总目录
+# Industry-vertical playbooks — master index
 
-> 按行业组织的"目标定向"playbook，对应不同行业的资产清单 + 高价值漏洞分布。
-> 与 `playbooks/` 的关系：
-> - `playbooks/` 按**漏洞类型**组织（IDOR / RCE / SSRF / …）。
-> - `industry/` 按**目标行业**组织（银行 / 电信 / …）→ 拿到目标先看本目录定打法，再翻对应类型 playbook。
+> "Target-oriented" playbooks organized by industry, mapping to each industry's asset inventory + high-value vulnerability distribution.
+> Relationship to `playbooks/`:
+> - `playbooks/` is organized by **vulnerability type** (IDOR / RCE / SSRF / ...).
+> - `industry/` is organized by **target industry** (banking / telecom / ...) → given a target, read this directory first for the approach, then open the matching type playbook.
 
 ---
 
-## 怎么用
+## How to use
 
 ```
-拿到目标 → 判断行业  →  打开对应 industry playbook
+Got a target → identify the industry  →  open the matching industry playbook
                           │
-                          ├─ 攻击面分层图（资产清单）
-                          ├─ 行业特有的高价值漏洞类型
-                          └─ 行业特有的探测路径
+                          ├─ layered attack-surface map (asset inventory)
+                          ├─ vulnerability types with high value specific to the industry
+                          └─ probe paths specific to the industry
 
-  目标资产已在攻击面图上 → 跳到对应类型 playbook 落实利用
-  目标资产不在 → 子产品测绘扩面（GitHub / APP / 微信小程序 / 子域）
+  Target asset already on the attack-surface map → jump to the matching type playbook to carry out exploitation
+  Target asset not there → map sub-products to expand scope (GitHub / app / WeChat mini-program / subdomains)
 ```
 
 ---
 
-## 行业目录
+## Industry directory
 
-| 文件 | 主要资产 | 主打漏洞类型 | 高危占比段 |
+| File | Main assets | Primary vulnerability types | High-severity band |
 |------|---------|-------------|----------|
-| `banking-finance.md` | 网银 / 手机银行 / 微信银行 / 直销银行 / 信用卡中心 / 第三方支付 / 聚合支付 | 金额篡改 (83%) / 支付绕过 (68.7%) / 密码重置 (88%) | 顶段 |
-| `telecom-isp.md` | 网厅 / 掌厅 / BOSS / SP-CP 平台 / 短信网关 / 物联网卡平台 / 网管(NMS) | 越权 (62.3%) / 弱口令 (58.2%) / 未授权访问 / 边界设备 | 中–高段 |
+| `banking-finance.md` | online banking / mobile banking / WeChat banking / direct banking / credit-card center / third-party payment / aggregated payment | amount tampering (83%) / payment bypass (68.7%) / password reset (88%) | top band |
+| `telecom-isp.md` | web hall / mobile hall / BOSS / SP-CP platform / SMS gateway / IoT SIM platform / NMS | broken access (62.3%) / weak passwords (58.2%) / unauthenticated access / edge devices | mid-high band |
 
 ---
 
-## 行业打法的共同骨架
+## The shared skeleton of an industry approach
 
-每个行业 playbook 都按这个结构写：
+Every industry playbook is written to this structure:
 
 ```
-1. 攻击面分层模型（互联网 / 接口通道 / 内部系统 三层资产）
-2. 行业特有高危漏洞类型（带 WooYun 案例数）
-3. 行业特有的攻击面（不易在 OWASP / H1 通用 playbook 上找到的）
-4. GetShell / 横向移动路径（按优先级）
-5. 实战 Checklist（信息收集 / 漏洞发现 / 深度利用）
+1. Layered attack-surface model (three asset layers: internet / interface channel / internal systems)
+2. High-severity vulnerability types specific to the industry (with WooYun case counts)
+3. Attack surface specific to the industry (hard to find in generic OWASP / H1 playbooks)
+4. GetShell / lateral-movement paths (by priority)
+5. Practical checklist (information gathering / vulnerability discovery / deep exploitation)
 ```
 
 ---
 
-## 与 SRC 平台的关系
+## Relationship to SRC platforms
 
-| 行业 | 对应 SRC 入口 |
+| Industry | Matching SRC entry points |
 |------|--------------|
-| 银行 / 金融 | 各行 SRC（招行 / 建行 / 平安 / 蚂蚁 / 支付宝 / 银联 / 财付通） + 补天金融专项 + HVV 金融行业 |
-| 电信 / ISP | 各运营商 SRC（移动 / 联通 / 电信 / 广电）+ HVV 运营商行业 |
+| Banking / finance | each bank's SRC (CMB / CCB / Ping An / Ant / Alipay / UnionPay / Tenpay) + Butian finance program + HVV finance sector |
+| Telecom / ISP | each carrier's SRC (Mobile / Unicom / Telecom / Radio-TV) + HVV carrier sector |
 
-**红线**：金融、电信都属于关键基础设施，证据纪律比通用 SRC 更严格——不写、不删、不改、不留 webshell。详见 `methodology/03-evidence-discipline.md`。
+**Red line**: finance and telecom are both critical infrastructure, so evidence discipline is stricter than generic SRC — do not write, delete, modify, or leave a webshell. See `methodology/03-evidence-discipline.md`.
 
 ---
 
-## 与方法论 / 字典的关联
+## Links to methodology / dictionaries
 
 ```
-methodology/05-srctimebox-priority.md   →  按时间盒选行业内的优先漏洞
-playbooks/<具体类型>.md                  →  落实漏洞类型的探测/利用
-dictionaries/default-credentials-cn.md   →  行业内 CN 厂商默认凭据
-dictionaries/chinese-srcfingerprints.md  →  行业组件指纹与默认路径
+methodology/05-srctimebox-priority.md   →  select the priority bugs within an industry by time box
+playbooks/<specific type>.md             →  carry out the probe/exploitation for a vulnerability type
+dictionaries/default-credentials-cn.md   →  default credentials of CN vendors within the industry
+dictionaries/chinese-srcfingerprints.md  →  component fingerprints and default paths within the industry
 ```
